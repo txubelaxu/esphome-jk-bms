@@ -1,3 +1,6 @@
+MAIN
+
+
 # esphome-jk-bms
 
 ![GitHub actions](https://github.com/syssi/esphome-jk-bms/actions/workflows/ci.yaml/badge.svg)

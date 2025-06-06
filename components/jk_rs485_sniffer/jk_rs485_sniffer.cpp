@@ -859,7 +859,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_: 1");
 
     bool found = false;
-    
+
     for (auto *device : this->devices_) {
         ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_: 2");
         device->on_jk_rs485_sniffer_data(address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS], data, this->nodes_available );   
@@ -883,7 +883,6 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
 void JkRS485Sniffer::dump_config() {
   ESP_LOGCONFIG(TAG, "JkRS485Sniffer:");
-  ESP_LO
   GCONFIG(TAG, "  RX timeout: %d ms", this->rx_timeout_);
 }
 

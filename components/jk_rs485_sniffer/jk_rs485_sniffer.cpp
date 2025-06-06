@@ -856,8 +856,11 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     ESP_LOGD(TAG, "Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(),address);
     ESP_LOGVV(TAG, "  %s", format_hex_pretty(&data.front(), data.size()).c_str());
 
+    SP_LOGD(TAG, "1");
+
     bool found = false;
     for (auto *device : this->devices_) {
+        SP_LOGD(TAG, "2");
         device->on_jk_rs485_sniffer_data(address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS], data, this->nodes_available );   
         found = true;
     }

@@ -544,6 +544,8 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
                                           const std::string &nodes_available_received) {
   // this->reset_status_online_tracker_();
 
+  SP_LOGD(TAG, "3");
+
   if (this->nodes_available != nodes_available_received) {
     this->nodes_available = nodes_available_received;
     this->publish_state_(this->network_nodes_available_text_sensor_, this->nodes_available);
@@ -600,6 +602,9 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
   } else {
     ESP_LOGD(TAG, "This BMS address is: %d  and address received %d ==> IDLE", this->address_, origin_address);
   }
+
+  SP_LOGD(TAG, "4");
+  
 }
 
 void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {

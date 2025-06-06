@@ -859,7 +859,6 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_: 1");
 
     bool found = false;
-
     for (auto *device : this->devices_) {
         ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_: 2");
         device->on_jk_rs485_sniffer_data(address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS], data, this->nodes_available );   
@@ -873,7 +872,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     //    ESP_LOGD(TAG, "rx_buffer_.size=%02d",this->rx_buffer_.size()); 
   }
 
-  ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_ --<");
+  ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_ -->");
 
 
   this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE);
@@ -883,7 +882,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
 void JkRS485Sniffer::dump_config() {
   ESP_LOGCONFIG(TAG, "JkRS485Sniffer:");
-  GCONFIG(TAG, "  RX timeout: %d ms", this->rx_timeout_);
+  ESP_LOGCONFIG(TAG, "  RX timeout: %d ms", this->rx_timeout_);
 }
 
 float JkRS485Sniffer::get_setup_priority() const {

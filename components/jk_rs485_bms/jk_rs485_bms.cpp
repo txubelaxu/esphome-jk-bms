@@ -571,6 +571,7 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
           // this->decode_jk04_cell_info_(data);
         } else {
           if (this->cell_count_settings_number_->state>0){
+            ESP_LOGD(TAG, "on_jk_rs485_sniffer_data: 0x02 - cell_count_settings_number_ ");      
             this->decode_jk02_cell_info_(data);
           } else {
             ESP_LOGI(TAG, "Frame type 0x%02X received from address 0x%02X. But 0x01 frame type must be processed first", frame_type,origin_address);      
@@ -609,6 +610,7 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
 
 void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
 
+  ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data)-->");      
 
   //const uint32_t now = millis();
   //if (now - this->last_cell_info_ < this->throttle_) {
@@ -623,7 +625,10 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
     offset = 16;
   }
 
+  ESP_LOGD(TAG, "Decoding cell info frame.... [ADDRESS: %02X] %d bytes received", this->address_, data.size());
+
   ESP_LOGI(TAG, "Decoding cell info frame.... [ADDRESS: %02X] %d bytes received", this->address_, data.size());
+  
   //ESP_LOGVV(TAG, "  %s", format_hex_pretty(&data.front(), 150).c_str());
   //ESP_LOGVV(TAG, "  %s", format_hex_pretty(&data.front() + 150, data.size() - 150).c_str());
 
@@ -663,6 +668,10 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
   // 10    2   0x01 0x0D              Voltage cell 03       0.001        V
   // ...
 
+  // 55.AA.EB.90.02.00.7E.0D.7C.0D.81.0D.84.0D.85.0D.81.0D.7E.0D.7B.0D.79.0D.7C.0D.7E.0D.81.0D.84.0D.85.0D.84.0D.82.0D.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.FF.FF.00.00.7F.0D.0E.00.02.05.49.00.4A.00.46.00.3E.00.41.00.3A.00.41.00.35.00.3A.00.3F.00.42.00.3E.00.3F.00.3E.00.41.00.3F.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00
+  // .00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.15.01.00.00.00.00.F3.D7.00.00.B0.8B.09.00.BA.2A.00.00.FA.00.F4.00.00.00.00.00.8D.07.01.63.25.D7.04.00.00.E2.04.00.03.00.00.00.FA.67.0F.00.64.00.00.00.06.5D.C0.01.01.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.FF.00.01.00.00.00.AF.03.1D.00.0F.00.82.6F.3F.40.00.00.D8.00.98.15.00.00.00.01.01.01.00.06.00.00.F3.5B.5E.00.00.00.00.00.15.01
+  // .F4.00.F8.00.AF.03.AB.24.37.0A.14.00.00.00.80.51.01.00.00.00.00.01.00.00.00.00.00.00.00.00.00.FE.FF.7F.DC.2F.01.01.B0.0F.00.00.00.36.00.10.16.20.00.01.05.9A.00 (309)
+
   float temp_param_value;
 
   uint8_t cells = 24 + (offset / 2);
@@ -684,8 +693,11 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
     cells=cells_from_settings;
   }
 
+  ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 1");  
+
 
   for (uint8_t i = 0; i < cells; i++) {
+    ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 2");      
     cell_voltage    = uint16_to_float(&data[i * 2 + 6]) * 0.001f;              //(float) jk_get_16bit(i * 2 + 6) * 0.001f;
     cell_resistance = uint16_to_float(&data[(i * 2 + 64 + offset)]) * 0.001f;  //(float) jk_get_16bit(i * 2 + 64 + offset) * 0.001f;
     if (cell_voltage > 0){
@@ -707,22 +719,31 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
       } 
     }
 
+    ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 3");      
+
 
     ESP_LOGVV(TAG, "Debug point 000 %d (--> %f) (--> %f)",i, cell_voltage, cell_resistance);
 
 
     ESP_LOGD(TAG, "[ADDRESS: %02X]  %02d --> V: %fV",this->address_,i, cell_voltage);
     if(this->address_==1 && i==2){
+      ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 4");      
       this->publish_state_(this->cells_[i].cell_voltage_sensor_, cell_voltage);
     } else {
+      ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 5");
       this->publish_state_(this->cells_[i].cell_voltage_sensor_, cell_voltage);
     }
     ESP_LOGD(TAG, "                  --> R: %fohm",cell_resistance);
+
+    ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 6");
     this->publish_state_(this->cells_[i].cell_resistance_sensor_, cell_resistance);  
 
     //cell_count_real=i;
     //ESP_LOGV(TAG, "Cell %02d voltage:    %f", i, cell_voltage);
     //ESP_LOGV(TAG, "Cell %02d resistance: %f", i, cell_resistance);
+
+    ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data)--<");
+
   }
 
 

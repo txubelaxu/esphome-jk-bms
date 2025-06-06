@@ -56,7 +56,8 @@
         "stop_token": "cpp",
         "streambuf": "cpp",
         "thread": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "xutility": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

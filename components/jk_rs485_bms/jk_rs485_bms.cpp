@@ -553,8 +553,10 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
 
     ESP_LOGD(TAG, "This BMS address is: %d  and address received %d ==> WORKING (frame type:%d)",
              this->address_, origin_address, frame_type);
+
     switch (frame_type) {
       case 0x01:
+          ESP_LOGD(TAG, "on_jk_rs485_sniffer_data: 0x01");      
         if (this->protocol_version_ == PROTOCOL_VERSION_JK04) {
           // this->decode_jk04_settings_(data);
         } else {
@@ -562,6 +564,7 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
         }
         break;
       case 0x02:
+        ESP_LOGD(TAG, "on_jk_rs485_sniffer_data: 0x02");      
         if (this->protocol_version_ == PROTOCOL_VERSION_JK04) {
           // this->decode_jk04_cell_info_(data);
         } else {
@@ -574,12 +577,15 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
         }
         break;
       case 0x03:
+        ESP_LOGD(TAG, "on_jk_rs485_sniffer_data: 0x03");      
+
         ESP_LOGI(TAG, "Decoding DEVICE "
                       "info............................................................................................"
                       "................................................................");
         this->decode_device_info_(data);
         break;
       default:
+        ESP_LOGD(TAG, "on_jk_rs485_sniffer_data: default");      
         ESP_LOGW(TAG, "Unsupported FRAME TYPE (0x%02X)", frame_type);
         ESP_LOGD(TAG, "  %s", format_hex_pretty(&data.front(), 150).c_str());
     }
@@ -588,6 +594,7 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
       this->reset_status_online_tracker_();
     } else {
       ESP_LOGI(TAG, "Cannot set ONLINE until arrived both 0x01 and 0x02 frame types");
+      ESP_LOGD(TAG, "Cannot set ONLINE until arrived both 0x01 and 0x02 frame types");
     }
       
   } else {

@@ -1,4 +1,4 @@
-<<: !include esp32-ble-v14-example-02.yaml
+<<: !include esp32-ble-v14-example-syssi.yaml
 
 logger:
   level: VERY_VERBOSE

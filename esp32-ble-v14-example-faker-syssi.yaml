@@ -1,5 +1,4 @@
-<<: !include esp32-ble-v14-example-debug.yaml
-
+<<: !include esp32-ble-v14-example-debug-syssi.yaml
 interval:
   - interval: 20s
     then:
@@ -25,7 +24,6 @@ interval:
           };
           id(bms0).assemble(device_info_frame, sizeof(device_info_frame));
       - delay: 2s
-
       - lambda: |-
           const uint8_t settings_frame[300] = {
             0x55, 0xAA, 0xEB, 0x90, 0x01, 0xC9, 0xAC, 0x0D, 0x00, 0x00, 0xF0, 0x0A, 0x00, 0x00, 0xB7, 0x0B, 0x00, 0x00,
@@ -48,7 +46,6 @@ interval:
           };
           id(bms0).assemble(settings_frame, sizeof(settings_frame));
       - delay: 2s
-
       - lambda: |-
           const uint8_t cell_info_frame[300] = {
             0x55, 0xAA, 0xEB, 0x90, 0x02, 0xCB, 0x67, 0x0C, 0x35, 0x0C, 0x03, 0x0C, 0x3B, 0x0C, 0x55, 0x0C, 0x2D, 0x0C,
@@ -93,7 +90,6 @@ interval:
           };
           id(bms0).assemble(device_info_frame2, sizeof(device_info_frame2));
       - delay: 2s
-
       - lambda: |-
           const uint8_t settings_frame2[300] = {
             0x55, 0xAA, 0xEB, 0x90, 0x01, 0xCB, 0xAC, 0x0D, 0x00, 0x00, 0xF0, 0x0A, 0x00, 0x00, 0xB7, 0x0B, 0x00, 0x00,
@@ -116,7 +112,6 @@ interval:
           };
           id(bms0).assemble(settings_frame2, sizeof(settings_frame2));
       - delay: 2s
-
       - lambda: |-
           const uint8_t cell_info_frame2[300] = {
             0x55, 0xAA, 0xEB, 0x90, 0x02, 0xCD, 0x67, 0x0C, 0x35, 0x0C, 0x03, 0x0C, 0x3B, 0x0C, 0x55, 0x0C, 0x2D, 0x0C,

@@ -1267,7 +1267,11 @@ void JkBmsBle::decode_device_info_(const std::vector<uint8_t> &data) {
     return (uint32_t(jk_get_16bit(i + 2)) << 16) | (uint32_t(jk_get_16bit(i + 0)) << 0);
   };
 
+  ESP_LOGVV(TAG, "JkBmsBle::decode_device_info_()-->");
+
+
   ESP_LOGI(TAG, "Device info frame (%d bytes) received", data.size());
+  ESP_LOGD(TAG, "decode_device_info_()-Device info frame (%d bytes) received", data.size());
   ESP_LOGVV(TAG, "  %s", format_hex_pretty(&data.front(), 160).c_str());
   ESP_LOGVV(TAG, "  %s", format_hex_pretty(&data.front() + 160, data.size() - 160).c_str());
 
@@ -1388,6 +1392,8 @@ bool JkBmsBle::write_register(uint8_t address, uint32_t value, uint8_t length) {
   if (status) {
     ESP_LOGW(TAG, "[%s] esp_ble_gattc_write_char failed, status=%d", this->parent_->address_str().c_str(), status);
   }
+
+  ESP_LOGVV(TAG, "JkBmsBle::decode_device_info_()--<");
 
   return (status == 0);
 }

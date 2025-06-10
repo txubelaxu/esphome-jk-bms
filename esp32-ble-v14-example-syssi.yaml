@@ -108,3 +108,7 @@ text_sensor:
       name: "${name} errors"
     operation_status:
       name: "${name} operation status"
+    password:
+      name: "${name} password"
+    software_version:
+      name: "${name} software version"

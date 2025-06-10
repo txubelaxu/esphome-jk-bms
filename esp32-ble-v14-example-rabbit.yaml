@@ -108,3 +108,11 @@ text_sensor:
       name: "${name} errors"
     operation_status:
       name: "${name} operation status"
+    info_device_password:
+      name: "${name} info_device_password"
+    info_software_version:
+      name: "${name} info_software_version"
+    info_vendorid:
+      name: "${name} info vendorid"
+    info_hardware_version:
+      name: "${name} info hardware version"

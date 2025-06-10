@@ -553,8 +553,7 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
 
   if (origin_address == this->address_) {
 
-    ESP_LOGD(TAG, "This BMS address is: %d  and address received %d ==> WORKING (frame type:%d)",
-             this->address_, origin_address, frame_type);
+    ESP_LOGD(TAG, "This BMS address is: %d  and address received %d ==> WORKING (frame type:%d)", this->address_, origin_address, frame_type);
 
     switch (frame_type) {
       case 0x01:
@@ -573,15 +572,16 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
           ESP_LOGVV(TAG, "frame_type: 0x02 and PROTOCOL_VERSION_JK04 => commented decode_jk04_cell_info_()");          
           // this->decode_jk04_cell_info_(data);
         } else {
-          ESP_LOGVV(TAG, "frame_type: 0x02 and not PROTOCOL_VERSION_JK04");          
-          if (this->cell_count_settings_number_->state>0)
-          {
+          ESP_LOGVV(TAG, "frame_type: 0x02 and not PROTOCOL_VERSION_JK04");
+
+          // if (this->cell_count_settings_number_->state>0)
+          // {
             ESP_LOGVV(TAG, "on_jk_rs485_sniffer_data: 0x02 - cell_count_settings_number_ ");      
             ESP_LOGVV(TAG, "frame_type: 0x02 and not PROTOCOL_VERSION_JK04 => decode_jk02_cell_info_()");          
             this->decode_jk02_cell_info_(data);
-          } else {
-            ESP_LOGI(TAG, "Frame type 0x%02X received from address 0x%02X. But 0x01 frame type must be processed first", frame_type,origin_address);      
-          }
+          // } else {
+          //   ESP_LOGI(TAG, "Frame type 0x%02X received from address 0x%02X. But 0x01 frame type must be processed first", frame_type,origin_address);      
+          // }
           
         }
         break;
@@ -1310,7 +1310,8 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
 
   // 114 [108]  4   0x0D 0x00 0x00 0x00    cell count settings
   temp_param_value=uint32_to_float(&data[114]);  
-  //ESP_LOGI(TAG, "  cell count settings: %f", temp_param_value); ///(float) jk_get_32bit(114));
+  
+  ESP_LOGVV(TAG, "  cell count settings: %f", temp_param_value); ///(float) jk_get_32bit(114));
   this->publish_state_(this->cell_count_settings_number_, temp_param_value); ///(float) data[114]);
 
   // 118 [112]  4   0x01 0x00 0x00 0x00    Charge switch BatChargeEN

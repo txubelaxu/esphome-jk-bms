@@ -544,7 +544,7 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
                                           const std::string &nodes_available_received) {
   // this->reset_status_online_tracker_();
 
-  ESP_LOGD(TAG, "on_jk_rs485_sniffer_data -->");
+  ESP_LOGVV(TAG, "on_jk_rs485_sniffer_data -->");
 
   if (this->nodes_available != nodes_available_received) {
     this->nodes_available = nodes_available_received;
@@ -560,19 +560,24 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
       case 0x01:
           ESP_LOGD(TAG, "on_jk_rs485_sniffer_data: 0x01");      
         if (this->protocol_version_ == PROTOCOL_VERSION_JK04) {
+          ESP_LOGVV(TAG, "frame_type: 0x01 and PROTOCOL_VERSION_JK04 => commented decode_jk04_settings_()");          
           // this->decode_jk04_settings_(data);
         } else {
+          ESP_LOGVV(TAG, "frame_type: 0x01 and not PROTOCOL_VERSION_JK04 => decode_jk02_settings_()");          
           this->decode_jk02_settings_(data);
         }
         break;
       case 0x02:
         ESP_LOGD(TAG, "on_jk_rs485_sniffer_data: 0x02");      
         if (this->protocol_version_ == PROTOCOL_VERSION_JK04) {
+          ESP_LOGVV(TAG, "frame_type: 0x02 and PROTOCOL_VERSION_JK04 => commented decode_jk04_cell_info_()");          
           // this->decode_jk04_cell_info_(data);
         } else {
+          ESP_LOGVV(TAG, "frame_type: 0x02 and not PROTOCOL_VERSION_JK04");          
           if (this->cell_count_settings_number_->state>0)
           {
-            ESP_LOGD(TAG, "on_jk_rs485_sniffer_data: 0x02 - cell_count_settings_number_ ");      
+            ESP_LOGVV(TAG, "on_jk_rs485_sniffer_data: 0x02 - cell_count_settings_number_ ");      
+            ESP_LOGVV(TAG, "frame_type: 0x02 and not PROTOCOL_VERSION_JK04 => decode_jk02_cell_info_()");          
             this->decode_jk02_cell_info_(data);
           } else {
             ESP_LOGI(TAG, "Frame type 0x%02X received from address 0x%02X. But 0x01 frame type must be processed first", frame_type,origin_address);      
@@ -586,6 +591,8 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
         ESP_LOGI(TAG, "Decoding DEVICE "
                       "info............................................................................................"
                       "................................................................");
+
+        ESP_LOGVV(TAG, "frame_type: 0x03 => decode_device_info_()");          
         this->decode_device_info_(data);
         break;
       default:
@@ -605,7 +612,7 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
     ESP_LOGD(TAG, "This BMS address is: %d  and address received %d ==> IDLE", this->address_, origin_address);
   }
 
-  ESP_LOGD(TAG, "on_jk_rs485_sniffer_data --<");
+  ESP_LOGVV(TAG, "on_jk_rs485_sniffer_data --<");
 
   
 }

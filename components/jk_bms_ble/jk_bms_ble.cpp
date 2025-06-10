@@ -761,6 +761,9 @@ void JkBmsBle::decode_jk04_cell_info_(const std::vector<uint8_t> &data) {
     return (uint32_t(jk_get_16bit(i + 2)) << 16) | (uint32_t(jk_get_16bit(i + 0)) << 0);
   };
 
+  ESP_LOGVV(TAG, "JkBmsBle::decode_jk04_cell_info_()-->");
+
+
   const uint32_t now = millis();
   if (now - this->last_cell_info_ < this->throttle_) {
     return;
@@ -932,6 +935,8 @@ void JkBmsBle::decode_jk04_cell_info_(const std::vector<uint8_t> &data) {
 
   // 299   1   0x13                   Checksm
 
+  ESP_LOGVV(TAG, "JkBmsBle::decode_jk04_cell_info_()--<");
+  
   status_notification_received_ = true;
 }
 

@@ -96,6 +96,20 @@ binary_sensor:
     online_status:
       name: "${name} online status"
 
+number:
+  - platform: jk_bms_ble
+    cell_request_charge_voltage_time:
+      name: "${name} cell request charge volt time"
+    cell_request_float_voltage_time:
+      name: "${name} cell request float volt time"
+
+# sensor:
+#   - platform: jk_bms_ble
+#     uart1_protocol_number:
+#       name: "${name} uart1 protocol number"
+#     uart2_protocol_number:
+#       name: "${name} uart2 protocol number"
+
 switch:
   - platform: ble_client
     ble_client_id: client0
@@ -116,3 +130,5 @@ text_sensor:
       name: "${name} info vendorid"
     info_hardware_version:
       name: "${name} info hardware version"
+    info_device_name:
+      name: "${name} info device name"

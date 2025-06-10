@@ -2,9 +2,7 @@ substitutions:
   name: jk-bms
   device_description: "Monitor and control a JK-BMS v11 via bluetooth"
   external_components_source: github://rabbit3dcustom/esphome-jk-bms@main
-  mac_address: C8:47:8C:E1:E2:AA
   esp_ip: 192.168.1.245
-
   # Please use "JK02_24S" if you own a old JK-BMS < hardware version 11.0 (hardware version >= 6.0 and < 11.0)
   # Please use "JK02_32S" if you own a new JK-BMS >= hardware version 11.0 (f.e. JK-B2A8S20P hw 11.XW, sw 11.26)
   # Please use "JK04" if you have some old JK-BMS <= hardware version 3.0 (f.e. JK-B2A16S hw 3.0, sw. 3.3.0)
@@ -30,6 +28,7 @@ esp32:
 external_components:
   - source: ${external_components_source}
     refresh: 0s
+    components: [jk_rs485_sniffer, jk_rs485_bms]
 
 wifi:
   networks:
@@ -44,10 +43,6 @@ wifi:
 
 ota:
   platform: esphome
-  on_begin:
-    then:
-      - switch.turn_off: ble_client_switch0
-      - logger.log: "BLE connection suspended for OTA update"
 
 logger:
   level: DEBUG
@@ -58,38 +53,29 @@ api:
 web_server:
   port: 80
 
-# mqtt:
-#   broker: !secret mqtt_host
-#   username: !secret mqtt_username
-#   password: !secret mqtt_password
-#   id: mqtt_client
+uart:
+  - id: uart_0
+    baud_rate: 115200
+    rx_buffer_size: 500
+    tx_pin: ${tx_pin_uart_0}
+    rx_pin: ${rx_pin_uart_0}
 
-esp32_ble_tracker:
-  on_ble_advertise:
-    then:
-      - lambda: |-
-          if (x.get_name().rfind("JK-", 0) == 0 || x.get_name().rfind("JK_", 0) == 0) {
-            ESP_LOGI("ble_adv", "New JK-BMS found");
-            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
-            ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
-            for (auto uuid : x.get_service_uuids()) {
-              ESP_LOGD("ble_adv", "    - %s", uuid.to_string().c_str());
-            }
-          }
-
-ble_client:
-  - mac_address: ${mac_address}
-    id: client0
-
-jk_bms_ble:
-  - ble_client_id: client0
+jk_rs485_sniffer:
+  - id: sniffer0
     protocol_version: ${protocol_version}
-    throttle: 5s
-    id: bms0
+    rx_timeout: 500ms
+    uart_id: uart_0
+    talk_pin: ${talk_pin_rs485}
+
+jk_rs485_bms:
+  - id: bms1
+    rs485_address: 0x00
+    jk_rs485_sniffer_id: sniffer0
+    update_interval: 100s
 
 binary_sensor:
-  - platform: jk_bms_ble
+  - platform: jk_rs485_bms
+    jk_rs485_bms_id: bms1
     status_balancing:
       name: "${name} status balancing"
     status_charging:
@@ -98,11 +84,12 @@ binary_sensor:
       name: "${name} status discharging"
     status_heating:
       name: "${name} status heating"
-    online_status:
-      name: "${name} online status"
+#    online_status:
+#      name: "${name} online status"
 
 number:
-  - platform: jk_bms_ble
+  - platform: jk_rs485_bms
+    jk_rs485_bms_id: bms1
     cell_request_charge_voltage_time:
       name: "${name} cell request charge volt time"
     cell_request_float_voltage_time:
@@ -116,10 +103,10 @@ number:
 #       name: "${name} uart2 protocol number"
 
 switch:
-  - platform: ble_client
-    ble_client_id: client0
-    id: ble_client_switch0
-    name: "${name} enable bluetooth connection"
+  - platform: jk_rs485_bms
+    jk_rs485_bms_id: bms1
+    charging:
+      name: "${name} charging"
 
 text_sensor:
   - platform: uptime
@@ -127,7 +114,8 @@ text_sensor:
     # expand: true
     update_interval: 5s
 
-  - platform: jk_bms_ble
+  - platform: jk_rs485_bms
+    jk_rs485_bms_id: bms1
     errors:
       name: "${name} errors"
     operation_status:

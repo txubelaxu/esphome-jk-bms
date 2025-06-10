@@ -319,6 +319,8 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_int32(std::uint8_t s
 
 void JkRS485Sniffer::send_request_to_slave(uint8_t address, uint8_t frame_type){
 
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_request_to_slave()-->");
+  
     uint8_t frame[11];
     frame[0] = address ;        // start sequence
     frame[1] = 0x10;            // start sequence
@@ -363,6 +365,8 @@ void JkRS485Sniffer::send_request_to_slave(uint8_t address, uint8_t frame_type){
 //      this->last_message_received_acting_as_master=now;
 //    }  
 
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_request_to_slave()--<");
+
 }
 
 
@@ -371,6 +375,8 @@ void JkRS485Sniffer::send_request_to_slave(uint8_t address, uint8_t frame_type){
 bool JkRS485Sniffer::calculate_next_pooling(void){
   //NORMAL POOLING MODE: SAME NODE
   bool found=false;
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::calculate_next_pooling()-->");  
 
   const uint32_t now=millis();
 
@@ -462,6 +468,8 @@ bool JkRS485Sniffer::calculate_next_pooling(void){
   } else {
 
   } 
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::calculate_next_pooling()--<");  
 
   return(found);
 }
@@ -663,6 +671,9 @@ std::string JkRS485Sniffer::nodes_available_to_string() {
 
 
 void JkRS485Sniffer::set_node_availability(uint8_t address,bool value){
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::set_node_availability()-->");  
+
   if (this->rs485_network_node[address].available==value){
     //no changes
   } else {
@@ -671,8 +682,13 @@ void JkRS485Sniffer::set_node_availability(uint8_t address,bool value){
 
     std::string previous=this->nodes_available;
     this->nodes_available=this->nodes_available_to_string();
+
     ESP_LOGI(TAG, "NODES AVAILABLE CHANGED: address 0x%02X (%d->%d) [%s] --> [%s]",address,previous_value,value,previous.c_str(),this->nodes_available.c_str());
+    ESP_LOGV(TAG, "NODES AVAILABLE CHANGED: address 0x%02X (%d->%d) [%s] --> [%s]",address,previous_value,value,previous.c_str(),this->nodes_available.c_str());
   }
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::set_node_availability()--<");  
+
 }
 
 
@@ -865,6 +881,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     bool found = false;
     for (auto *device : this->devices_) {
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()->on_jk_rs485_sniffer_data()");
+
         device->on_jk_rs485_sniffer_data(address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS], data, this->nodes_available );   
         found = true;
     }

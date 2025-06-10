@@ -19,9 +19,9 @@ static const uint8_t FRAME_SOURCE_GPS = 0x02;
 
 void JkModbus::loop() {
   const uint32_t now = millis();
+  
   if (now - this->last_jk_modbus_byte_ > this->rx_timeout_) {
-    ESP_LOGVV(TAG, "Buffer cleared due to timeout: %s",
-              format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
+    ESP_LOGVV(TAG, "Buffer cleared due to timeout: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
     this->rx_buffer_.clear();
     this->last_jk_modbus_byte_ = now;
   }
@@ -113,6 +113,7 @@ void JkModbus::dump_config() {
   ESP_LOGCONFIG(TAG, "JkModbus:");
   ESP_LOGCONFIG(TAG, "  RX timeout: %d ms", this->rx_timeout_);
 }
+
 float JkModbus::get_setup_priority() const {
   // After UART bus
   return setup_priority::BUS - 1.0f;

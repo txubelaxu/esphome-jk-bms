@@ -1359,6 +1359,8 @@ void JkBmsBle::decode_device_info_(const std::vector<uint8_t> &data) {
   this->publish_state_(this->cell_request_charge_voltage_time_number_, (float) data[266]*0.1f);
   this->publish_state_(this->cell_request_float_voltage_time_number_, (float) data[267]*0.1f);
 
+  ESP_LOGVV(TAG, "JkBmsBle::decode_device_info_()--<");
+  
 }
 
 bool JkBmsBle::write_register(uint8_t address, uint32_t value, uint8_t length) {
@@ -1392,8 +1394,6 @@ bool JkBmsBle::write_register(uint8_t address, uint32_t value, uint8_t length) {
   if (status) {
     ESP_LOGW(TAG, "[%s] esp_ble_gattc_write_char failed, status=%d", this->parent_->address_str().c_str(), status);
   }
-
-  ESP_LOGVV(TAG, "JkBmsBle::decode_device_info_()--<");
 
   return (status == 0);
 }

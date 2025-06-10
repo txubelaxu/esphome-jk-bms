@@ -297,20 +297,35 @@ void JkBmsBle::decode_(const std::vector<uint8_t> &data) {
   switch (frame_type) {
     case 0x01:
       if (this->protocol_version_ == PROTOCOL_VERSION_JK04) {
+        ESP_LOGD(TAG, "frame_type: 0x01 and PROTOCOL_VERSION_JK04 => decode_jk04_settings_");
+        ESP_LOGV(TAG, "frame_type: 0x01 and PROTOCOL_VERSION_JK04 => decode_jk04_settings_");
+        ESP_LOGVV(TAG, "frame_type: 0x01 and PROTOCOL_VERSION_JK04 => decode_jk04_settings_");
         this->decode_jk04_settings_(data);
       } else {
+        ESP_LOGD(TAG, "frame_type: 0x01 and not PROTOCOL_VERSION_JK04 => decode_jk02_settings_");
+        ESP_LOGV(TAG, "frame_type: 0x01 and not PROTOCOL_VERSION_JK04 => decode_jk02_settings_");
+        ESP_LOGVV(TAG, "frame_type: 0x01 and not PROTOCOL_VERSION_JK04 => decode_jk02_settings_");
         this->decode_jk02_settings_(data);
       }
       break;
     case 0x02:
       if (this->protocol_version_ == PROTOCOL_VERSION_JK04) {
+        ESP_LOGD(TAG, "frame_type: 0x02 and PROTOCOL_VERSION_JK04 => decode_jk04_cell_info_");
+        ESP_LOGV(TAG, "frame_type: 0x02 and PROTOCOL_VERSION_JK04 => decode_jk04_cell_info_");
+        ESP_LOGVV(TAG, "frame_type: 0x02 and PROTOCOL_VERSION_JK04 => decode_jk04_cell_info_");
         this->decode_jk04_cell_info_(data);
       } else {
+        ESP_LOGD(TAG, "frame_type: 0x02 and not PROTOCOL_VERSION_JK04 => decode_jk02_cell_info_");
+        ESP_LOGV(TAG, "frame_type: 0x02 and not PROTOCOL_VERSION_JK04 => decode_jk02_cell_info_");
+        ESP_LOGVV(TAG, "frame_type: 0x02 and not PROTOCOL_VERSION_JK04 => decode_jk02_cell_info_");
         this->decode_jk02_cell_info_(data);
       }
       break;
     case 0x03:
-      this->decode_device_info_(data);
+        ESP_LOGD(TAG, "frame_type: 0x03 => decode_device_info_");
+        ESP_LOGV(TAG, "frame_type: 0x03 => decode_device_info_");
+        ESP_LOGVV(TAG, "frame_type: 0x03 => decode_device_info_");
+        this->decode_device_info_(data);
       break;
     default:
       ESP_LOGW(TAG, "Unsupported message type (0x%02X)", data[4]);

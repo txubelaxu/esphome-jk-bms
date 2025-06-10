@@ -85,13 +85,13 @@ jk_bms_ble:
 
 binary_sensor:
   - platform: jk_bms_ble
-    balancing:
+    status_balancing:
       name: "${name} status balancing"
-    charging:
+    status_charging:
       name: "${name} status charging"
-    discharging:
+    status_discharging:
       name: "${name} status discharging"
-    heating:
+    status_heating:
       name: "${name} status heating"
     online_status:
       name: "${name} online status"

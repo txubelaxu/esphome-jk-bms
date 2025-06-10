@@ -50,8 +50,8 @@ logger:
 # If you don't use Home Assistant please remove this `api` section and uncomment the `mqtt` component!
 api:
 
-web_server:
-  port: 80
+#web_server:
+#  port: 80
 
 uart:
   - id: uart_0
@@ -69,7 +69,7 @@ jk_rs485_sniffer:
 
 jk_rs485_bms:
   - id: bms1
-    rs485_address: 0x00
+    rs485_address: 0x0
     jk_rs485_sniffer_id: sniffer0
     update_interval: 100s
 

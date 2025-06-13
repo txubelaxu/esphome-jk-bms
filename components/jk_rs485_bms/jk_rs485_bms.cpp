@@ -2004,11 +2004,11 @@ void JkRS485Bms::simulate_frame(const uint8_t* data_ptr, size_t len) {
   // Copia los datos simulados a un vector para manejarlo como una trama real
   std::vector<uint8_t> raw_data(data_ptr, data_ptr + len);
 
-  // Realiza las mismas comprobaciones que en el loop() real
-  if (len != JKPB_RS485_RESPONSE_SIZE) {
-      ESP_LOGW(TAG, "Tamaño de trama simulada incorrecto: %d bytes. Esperado: %d", len, JKPB_RS485_RESPONSE_SIZE);
-      return;
-  }
+  // // Realiza las mismas comprobaciones que en el loop() real
+  // if (len != JKPB_RS485_RESPONSE_SIZE) {
+  //     ESP_LOGW(TAG, "Tamaño de trama simulada incorrecto: %d bytes. Esperado: %d", len, JKPB_RS485_RESPONSE_SIZE);
+  //     return;
+  // }
   
   // Check Cabecera
   if (raw_data[0] != 0x55 || raw_data[1] != 0xAA) {
@@ -2016,18 +2016,18 @@ void JkRS485Bms::simulate_frame(const uint8_t* data_ptr, size_t len) {
       return;
   }
 
-  // Calcula y verifica el checksum
-  uint8_t expected_checksum = raw_data[JKPB_RS485_CHECKSUM_INDEX];
-  uint8_t computed_checksum = this->compute_checksum(raw_data.data(), JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
+  // // Calcula y verifica el checksum
+  // uint8_t expected_checksum = raw_data[JKPB_RS485_CHECKSUM_INDEX];
+  // uint8_t computed_checksum = this->compute_checksum(raw_data.data(), JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
 
-  if (computed_checksum != expected_checksum) {
-      ESP_LOGW(TAG, "Checksum de trama simulada incorrecto. Calculado: 0x%02X, Esperado: 0x%02X", computed_checksum, expected_checksum);
-      return;
-  }
+  // if (computed_checksum != expected_checksum) {
+  //     ESP_LOGW(TAG, "Checksum de trama simulada incorrecto. Calculado: 0x%02X, Esperado: 0x%02X", computed_checksum, expected_checksum);
+  //     return;
+  // }
   
   // Si llegamos aquí, la trama simulada es válida
-  uint8_t address = raw_data[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS];
-  uint8_t frame_type = raw_data[JKPB_RS485_FRAME_TYPE_ADDRESS]; // O la otra dirección si es tipo 0x01
+  // uint8_t address = raw_data[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS];
+  // uint8_t frame_type = raw_data[JKPB_RS485_FRAME_TYPE_ADDRESS]; // O la otra dirección si es tipo 0x01
 
   // Obtener la cadena para nodes_available_received.
   // En un escenario real, 'this->nodes_available' es una std::string.

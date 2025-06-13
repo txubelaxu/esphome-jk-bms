@@ -944,11 +944,25 @@ void JkRS485Sniffer::simulate_frame(const uint8_t* data_ptr, size_t len) {
   uint8_t address = raw_data[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS];
   uint8_t frame_type = raw_data[JKPB_RS485_FRAME_TYPE_ADDRESS]; // O la otra dirección si es tipo 0x01
 
+  // Obtener la cadena para nodes_available_received.
+  // En un escenario real, 'this->nodes_available' es una std::string.
+  // Para la simulación, podemos proporcionar una cadena dummy o vacía.
+  // Asumiendo que 'nodes_available' es un miembro de tu clase JKRS485Sniffer:
+  // Si 'nodes_available' es un bool, la conversión a string sería:
+  // std::string nodes_available_str = this->nodes_available ? "true" : "false";
+  // Pero si es realmente una std::string en tu clase, simplemente la usas:
+  // Por el fragmento, parece ser que 'nodes_available' es un string en el loop real
+  // y no un bool. Si no la tienes, declara una cadena vacía o "simulada".
+  std::string simulated_nodes_available = "SIMULATED_NODES_AVAILABLE"; // Puedes poner cualquier string aquí para la prueba
+  // O, si tienes un miembro real llamado 'nodes_available' en tu clase JKRS485Sniffer:
+  // std::string &nodes_available_str = this->nodes_available; // Asegúrate que 'nodes_available' sea un std::string miembro
+
   // Distribuye la trama simulada a todos los dispositivos registrados
   bool found = false;
   for (auto *device : this->devices_) {
       // Pasa la copia completa de los datos
-      device->on_jk_rs485_sniffer_data(address, frame_type, raw_data, true); // nodes_available a true para simulación
+      // Corregido el último parámetro para que sea std::string
+      device->on_jk_rs485_sniffer_data(address, frame_type, raw_data, simulated_nodes_available);
       found = true;
   }
 

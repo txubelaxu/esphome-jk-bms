@@ -913,7 +913,7 @@ float JkRS485Sniffer::get_setup_priority() const {
 
 
 // Implementación del nuevo método de simulación
-void JKRS485Sniffer::simulate_frame(const uint8_t* data_ptr, size_t len) {
+void JkRS485Sniffer::simulate_frame(const uint8_t* data_ptr, size_t len) {
   ESP_LOGD(TAG, "Simulando recepción de trama de %d bytes.", len);
 
   // Copia los datos simulados a un vector para manejarlo como una trama real
@@ -958,7 +958,7 @@ void JKRS485Sniffer::simulate_frame(const uint8_t* data_ptr, size_t len) {
 }
 
 // Asegúrate de que tu compute_checksum maneje la longitud correctamente
-uint8_t JKRS485Sniffer::compute_checksum(const uint8_t *data, size_t len_to_compute) {
+uint8_t JkRS485Sniffer::compute_checksum(const uint8_t *data, size_t len_to_compute) {
   uint8_t checksum = 0;
   for (size_t i = 0; i < len_to_compute; ++i) {
     checksum += data[i];

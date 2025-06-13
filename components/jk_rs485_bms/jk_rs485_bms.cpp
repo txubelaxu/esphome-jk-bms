@@ -1997,5 +1997,73 @@ void JkRS485Bms::dump_config() {  // NOLINT(google-readability-function-size,rea
   */
 }
 
+// Implementación del nuevo método de simulación
+void JkRS485Bms::simulate_frame(const uint8_t* data_ptr, size_t len) {
+  ESP_LOGD(TAG, "Simulando recepción de trama de %d bytes.", len);
+
+  // Copia los datos simulados a un vector para manejarlo como una trama real
+  std::vector<uint8_t> raw_data(data_ptr, data_ptr + len);
+
+  // Realiza las mismas comprobaciones que en el loop() real
+  if (len != JKPB_RS485_RESPONSE_SIZE) {
+      ESP_LOGW(TAG, "Tamaño de trama simulada incorrecto: %d bytes. Esperado: %d", len, JKPB_RS485_RESPONSE_SIZE);
+      return;
+  }
+  
+  // Check Cabecera
+  if (raw_data[0] != 0x55 || raw_data[1] != 0xAA) {
+      ESP_LOGW(TAG, "Cabecera de trama simulada incorrecta: %02X %02X", raw_data[0], raw_data[1]);
+      return;
+  }
+
+  // Calcula y verifica el checksum
+  uint8_t expected_checksum = raw_data[JKPB_RS485_CHECKSUM_INDEX];
+  uint8_t computed_checksum = this->compute_checksum(raw_data.data(), JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
+
+  if (computed_checksum != expected_checksum) {
+      ESP_LOGW(TAG, "Checksum de trama simulada incorrecto. Calculado: 0x%02X, Esperado: 0x%02X", computed_checksum, expected_checksum);
+      return;
+  }
+  
+  // Si llegamos aquí, la trama simulada es válida
+  uint8_t address = raw_data[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS];
+  uint8_t frame_type = raw_data[JKPB_RS485_FRAME_TYPE_ADDRESS]; // O la otra dirección si es tipo 0x01
+
+  // Obtener la cadena para nodes_available_received.
+  // En un escenario real, 'this->nodes_available' es una std::string.
+  // Para la simulación, podemos proporcionar una cadena dummy o vacía.
+  // Asumiendo que 'nodes_available' es un miembro de tu clase JKRS485Sniffer:
+  // Si 'nodes_available' es un bool, la conversión a string sería:
+  // std::string nodes_available_str = this->nodes_available ? "true" : "false";
+  // Pero si es realmente una std::string en tu clase, simplemente la usas:
+  // Por el fragmento, parece ser que 'nodes_available' es un string en el loop real
+  // y no un bool. Si no la tienes, declara una cadena vacía o "simulada".
+  std::string simulated_nodes_available = "SIMULATED_NODES_AVAILABLE"; // Puedes poner cualquier string aquí para la prueba
+  // O, si tienes un miembro real llamado 'nodes_available' en tu clase JKRS485Sniffer:
+  // std::string &nodes_available_str = this->nodes_available; // Asegúrate que 'nodes_available' sea un std::string miembro
+
+  // Distribuye la trama simulada a todos los dispositivos registrados
+  bool found = false;
+  for (auto *device : this->devices_) {
+      // Pasa la copia completa de los datos
+      // Corregido el último parámetro para que sea std::string
+      device->on_jk_rs485_sniffer_data(address, frame_type, raw_data, simulated_nodes_available);
+      found = true;
+  }
+
+  if (!found) {
+    ESP_LOGW(TAG, "Got simulated JkRS485 but no recipients to send [frame type:0x%02X] 0x%02X!",frame_type, address);
+  }
+}
+
+// Asegúrate de que tu compute_checksum maneje la longitud correctamente
+uint8_t JkRS485Bms::compute_checksum(const uint8_t *data, size_t len_to_compute) {
+  uint8_t checksum = 0;
+  for (size_t i = 0; i < len_to_compute; ++i) {
+    checksum += data[i];
+  }
+  return (~checksum) + 1; // Complemento a dos
+}
+
 }  // namespace jk_rs485_bms
 }  // namespace esphome

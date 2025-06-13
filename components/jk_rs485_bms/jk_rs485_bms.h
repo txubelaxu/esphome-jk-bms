@@ -596,15 +596,6 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
   void set_cell_request_charge_voltage_time_number(JkRS485BmsNumber *cell_request_charge_voltage_time_number);
   void set_cell_request_float_voltage_time_number(JkRS485BmsNumber *cell_request_float_voltage_time_number);
 
-  
-
-
-
-
-
-
-
-
 
   void set_errors_text_sensor(text_sensor::TextSensor *errors_text_sensor) { errors_text_sensor_ = errors_text_sensor; }
   void set_operation_status_text_sensor(text_sensor::TextSensor *operation_status_text_sensor) {
@@ -638,9 +629,6 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
       info_device_setup_passcode_text_sensor_ = info_device_setup_passcode_text_sensor;
   }
 
-
-
-
   void set_network_nodes_available_text_sensor(text_sensor::TextSensor *network_nodes_available_text_sensor) { network_nodes_available_text_sensor_ = network_nodes_available_text_sensor; }
 
   void set_battery_type_text_sensor(text_sensor::TextSensor *battery_type_text_sensor) {
@@ -673,6 +661,9 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
   void update() override;
 
   //bool write_register(uint8_t address, uint32_t value, uint8_t length);
+
+  // Nuevo método para simular la recepción de una trama
+  void simulate_frame(const uint8_t* data, size_t len);  
 
  protected:
   jk_rs485_sniffer::JkRS485Sniffer *parent_;
@@ -771,6 +762,8 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
     //position: 76543210
     return ((value >> position) & 0x01); 
   }
+
+  uint8_t compute_checksum(const uint8_t *data, size_t len_to_compute); // Asegúrate de que tenga la longitud para computar   
 
   private:
     JkRS485BmsSwitch *precharging_switch_;

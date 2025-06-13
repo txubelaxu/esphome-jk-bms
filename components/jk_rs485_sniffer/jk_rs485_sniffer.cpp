@@ -840,7 +840,8 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     } else {
       address=raw[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS];
     }
-    //ESP_LOGI(TAG, "(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X ",this->rx_buffer_.size(),address,raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
+    
+    ESP_LOGVV(TAG, "(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X ",this->rx_buffer_.size(),address,raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
 
     if (computed_checksum != remote_checksum) {
       ESP_LOGW(TAG, "CHECKSUM failed! 0x%02X != 0x%02X", computed_checksum, remote_checksum);
@@ -909,6 +910,62 @@ float JkRS485Sniffer::get_setup_priority() const {
   // After UART bus
   return setup_priority::BUS - 1.0f;
 }
+
+
+// Implementación del nuevo método de simulación
+void JKRS485Sniffer::simulate_frame(const uint8_t* data_ptr, size_t len) {
+  ESP_LOGD(TAG, "Simulando recepción de trama de %d bytes.", len);
+
+  // Copia los datos simulados a un vector para manejarlo como una trama real
+  std::vector<uint8_t> raw_data(data_ptr, data_ptr + len);
+
+  // Realiza las mismas comprobaciones que en el loop() real
+  if (len != JKPB_RS485_RESPONSE_SIZE) {
+      ESP_LOGW(TAG, "Tamaño de trama simulada incorrecto: %d bytes. Esperado: %d", len, JKPB_RS485_RESPONSE_SIZE);
+      return;
+  }
+  
+  // Check Cabecera
+  if (raw_data[0] != 0x55 || raw_data[1] != 0xAA) {
+      ESP_LOGW(TAG, "Cabecera de trama simulada incorrecta: %02X %02X", raw_data[0], raw_data[1]);
+      return;
+  }
+
+  // Calcula y verifica el checksum
+  uint8_t expected_checksum = raw_data[JKPB_RS485_CHECKSUM_INDEX];
+  uint8_t computed_checksum = this->compute_checksum(raw_data.data(), JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
+
+  if (computed_checksum != expected_checksum) {
+      ESP_LOGW(TAG, "Checksum de trama simulada incorrecto. Calculado: 0x%02X, Esperado: 0x%02X", computed_checksum, expected_checksum);
+      return;
+  }
+  
+  // Si llegamos aquí, la trama simulada es válida
+  uint8_t address = raw_data[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS];
+  uint8_t frame_type = raw_data[JKPB_RS485_FRAME_TYPE_ADDRESS]; // O la otra dirección si es tipo 0x01
+
+  // Distribuye la trama simulada a todos los dispositivos registrados
+  bool found = false;
+  for (auto *device : this->devices_) {
+      // Pasa la copia completa de los datos
+      device->on_jk_rs485_sniffer_data(address, frame_type, raw_data, true); // nodes_available a true para simulación
+      found = true;
+  }
+
+  if (!found) {
+    ESP_LOGW(TAG, "Got simulated JkRS485 but no recipients to send [frame type:0x%02X] 0x%02X!",frame_type, address);
+  }
+}
+
+// Asegúrate de que tu compute_checksum maneje la longitud correctamente
+uint8_t JKRS485Sniffer::compute_checksum(const uint8_t *data, size_t len_to_compute) {
+  uint8_t checksum = 0;
+  for (size_t i = 0; i < len_to_compute; ++i) {
+    checksum += data[i];
+  }
+  return (~checksum) + 1; // Complemento a dos
+}
+
 
 }  // namespace jk_rs485_sniffer
 }  // namespace esphome

@@ -26,6 +26,9 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
  public:
   JkRS485Sniffer() = default;
 
+  // Nuevo método para simular la recepción de una trama
+  void simulate_frame(const uint8_t* data, size_t len);
+
 
   void set_broadcast_changes_to_all_bms(bool state);
   bool get_broadcast_changes_to_all_bms() const;
@@ -111,6 +114,8 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
   
   bool calculate_next_pooling(void);
   int found_next_node_to_discover(void);
+
+  uint8_t compute_checksum(const uint8_t *data, size_t len_to_compute); // Asegúrate de que tenga la longitud para computar  
 
   std::vector<uint8_t> rx_buffer_;
   uint16_t rx_timeout_{50};

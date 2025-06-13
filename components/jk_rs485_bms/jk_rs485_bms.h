@@ -661,6 +661,7 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
 
   // Nuevo método para simular la recepción de una trama
   void simulate_frame(const uint8_t* data, size_t len);
+  
 
   //bool write_register(uint8_t address, uint32_t value, uint8_t length);
 

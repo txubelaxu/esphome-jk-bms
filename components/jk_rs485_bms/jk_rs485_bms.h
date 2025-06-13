@@ -659,10 +659,6 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
 
   void update() override;
 
-  // Nuevo método para simular la recepción de una trama
-  void simulate_frame(const uint8_t* data, size_t len);
-  
-
   //bool write_register(uint8_t address, uint32_t value, uint8_t length);
 
 
@@ -763,8 +759,6 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
     //position: 76543210
     return ((value >> position) & 0x01); 
   }
-
-  uint8_t compute_checksum(const uint8_t *data, size_t len_to_compute); // Asegúrate de que tenga la longitud para computar   
 
   private:
     JkRS485BmsSwitch *precharging_switch_;

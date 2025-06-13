@@ -2,7 +2,7 @@ substitutions:
   name: jk-bms
   device_description: "Monitor and control a JK-BMS v11 via bluetooth"
   external_components_source: github://rabbit3dcustom/esphome-jk-bms@main
-  esp_ip: 192.168.1.245
+  esp_ip: 192.168.1.244
   # Please use "JK02_24S" if you own a old JK-BMS < hardware version 11.0 (hardware version >= 6.0 and < 11.0)
   # Please use "JK02_32S" if you own a new JK-BMS >= hardware version 11.0 (f.e. JK-B2A8S20P hw 11.XW, sw 11.26)
   # Please use "JK04" if you have some old JK-BMS <= hardware version 3.0 (f.e. JK-B2A16S hw 3.0, sw. 3.3.0)
@@ -28,7 +28,7 @@ esp32:
 external_components:
   - source: ${external_components_source}
     refresh: 0s
-    components: [jk_rs485_sniffer, jk_rs485_bms]
+  # components: [jk_rs485_sniffer, jk_rs485_bms]
 
 wifi:
   networks:
@@ -69,7 +69,7 @@ jk_rs485_sniffer:
 
 jk_rs485_bms:
   - id: bms1
-    rs485_address: 0x0
+    rs485_address: 0x01
     jk_rs485_sniffer_id: sniffer0
     update_interval: 100s
 

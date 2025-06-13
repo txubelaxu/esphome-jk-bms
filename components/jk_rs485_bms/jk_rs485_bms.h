@@ -653,17 +653,17 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
     balancing_current_sensor_ = balancing_current_sensor;
   }  
 
-
   void dump_config() override;
 
   void on_jk_rs485_sniffer_data(const uint8_t &origin_address, const uint8_t &frame_type, const std::vector<uint8_t> &data,const std::string &nodes_available) override;
 
   void update() override;
 
+  // Nuevo método para simular la recepción de una trama
+  void simulate_frame(const uint8_t* data, size_t len) override; 
+
   //bool write_register(uint8_t address, uint32_t value, uint8_t length);
 
-  // Nuevo método para simular la recepción de una trama
-  void simulate_frame(const uint8_t* data, size_t len);  
 
  protected:
   jk_rs485_sniffer::JkRS485Sniffer *parent_;

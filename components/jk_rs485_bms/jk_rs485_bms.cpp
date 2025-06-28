@@ -634,6 +634,26 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
     offset = 16;
   }
 
+
+  if( this->arr[1] == 0)
+  {
+    this->arr[1] = 1;
+  }
+  else
+  {
+    if( this->arr[1] == 1)
+    {
+      this->arr[1] = 2;
+    }
+    else
+    {
+      this->arr[1] = 0;
+    }     
+  }
+
+  ESP_LOGD(TAG, " array 1 = %d", arr[1]);
+
+
   ESP_LOGD(TAG, "Decoding cell info frame.... [ADDRESS: %02X] %d bytes received", this->address_, data.size());
 
   ESP_LOGI(TAG, "Decoding cell info frame.... [ADDRESS: %02X] %d bytes received", this->address_, data.size());
@@ -705,6 +725,9 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
   ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 1");  
 
 
+  if( this->arr[1] == 0)
+  {  
+
   for (uint8_t i = 0; i < cells; i++) {
     ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 2");      
     cell_voltage    = uint16_to_float(&data[i * 2 + 6]) * 0.001f;              //(float) jk_get_16bit(i * 2 + 6) * 0.001f;
@@ -757,109 +780,112 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
 
   }
 
+}
+else
+{
+  if( this->arr[1] == 1) {
 
-  
-  ESP_LOGVV(TAG, "Debug point 001");
-  this->publish_state_(this->cell_count_real_sensor_, (float) cell_count_real);
-  this->publish_state_(this->cell_voltage_min_sensor_, cell_voltage_min);
-  this->publish_state_(this->cell_voltage_max_sensor_, cell_voltage_max);
-  this->publish_state_(this->cell_resistance_min_sensor_, cell_resistance_min);
-  this->publish_state_(this->cell_resistance_max_sensor_, cell_resistance_max);
-  this->publish_state_(this->cell_resistance_max_cell_number_sensor_, (float) cell_resistance_max_cell_number+1);
-  this->publish_state_(this->cell_resistance_min_cell_number_sensor_, (float) cell_resistance_min_cell_number+1);
-  ESP_LOGVV(TAG, "Debug point 002");
+    ESP_LOGVV(TAG, "Debug point 001");
+    this->publish_state_(this->cell_count_real_sensor_, (float) cell_count_real);
+    this->publish_state_(this->cell_voltage_min_sensor_, cell_voltage_min);
+    this->publish_state_(this->cell_voltage_max_sensor_, cell_voltage_max);
+    this->publish_state_(this->cell_resistance_min_sensor_, cell_resistance_min);
+    this->publish_state_(this->cell_resistance_max_sensor_, cell_resistance_max);
+    this->publish_state_(this->cell_resistance_max_cell_number_sensor_, (float) cell_resistance_max_cell_number+1);
+    this->publish_state_(this->cell_resistance_min_cell_number_sensor_, (float) cell_resistance_min_cell_number+1);
+    ESP_LOGVV(TAG, "Debug point 002");
 
-  //ESP_LOGV(TAG, "Cell MAX voltage:    %f", cell_voltage_max);
-  //ESP_LOGV(TAG, "Cell MAX voltage:    %f", cell_voltage_min);
+    //ESP_LOGV(TAG, "Cell MAX voltage:    %f", cell_voltage_max);
+    //ESP_LOGV(TAG, "Cell MAX voltage:    %f", cell_voltage_min);
 
-  // 54    4   0xFF 0xFF 0x00 0x00    Enabled cells bitmask
-  //           0x0F 0x00 0x00 0x00    4 cells enabled
-  //           0xFF 0x00 0x00 0x00    8 cells enabled
-  //           0xFF 0x0F 0x00 0x00    12 cells enabled
-  //           0xFF 0x1F 0x00 0x00    13 cells enabled
-  //           0xFF 0xFF 0x00 0x00    16 cells enabled
-  //           0xFF 0xFF 0xFF 0x00    24 cells enabled
-  //           0xFF 0xFF 0xFF 0xFF    32 cells enabled
-  //ESP_LOGV(TAG, "Enabled cells bitmask: 0x%02X 0x%02X 0x%02X 0x%02X", data[54 + offset], data[55 + offset],data[56 + offset], data[57 + offset]);
+    // 54    4   0xFF 0xFF 0x00 0x00    Enabled cells bitmask
+    //           0x0F 0x00 0x00 0x00    4 cells enabled
+    //           0xFF 0x00 0x00 0x00    8 cells enabled
+    //           0xFF 0x0F 0x00 0x00    12 cells enabled
+    //           0xFF 0x1F 0x00 0x00    13 cells enabled
+    //           0xFF 0xFF 0x00 0x00    16 cells enabled
+    //           0xFF 0xFF 0xFF 0x00    24 cells enabled
+    //           0xFF 0xFF 0xFF 0xFF    32 cells enabled
+    //ESP_LOGV(TAG, "Enabled cells bitmask: 0x%02X 0x%02X 0x%02X 0x%02X", data[54 + offset], data[55 + offset],data[56 + offset], data[57 + offset]);
 
-  // 58    2   0x00 0x0D              cell average voltage  0.001        V
-  this->publish_state_(this->cell_average_voltage_sensor_, uint16_to_float(&data[58+offset]) * 0.001f);    // (float) jk_get_16bit(58 + offset) * 0.001f);
+    // 58    2   0x00 0x0D              cell average voltage  0.001        V
+    this->publish_state_(this->cell_average_voltage_sensor_, uint16_to_float(&data[58+offset]) * 0.001f);    // (float) jk_get_16bit(58 + offset) * 0.001f);
 
-  // 60    2   0x00 0x00              cell delta voltage    0.001        V
-  this->publish_state_(this->cell_delta_voltage_sensor_, uint16_to_float(&data[60+offset]) * 0.001f);    // (float) jk_get_16bit(60 + offset) * 0.001f);
+    // 60    2   0x00 0x00              cell delta voltage    0.001        V
+    this->publish_state_(this->cell_delta_voltage_sensor_, uint16_to_float(&data[60+offset]) * 0.001f);    // (float) jk_get_16bit(60 + offset) * 0.001f);
 
-  // 62    1   0x00                   Cell voltage max cell number      1
-  this->publish_state_(this->cell_voltage_max_cell_number_sensor_, (float) data[62 + offset] + 1);
-  // 63    1   0x00                   Cell voltage min cell number      1
-  this->publish_state_(this->cell_voltage_min_cell_number_sensor_, (float) data[63 + offset] + 1);
-  // 64    2   0x9D 0x01              Resistance Cell 01    0.001        Ohm
-  // 66    2   0x96 0x01              Resistance Cell 02    0.001        Ohm
-  // 68    2   0x8C 0x01              Resistance Cell 03    0.001        Ohm
-  // ...
-  // 110   2   0x00 0x00              Resistance Cell 24    0.001        Ohm
+    // 62    1   0x00                   Cell voltage max cell number      1
+    this->publish_state_(this->cell_voltage_max_cell_number_sensor_, (float) data[62 + offset] + 1);
+    // 63    1   0x00                   Cell voltage min cell number      1
+    this->publish_state_(this->cell_voltage_min_cell_number_sensor_, (float) data[63 + offset] + 1);
+    // 64    2   0x9D 0x01              Resistance Cell 01    0.001        Ohm
+    // 66    2   0x96 0x01              Resistance Cell 02    0.001        Ohm
+    // 68    2   0x8C 0x01              Resistance Cell 03    0.001        Ohm
+    // ...
+    // 110   2   0x00 0x00              Resistance Cell 24    0.001        Ohm
 
-  offset = offset * 2;
+    offset = offset * 2;
 
-  // 112   2   0x00 0x00              Unknown112
-  if (frame_version == FRAME_VERSION_JK02_32S) {
-    temp_param_value=int16_to_float(&data[112+offset]) * 0.1f;
-    this->publish_state_(this->temperature_powertube_sensor_, temp_param_value);
-  //} else {
-    //ESP_LOGD(TAG, "Unknown112: 0x%02X 0x%02X", data[112 + offset], data[113 + offset]);
-  }
+    // 112   2   0x00 0x00              Unknown112
+    if (frame_version == FRAME_VERSION_JK02_32S) {
+      temp_param_value=int16_to_float(&data[112+offset]) * 0.1f;
+      this->publish_state_(this->temperature_powertube_sensor_, temp_param_value);
+    //} else {
+      //ESP_LOGD(TAG, "Unknown112: 0x%02X 0x%02X", data[112 + offset], data[113 + offset]);
+    }
 
-  // 114   4   0x00 0x00 0x00 0x00    Wire resistance warning bitmask (each bit indicates a warning per cell / wire)
-  //ESP_LOGD(TAG, "Wire resistance warning bitmask: 0x%02X 0x%02X 0x%02X 0x%02X", data[114 + offset], data[115 + offset],data[116 + offset], data[117 + offset]);
+    // 114   4   0x00 0x00 0x00 0x00    Wire resistance warning bitmask (each bit indicates a warning per cell / wire)
+    //ESP_LOGD(TAG, "Wire resistance warning bitmask: 0x%02X 0x%02X 0x%02X 0x%02X", data[114 + offset], data[115 + offset],data[116 + offset], data[117 + offset]);
 
-  // 118 [144=118+26]  4   0x03 0xD0 0x00 0x00    Battery voltage       0.001        V
-  float battery_voltage =  uint32_to_float(&data[118+offset]) * 0.001f; //(float) jk_get_32bit(118 + offset) * 0.001f;
-  this->publish_state_(this->battery_voltage_sensor_, battery_voltage);
-  //ESP_LOGD(TAG, " BATTERY VOLTAGE 144: %f", battery_voltage);
+    // 118 [144=118+26]  4   0x03 0xD0 0x00 0x00    Battery voltage       0.001        V
+    float battery_voltage =  uint32_to_float(&data[118+offset]) * 0.001f; //(float) jk_get_32bit(118 + offset) * 0.001f;
+    this->publish_state_(this->battery_voltage_sensor_, battery_voltage);
+    //ESP_LOGD(TAG, " BATTERY VOLTAGE 144: %f", battery_voltage);
 
 
-  // 122   4   0x00 0x00 0x00 0x00    Battery power         0.001        W
-  // 126   4   0x00 0x00 0x00 0x00    Charge current        0.001        A
-  float current = int32_to_float(&data[126+offset]) * 0.001f;
-  this->publish_state_(this->battery_current_sensor_, current);
+    // 122   4   0x00 0x00 0x00 0x00    Battery power         0.001        W
+    // 126   4   0x00 0x00 0x00 0x00    Charge current        0.001        A
+    float current = int32_to_float(&data[126+offset]) * 0.001f;
+    this->publish_state_(this->battery_current_sensor_, current);
 
-  // Don't use byte 122 because it's unsigned
-  // float power = (float) ((int32_t) jk_get_32bit(122 + offset)) * 0.001f;
-  float power = battery_voltage * current;
-  this->publish_state_(this->battery_power_sensor_, power);
-  this->publish_state_(this->battery_power_charging_sensor_, std::max(0.0f, power));  // 500W vs 0W -> 500W
-  this->publish_state_(this->battery_power_discharging_sensor_,
-                       std::abs(std::min(0.0f, power)));  // -500W vs 0W -> 500W
+    // Don't use byte 122 because it's unsigned
+    // float power = (float) ((int32_t) jk_get_32bit(122 + offset)) * 0.001f;
+    float power = battery_voltage * current;
+    this->publish_state_(this->battery_power_sensor_, power);
+    this->publish_state_(this->battery_power_charging_sensor_, std::max(0.0f, power));  // 500W vs 0W -> 500W
+    this->publish_state_(this->battery_power_discharging_sensor_,
+                        std::abs(std::min(0.0f, power)));  // -500W vs 0W -> 500W
 
-  // 130 [156 = 130+26]   2   0xBE 0x00              Temperature Sensor 1  0.1          °C
-  temp_param_value=int16_to_float(&data[130+offset]) * 0.1f;
-  this->publish_state_(this->temperatures_[0].temperature_sensor_,temp_param_value);
+    // 130 [156 = 130+26]   2   0xBE 0x00              Temperature Sensor 1  0.1          °C
+    temp_param_value=int16_to_float(&data[130+offset]) * 0.1f;
+    this->publish_state_(this->temperatures_[0].temperature_sensor_,temp_param_value);
 
-  // 132 [158 = 132+26]   2   0xBF 0x00              Temperature Sensor 2  0.1          °C
-  temp_param_value=int16_to_float(&data[132+offset]) * 0.1f;
-  this->publish_state_(this->temperatures_[1].temperature_sensor_,temp_param_value);
+    // 132 [158 = 132+26]   2   0xBF 0x00              Temperature Sensor 2  0.1          °C
+    temp_param_value=int16_to_float(&data[132+offset]) * 0.1f;
+    this->publish_state_(this->temperatures_[1].temperature_sensor_,temp_param_value);
 
-  // 134 [160=134+26]  2   0xD2        Alarms      bit
-  // AlarmWireRes                1   (0:normal | 1:alarm)
-  // AlarmMosOTP                 2   (0:normal | 1:alarm)
-  // AlarmCellQuantity           4   (0:normal | 1:alarm)
-  // AlarmCurSensorErr           8   (0:normal | 1:alarm)
-  // AlarmCellOVP                16  (0:normal | 1:alarm)
-  // AlarmBatOVP                 32  (0:normal | 1:alarm)
-  // AlarmChOCP                  64  (0:normal | 1:alarm)
-  // AlarmChSCP                  128 (0:normal | 1:alarm)
-  if (frame_version == FRAME_VERSION_JK02_32S) {
-    this->battery_total_alarms_count_ = 0;
-    this->battery_total_alarms_active_ = 0;
-    this->publish_alarm_state_(this->alarm_wireres_binary_sensor_, this->check_bit_of_byte_(data[134], 0));
-    this->publish_alarm_state_(this->alarm_mosotp_binary_sensor_, this->check_bit_of_byte_(data[134], 1));
-    this->publish_alarm_state_(this->alarm_cellquantity_binary_sensor_, this->check_bit_of_byte_(data[134], 2));
-    this->publish_alarm_state_(this->alarm_cursensorerr_binary_sensor_, this->check_bit_of_byte_(data[134], 3));
-    this->publish_alarm_state_(this->alarm_cellovp_binary_sensor_, this->check_bit_of_byte_(data[134], 4));
-    this->publish_alarm_state_(this->alarm_batovp_binary_sensor_, this->check_bit_of_byte_(data[134], 5));
-    this->publish_alarm_state_(this->alarm_chocp_binary_sensor_, this->check_bit_of_byte_(data[134], 6));
-    this->publish_alarm_state_(this->alarm_chscp_binary_sensor_, this->check_bit_of_byte_(data[134], 7));
+    // 134 [160=134+26]  2   0xD2        Alarms      bit
+    // AlarmWireRes                1   (0:normal | 1:alarm)
+    // AlarmMosOTP                 2   (0:normal | 1:alarm)
+    // AlarmCellQuantity           4   (0:normal | 1:alarm)
+    // AlarmCurSensorErr           8   (0:normal | 1:alarm)
+    // AlarmCellOVP                16  (0:normal | 1:alarm)
+    // AlarmBatOVP                 32  (0:normal | 1:alarm)
+    // AlarmChOCP                  64  (0:normal | 1:alarm)
+    // AlarmChSCP                  128 (0:normal | 1:alarm)
+    if (frame_version == FRAME_VERSION_JK02_32S) {
+      this->battery_total_alarms_count_ = 0;
+      this->battery_total_alarms_active_ = 0;
+      this->publish_alarm_state_(this->alarm_wireres_binary_sensor_, this->check_bit_of_byte_(data[134], 0));
+      this->publish_alarm_state_(this->alarm_mosotp_binary_sensor_, this->check_bit_of_byte_(data[134], 1));
+      this->publish_alarm_state_(this->alarm_cellquantity_binary_sensor_, this->check_bit_of_byte_(data[134], 2));
+      this->publish_alarm_state_(this->alarm_cursensorerr_binary_sensor_, this->check_bit_of_byte_(data[134], 3));
+      this->publish_alarm_state_(this->alarm_cellovp_binary_sensor_, this->check_bit_of_byte_(data[134], 4));
+      this->publish_alarm_state_(this->alarm_batovp_binary_sensor_, this->check_bit_of_byte_(data[134], 5));
+      this->publish_alarm_state_(this->alarm_chocp_binary_sensor_, this->check_bit_of_byte_(data[134], 6));
+      this->publish_alarm_state_(this->alarm_chscp_binary_sensor_, this->check_bit_of_byte_(data[134], 7));
 
-    /*    ESP_LOGI(TAG, "alarm_WireRes_binary_sensor_:                  %d", this->check_bit_of_byte_(data[134], 0));
+      /*    ESP_LOGI(TAG, "alarm_WireRes_binary_sensor_:                  %d", this->check_bit_of_byte_(data[134], 0));
         ESP_LOGI(TAG, "alarm_MosOTP_binary_sensor_:                   %d", this->check_bit_of_byte_(data[134], 1));
         ESP_LOGI(TAG, "alarm_CellQuantity_binary_sensor_:             %d", this->check_bit_of_byte_(data[134], 2));
         ESP_LOGI(TAG, "alarm_CurSensorErr_binary_sensor_:             %d", this->check_bit_of_byte_(data[134], 3));
@@ -867,93 +893,97 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
         ESP_LOGI(TAG, "alarm_BatOVP_binary_sensor_:                   %d", this->check_bit_of_byte_(data[134], 5));
         ESP_LOGI(TAG, "alarm_ChOCP_binary_sensor_:                    %d", this->check_bit_of_byte_(data[134], 6));
         ESP_LOGI(TAG, "alarm_ChSCP_binary_sensor_:                    %d", this->check_bit_of_byte_(data[134], 7));*/
+    }
+
+    //  # Bit 0     Wire resistance                              0000 0000 0000 0001         0x0001 
+    //  # Bit 1     MOS OTP                                      0000 0000 0000 0010         0x0002
+    //  # Bit 2     Cell quantity                                0000 0000 0000 0100         0x0004
+    //  # Bit 3     Current sensor error                         0000 0000 0000 1000         0x0008
+    //  # Bit 4     Cell OVP                                     0000 0000 0001 0000         0x0010
+    //  # Bit 5     Battery OVP                                  0000 0000 0010 0000         0x0020
+    //  # Bit 6     Charge OCP                                   0000 0000 0100 0000         0x0040
+    //  # Bit 7     Charge SCP                                   0000 0000 1000 0000         0x0080
+    //  # Bit 8     Charge OTP                                   0000 0001 0000 0000         0x0100
+    //  # Bit 9     Charge UTP                                   0000 0010 0000 0000         0x0200
+    //  # Bit 10    CPU Aux comm error                           0000 0100 0000 0000         0x0400
+    //  # Bit 11    Cell UVP                                     0000 1000 0000 0000         0x0800
+    //  # Bit 12    Batt UVP                                     0001 0000 0000 0000         0x1000
+    //  # Bit 13    Discharge OCP                                0010 0000 0000 0000         0x2000
+    //  # Bit 14    Discharge SCP                                0100 0000 0000 0000         0x4000
+    //  # Bit 15    Charge MOS                                   1000 0000 0000 0000         0x8000
+    //  # Bit 16    Discharge MOS                           0001 0000 0000 0000 0000        0x10000
+    //  # Bit 17    GPS Disconneted                         0010 0000 0000 0000 0000        0x20000
+    //  # Bit 18    Modify PWD. in time                     0100 0000 0000 0000 0000        0x40000
+    //  # Bit 19    Discharge On Failed                     1000 0000 0000 0000 0000        0x80000
+    //  # Bit 20    Battery Over Temp Alarm            0001 0000 0000 0000 0000 0000       0x100000
+    //  # Bit 21    Temperature sensor anomaly         0010 0000 0000 0000 0000 0000       0x200000
+    //  # Bit 22    PLCModule anomaly                  0100 0000 0000 0000 0000 0000       0x400000
+    //  # Bit 23    Reserved                           1000 0000 0000 0000 0000 0000       0x800000
+
+      if (frame_version == FRAME_VERSION_JK02_32S) {
+
+      } else {
+      // 134   2   0xD2 0x00              MOS Temperature       0.1          °C
+        this->publish_state_(this->temperature_powertube_sensor_, int16_to_float(&data[134+offset]) * 0.1f);    //  (float) ((int16_t) jk_get_16bit(134 + offset)) * 0.1f);
+      }
+
+      // 135 [161=135+26]   2   0xD2        Alarms      bit
+      // AlarmChOTP                  1   (0:normal | 1:alarm)
+      // AlarmChUTP                  2   (0:normal | 1:alarm)
+      // AlarmCPUAuxCommuErr         4   (0:normal | 1:alarm)
+      // AlarmCellUVP                8   (0:normal | 1:alarm)
+      // AlarmBatUVP                 16  (0:normal | 1:alarm)
+      // AlarmDchOCP                 32  (0:normal | 1:alarm)
+      // AlarmDchSCP                 64  (0:normal | 1:alarm)
+      // AlarmDchOTP                 128 (0:normal | 1:alarm)
+      if (frame_version == FRAME_VERSION_JK02_32S) {
+        this->publish_alarm_state_(this->alarm_chotp_binary_sensor_, this->check_bit_of_byte_(data[135], 0));
+        this->publish_alarm_state_(this->alarm_chutp_binary_sensor_, this->check_bit_of_byte_(data[135], 1));
+        this->publish_alarm_state_(this->alarm_cpuauxcommuerr_binary_sensor_, this->check_bit_of_byte_(data[135], 2));
+        this->publish_alarm_state_(this->alarm_celluvp_binary_sensor_, this->check_bit_of_byte_(data[135], 3));
+        this->publish_alarm_state_(this->alarm_batuvp_binary_sensor_, this->check_bit_of_byte_(data[135], 4));
+        this->publish_alarm_state_(this->alarm_dchocp_binary_sensor_, this->check_bit_of_byte_(data[135], 5));
+        this->publish_alarm_state_(this->alarm_dchscp_binary_sensor_, this->check_bit_of_byte_(data[135], 6));
+        this->publish_alarm_state_(this->alarm_dchotp_binary_sensor_, this->check_bit_of_byte_(data[135], 7));
+
+      }
+      // 136 [162]   2   0xD2        Alarms      bit
+      // AlarmChargeMOS              1   (0:normal | 1:alarm)
+      // AlarmDischargeMOS           2   (0:normal | 1:alarm)
+      // GPSDisconneted              4   (0:normal | 1:alarm)
+      // ModifyPWDinTime             8   (0:normal | 1:alarm)
+      // DischargeOnFailed           16  (0:normal | 1:alarm)
+      // BatteryOverTemp             32  (0:normal | 1:alarm)
+      // TemperatureSensorAnomaly    64  (0:normal | 1:alarm)
+      // PLCModuleAnomaly            128 (0:normal | 1:alarm)
+      if (frame_version == FRAME_VERSION_JK02_32S) {
+        this->publish_alarm_state_(this->alarm_chargemos_binary_sensor_, this->check_bit_of_byte_(data[136], 0));
+        this->publish_alarm_state_(this->alarm_dischargemos_binary_sensor_, this->check_bit_of_byte_(data[136], 1));
+        this->publish_alarm_state_(this->alarm_gpsdisconneted_binary_sensor_, this->check_bit_of_byte_(data[136], 2));
+        this->publish_alarm_state_(this->alarm_modifypwdintime_binary_sensor_, this->check_bit_of_byte_(data[136], 3));
+        this->publish_alarm_state_(this->alarm_dischargeonfailed_binary_sensor_, this->check_bit_of_byte_(data[136], 4));
+        this->publish_alarm_state_(this->alarm_batteryovertemp_binary_sensor_, this->check_bit_of_byte_(data[136], 5));
+        this->publish_alarm_state_(this->alarm_temperaturesensoranomaly_binary_sensor_, this->check_bit_of_byte_(data[136], 6));
+        this->publish_alarm_state_(this->alarm_plcmoduleanomaly_binary_sensor_, this->check_bit_of_byte_(data[136], 7));
+      }
+
+      if (frame_version == FRAME_VERSION_JK02_32S) {
+
+      // 134   2   0xD2 0x00              error bitmastk
+        //uint32_t raw_errors_bitmask = (uint16_t(data[134 + offset]) << 0) | (uint16_t(data[135 + offset]) << 8);
+        //raw_errors_bitmask = (((uint16_t(data[136 + offset]) << 0) | (uint16_t(data[137 + offset]) << 8)) << 16) | raw_errors_bitmask;
+        uint32_t raw_errors_bitmask = (uint32_t(data[134 + 3 + offset])<<24) | (uint32_t(data[134 + 2 + offset])<<16) | (uint32_t(data[134 + 1 + offset])<<8) | (uint32_t(data[134 + 0 + offset])<<0);
+        //ESP_LOGD(TAG, "raw_errors_bitmask: %s",uint32_to_binary(raw_errors_bitmask).c_str());
+        this->publish_state_(this->errors_bitmask_sensor_, (float) raw_errors_bitmask);
+        this->publish_state_(this->errors_text_sensor_, this->error_bits_to_string_(raw_errors_bitmask));
+      }
+
+    // 138 [164=138+26]  2   0x00 0x00              Balance current      0.001         A
+    this->publish_state_(this->balancing_current_sensor_, int16_to_float(&data[138+offset]) * 0.001f);
+
   }
-
-//  # Bit 0     Wire resistance                              0000 0000 0000 0001         0x0001 
-//  # Bit 1     MOS OTP                                      0000 0000 0000 0010         0x0002
-//  # Bit 2     Cell quantity                                0000 0000 0000 0100         0x0004
-//  # Bit 3     Current sensor error                         0000 0000 0000 1000         0x0008
-//  # Bit 4     Cell OVP                                     0000 0000 0001 0000         0x0010
-//  # Bit 5     Battery OVP                                  0000 0000 0010 0000         0x0020
-//  # Bit 6     Charge OCP                                   0000 0000 0100 0000         0x0040
-//  # Bit 7     Charge SCP                                   0000 0000 1000 0000         0x0080
-//  # Bit 8     Charge OTP                                   0000 0001 0000 0000         0x0100
-//  # Bit 9     Charge UTP                                   0000 0010 0000 0000         0x0200
-//  # Bit 10    CPU Aux comm error                           0000 0100 0000 0000         0x0400
-//  # Bit 11    Cell UVP                                     0000 1000 0000 0000         0x0800
-//  # Bit 12    Batt UVP                                     0001 0000 0000 0000         0x1000
-//  # Bit 13    Discharge OCP                                0010 0000 0000 0000         0x2000
-//  # Bit 14    Discharge SCP                                0100 0000 0000 0000         0x4000
-//  # Bit 15    Charge MOS                                   1000 0000 0000 0000         0x8000
-//  # Bit 16    Discharge MOS                           0001 0000 0000 0000 0000        0x10000
-//  # Bit 17    GPS Disconneted                         0010 0000 0000 0000 0000        0x20000
-//  # Bit 18    Modify PWD. in time                     0100 0000 0000 0000 0000        0x40000
-//  # Bit 19    Discharge On Failed                     1000 0000 0000 0000 0000        0x80000
-//  # Bit 20    Battery Over Temp Alarm            0001 0000 0000 0000 0000 0000       0x100000
-//  # Bit 21    Temperature sensor anomaly         0010 0000 0000 0000 0000 0000       0x200000
-//  # Bit 22    PLCModule anomaly                  0100 0000 0000 0000 0000 0000       0x400000
-//  # Bit 23    Reserved                           1000 0000 0000 0000 0000 0000       0x800000
-
-  if (frame_version == FRAME_VERSION_JK02_32S) {
-
-  } else {
-  // 134   2   0xD2 0x00              MOS Temperature       0.1          °C
-    this->publish_state_(this->temperature_powertube_sensor_, int16_to_float(&data[134+offset]) * 0.1f);    //  (float) ((int16_t) jk_get_16bit(134 + offset)) * 0.1f);
-  }
-
-  // 135 [161=135+26]   2   0xD2        Alarms      bit
-  // AlarmChOTP                  1   (0:normal | 1:alarm)
-  // AlarmChUTP                  2   (0:normal | 1:alarm)
-  // AlarmCPUAuxCommuErr         4   (0:normal | 1:alarm)
-  // AlarmCellUVP                8   (0:normal | 1:alarm)
-  // AlarmBatUVP                 16  (0:normal | 1:alarm)
-  // AlarmDchOCP                 32  (0:normal | 1:alarm)
-  // AlarmDchSCP                 64  (0:normal | 1:alarm)
-  // AlarmDchOTP                 128 (0:normal | 1:alarm)
-  if (frame_version == FRAME_VERSION_JK02_32S) {
-    this->publish_alarm_state_(this->alarm_chotp_binary_sensor_, this->check_bit_of_byte_(data[135], 0));
-    this->publish_alarm_state_(this->alarm_chutp_binary_sensor_, this->check_bit_of_byte_(data[135], 1));
-    this->publish_alarm_state_(this->alarm_cpuauxcommuerr_binary_sensor_, this->check_bit_of_byte_(data[135], 2));
-    this->publish_alarm_state_(this->alarm_celluvp_binary_sensor_, this->check_bit_of_byte_(data[135], 3));
-    this->publish_alarm_state_(this->alarm_batuvp_binary_sensor_, this->check_bit_of_byte_(data[135], 4));
-    this->publish_alarm_state_(this->alarm_dchocp_binary_sensor_, this->check_bit_of_byte_(data[135], 5));
-    this->publish_alarm_state_(this->alarm_dchscp_binary_sensor_, this->check_bit_of_byte_(data[135], 6));
-    this->publish_alarm_state_(this->alarm_dchotp_binary_sensor_, this->check_bit_of_byte_(data[135], 7));
-
-  }
-  // 136 [162]   2   0xD2        Alarms      bit
-  // AlarmChargeMOS              1   (0:normal | 1:alarm)
-  // AlarmDischargeMOS           2   (0:normal | 1:alarm)
-  // GPSDisconneted              4   (0:normal | 1:alarm)
-  // ModifyPWDinTime             8   (0:normal | 1:alarm)
-  // DischargeOnFailed           16  (0:normal | 1:alarm)
-  // BatteryOverTemp             32  (0:normal | 1:alarm)
-  // TemperatureSensorAnomaly    64  (0:normal | 1:alarm)
-  // PLCModuleAnomaly            128 (0:normal | 1:alarm)
-  if (frame_version == FRAME_VERSION_JK02_32S) {
-    this->publish_alarm_state_(this->alarm_chargemos_binary_sensor_, this->check_bit_of_byte_(data[136], 0));
-    this->publish_alarm_state_(this->alarm_dischargemos_binary_sensor_, this->check_bit_of_byte_(data[136], 1));
-    this->publish_alarm_state_(this->alarm_gpsdisconneted_binary_sensor_, this->check_bit_of_byte_(data[136], 2));
-    this->publish_alarm_state_(this->alarm_modifypwdintime_binary_sensor_, this->check_bit_of_byte_(data[136], 3));
-    this->publish_alarm_state_(this->alarm_dischargeonfailed_binary_sensor_, this->check_bit_of_byte_(data[136], 4));
-    this->publish_alarm_state_(this->alarm_batteryovertemp_binary_sensor_, this->check_bit_of_byte_(data[136], 5));
-    this->publish_alarm_state_(this->alarm_temperaturesensoranomaly_binary_sensor_, this->check_bit_of_byte_(data[136], 6));
-    this->publish_alarm_state_(this->alarm_plcmoduleanomaly_binary_sensor_, this->check_bit_of_byte_(data[136], 7));
-  }
-
-  if (frame_version == FRAME_VERSION_JK02_32S) {
-
-  // 134   2   0xD2 0x00              error bitmastk
-    //uint32_t raw_errors_bitmask = (uint16_t(data[134 + offset]) << 0) | (uint16_t(data[135 + offset]) << 8);
-    //raw_errors_bitmask = (((uint16_t(data[136 + offset]) << 0) | (uint16_t(data[137 + offset]) << 8)) << 16) | raw_errors_bitmask;
-    uint32_t raw_errors_bitmask = (uint32_t(data[134 + 3 + offset])<<24) | (uint32_t(data[134 + 2 + offset])<<16) | (uint32_t(data[134 + 1 + offset])<<8) | (uint32_t(data[134 + 0 + offset])<<0);
-    //ESP_LOGD(TAG, "raw_errors_bitmask: %s",uint32_to_binary(raw_errors_bitmask).c_str());
-    this->publish_state_(this->errors_bitmask_sensor_, (float) raw_errors_bitmask);
-    this->publish_state_(this->errors_text_sensor_, this->error_bits_to_string_(raw_errors_bitmask));
-  }
-
-  // 138 [164=138+26]  2   0x00 0x00              Balance current      0.001         A
-  this->publish_state_(this->balancing_current_sensor_, int16_to_float(&data[138+offset]) * 0.001f);
+  else
+  {
 
   // 140 [166=140+26]  1   0x00                   Balancing action                   0x00: Off
   //                                                                                 0x01: Charging balancer
@@ -1132,9 +1162,22 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
     this->publish_state_(this->battery_total_alarms_count_sensor_, (float) this->battery_total_alarms_count_);
     this->publish_state_(this->battery_total_alarms_active_sensor_, (float) this->battery_total_alarms_active_);
   }
+
+  }
+}
+
   this->status_notification_received_ = true;
   this->trigger_bms2sniffer_event("WORKING ! #####",02);  
+
 }
+
+
+
+
+
+
+
+
 
 void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
 

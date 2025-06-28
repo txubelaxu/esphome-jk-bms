@@ -884,6 +884,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()->on_jk_rs485_sniffer_data()");
 
         device->on_jk_rs485_sniffer_data(address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS], data, this->nodes_available );   
+        
         found = true;
     }
     

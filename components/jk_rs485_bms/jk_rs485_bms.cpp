@@ -267,8 +267,8 @@ void JkRS485Bms::JkRS485Bms_init(void) {
         cells_[i].cell_resistance_sensor_ = nullptr;
     }
     
-    
-     
+    this->arr[0] = 0;
+    this->arr[1] = 0;         
 }  
 
 
@@ -709,6 +709,7 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
     ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 2");      
     cell_voltage    = uint16_to_float(&data[i * 2 + 6]) * 0.001f;              //(float) jk_get_16bit(i * 2 + 6) * 0.001f;
     cell_resistance = uint16_to_float(&data[(i * 2 + 64 + offset)]) * 0.001f;  //(float) jk_get_16bit(i * 2 + 64 + offset) * 0.001f;
+
     if (cell_voltage > 0){
       cell_count_real++;
       if (cell_voltage < cell_voltage_min) {
@@ -735,6 +736,7 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
 
 
     ESP_LOGD(TAG, "[ADDRESS: %02X]  %02d --> V: %fV",this->address_,i, cell_voltage);
+
     if(this->address_==1 && i==2){
       ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 4");      
       this->publish_state_(this->cells_[i].cell_voltage_sensor_, cell_voltage);
@@ -1143,6 +1145,17 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
 
   float temp_param_value;
 
+  if( this->arr[0] == 0)
+  {
+    this->arr[0] = 1;
+  }
+  else
+  {
+    this->arr[0] = 0;
+  }
+
+  
+
   // JK02_24S response example:
   //
   // 0x55 0xAA 0xEB 0x90 0x01 0x4F 0x58 0x02 0x00 0x00 0x54 0x0B 0x00 0x00 0x80 0x0C 0x00 0x00 0xCC 0x10 0x00 0x00 0x68
@@ -1165,6 +1178,10 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
   // 4     1   0x01                   Frame type
   // 5     1   0x4F                   Frame counter
   // 6  [0]   4   0x58 0x02 0x00 0x00    ** [JK-PB2A16S-20P v14] VOLTAGE SMART SLEEP
+
+  if( this->arr[0] == 0)
+  {
+
   temp_param_value = uint32_to_float(&data[6]) * 0.001f;
   //ESP_LOGV(TAG, "  Voltage Smart Sleep: %f", temp_param_value); ///(float) jk_get_32bit(6) * 0.001f);
   this->publish_state_(this->cell_smart_sleep_voltage_number_, temp_param_value);
@@ -1481,6 +1498,7 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
   this->publish_state_(this->smart_sleep_time_sensor_, (uint8_t) (data[286]));
 //  ESP_LOGI(TAG, "  Data field enable control 0: %d", (uint8_t) (data[287]));
   
+  }
 
   // 290   4   0x00 0x00 0x00 0x00
   // 294   4   0x00 0x00 0x00 0x00

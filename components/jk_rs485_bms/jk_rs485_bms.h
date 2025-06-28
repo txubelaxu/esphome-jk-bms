@@ -761,6 +761,8 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
   }
 
   private:
+    int arr[2] = {0, 0};
+    
     JkRS485BmsSwitch *precharging_switch_;
     JkRS485BmsSwitch *charging_switch_;
     JkRS485BmsSwitch *discharging_switch_;

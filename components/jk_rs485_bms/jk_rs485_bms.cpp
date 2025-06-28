@@ -1301,6 +1301,10 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
   temp_param_value=int32_to_float(&data[90])*0.1f;
   //ESP_LOGV(TAG, "  Discharge OTP: %f °C", temp_param_value);
   this->publish_state_(this->discharging_overtemperature_protection_number_, temp_param_value);
+  }
+  else  
+  {
+    // 22 parameters per each execution.
 
   // 94 [88]    4   0x58 0x02 0x00 0x00    Discharge OTP Recovery              TMPBatDcOTPR
   temp_param_value=int32_to_float(&data[94])*0.1f;

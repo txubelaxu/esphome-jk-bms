@@ -1154,7 +1154,7 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
     this->arr[0] = 0;
   }
 
-  ESP_LOGD(TAG, " array\[0\] = %d", arr[0]);     
+  ESP_LOGD(TAG, " array 0 = %d", arr[0]);     
 
 
 

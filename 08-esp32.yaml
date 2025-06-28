@@ -99,7 +99,7 @@ logger:
   logs:
     esp32_ble_tracker: WARN
     jk_bms_ble: WARN
-    jk_rs485_bms: WARN
+    jk_rs485_bms: DEBUG
     jk_rs485_sniffer: WARN
   #   scheduler: DEBUG
   #   component: DEBUG

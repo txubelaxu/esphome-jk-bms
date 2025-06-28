@@ -1151,7 +1151,14 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
   }
   else
   {
-    this->arr[0] = 0;
+    if( this->arr[0] == 1)
+    {
+      this->arr[0] = 2;
+    }
+    else
+    {
+      this->arr[0] = 0;
+    }     
   }
 
   ESP_LOGD(TAG, " array 0 = %d", arr[0]);     
@@ -1265,6 +1272,13 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
   temp_param_value = uint32_to_float(&data[62]) * 0.001f;   
   //ESP_LOGV(TAG, "  Max. discharging current: %f A", temp_param_value); ///(float) jk_get_32bit(62) * 0.001f);
   this->publish_state_(this->max_discharging_current_number_, temp_param_value); ///(float) jk_get_32bit(62) * 0.001f);
+  }
+  else
+  {
+
+    if( this->arr[0] == 1)
+    {
+  
 
   // 66 [60]   4   0x2C 0x01 0x00 0x00    Discharge OCP delay                 TIMBatDcOCPDly   Discharge Overcurrent Protection Delay
   temp_param_value = uint32_to_float(&data[66]);  
@@ -1301,10 +1315,6 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
   temp_param_value=int32_to_float(&data[90])*0.1f;
   //ESP_LOGV(TAG, "  Discharge OTP: %f °C", temp_param_value);
   this->publish_state_(this->discharging_overtemperature_protection_number_, temp_param_value);
-  }
-  else  
-  {
-    // 22 parameters per each execution.
 
   // 94 [88]    4   0x58 0x02 0x00 0x00    Discharge OTP Recovery              TMPBatDcOTPR
   temp_param_value=int32_to_float(&data[94])*0.1f;
@@ -1346,6 +1356,10 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
   // ESP_LOGI(TAG, "  Discharge switch: %s", ((bool) data[122]) ? "on" : "off");
   ESP_LOGV(TAG, " [0x%02X]* discharging_switch_                                     is byte %02X address %p",this->address_,(data[122]),(void *) this->discharging_switch_);
   this->publish_state_(this->discharging_switch_, (bool) data[122]);
+  }
+  else  
+  {
+  // 22 parameters per each execution.  
 
   // 126 [120 = 0x78]  4   0x01 0x00 0x00 0x00    Balancer switch
   ESP_LOGI(TAG, "  Balancer switch: %s", ((bool) data[126]) ? "on" : "off");
@@ -1504,6 +1518,7 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
   this->publish_state_(this->smart_sleep_time_sensor_, (uint8_t) (data[286]));
 //  ESP_LOGI(TAG, "  Data field enable control 0: %d", (uint8_t) (data[287]));
   
+    }
   }
 
   // 290   4   0x00 0x00 0x00 0x00

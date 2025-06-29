@@ -704,6 +704,7 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
 
   uint8_t frame_version = FRAME_VERSION_JK02_24S;
   uint8_t offset = 0;
+
   if (this->protocol_version_ == PROTOCOL_VERSION_JK02_32S) {
     frame_version = FRAME_VERSION_JK02_32S;
     offset = 16;
@@ -793,6 +794,8 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
   ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 1");
 
   if (this->arr[1] == 0) {
+    ESP_LOGD(TAG, " if (this->arr[1] == 0) - offset: %d) ", offset);
+
     for (uint8_t i = 0; i < cells; i++) {
       ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 2");
       cell_voltage = uint16_to_float(&data[i * 2 + 6]) * 0.001f;  //(float) jk_get_16bit(i * 2 + 6) * 0.001f;
@@ -845,7 +848,9 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
 
   } else {
     if (this->arr[1] == 1) {
-      ESP_LOGVV(TAG, "Debug point 001");
+      ESP_LOGD(TAG, " if (this->arr[1] == 1)");
+      ESP_LOGD(TAG, " if (this->arr[1] == 1) - offset: %d) ", offset);
+
       this->publish_state_(this->cell_count_real_sensor_, (float) cell_count_real);
       this->publish_state_(this->cell_voltage_min_sensor_, cell_voltage_min);
       this->publish_state_(this->cell_voltage_max_sensor_, cell_voltage_max);
@@ -1053,6 +1058,12 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
       this->publish_state_(this->balancing_current_sensor_, int16_to_float(&data[138 + offset]) * 0.001f);
 
     } else {
+      offset = offset * 2;  // Copy the offset from the previous conditional.
+
+      ESP_LOGD(TAG, " if (this->arr[1] == 2)");
+
+      ESP_LOGD(TAG, " if (this->arr[1] == 2) - offset: %d) ", offset);
+
       // 140 [166=140+26]  1   0x00                   Balancing action                   0x00: Off
       //                                                                                 0x01: Charging balancer
       //                                                                                 0x02: Discharging balancer

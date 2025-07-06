@@ -852,7 +852,7 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
   }
 
   // } else {
-  //   if (this->arr[1] == 1) {
+  //    if (this->arr[1] == 1) {
   ESP_LOGD(TAG, " if (this->arr[1] == 1)");
   ESP_LOGD(TAG, " if (this->arr[1] == 1) - offset: %d) ", offset);
 
@@ -1253,8 +1253,8 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
     this->publish_state_(this->battery_total_alarms_count_sensor_, (float) this->battery_total_alarms_count_);
     this->publish_state_(this->battery_total_alarms_active_sensor_, (float) this->battery_total_alarms_active_);
   }
+  //}
 }
-//  }
 
 this->status_notification_received_ = true;
 this->trigger_bms2sniffer_event("WORKING ! #####", 02);
@@ -1487,6 +1487,7 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
       ESP_LOGV(TAG, " [0x%02X]* discharging_switch_                                     is byte %02X address %p",
                this->address_, (data[122]), (void *) this->discharging_switch_);
       this->publish_state_(this->discharging_switch_, (bool) data[122]);
+
     } else {
       // 22 parameters per each execution.
 
@@ -2031,6 +2032,7 @@ void JkRS485Bms::publish_alarm_state_(binary_sensor::BinarySensor *binary_sensor
   }
   binary_sensor->publish_state(state);
 }
+
 std::string JkRS485Bms::error_bits_to_string_(const uint32_t mask) {
   bool first = true;
   std::string errors_list = "";

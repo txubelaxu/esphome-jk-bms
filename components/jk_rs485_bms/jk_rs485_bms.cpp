@@ -1056,8 +1056,8 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
 
   // 138 [164=138+26]  2   0x00 0x00              Balance current      0.001         A
   this->publish_state_(this->balancing_current_sensor_, int16_to_float(&data[138 + offset]) * 0.001f);
-}
-else {
+  // }
+  // else {
   offset = offset * 2;  // Copy the offset from the previous conditional.
 
   ESP_LOGD(TAG, " if (this->arr[1] == 2)");

@@ -467,6 +467,10 @@ sensor:
     name: "${name} WiFi Signal"
     update_interval: 60s
 
+  - platform: uptime
+    name: "UptimeSecs"
+    update_interval: 5s
+
     # JK-01 SENSOR
     # ###################################################
   - platform: jk_rs485_bms

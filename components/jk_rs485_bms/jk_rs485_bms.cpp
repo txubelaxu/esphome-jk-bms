@@ -679,9 +679,9 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
         ESP_LOGD(TAG, "  %s", format_hex_pretty(&data.front(), 150).c_str());
     }
 
-    ESP_LOGD(TAG, "on_jk_rs485_sniffer_data()--this->cell_count_real_sensor_->state: %d ",
+    ESP_LOGD(TAG, "on_jk_rs485_sniffer_data()--this->cell_count_real_sensor_->state: %f ",
              this->cell_count_real_sensor_->state);
-    ESP_LOGD(TAG, "on_jk_rs485_sniffer_data()--this->cell_count_settings_number_->state: %d ",
+    ESP_LOGD(TAG, "on_jk_rs485_sniffer_data()--this->cell_count_settings_number_->state: %f ",
              this->cell_count_settings_number_->state);
 
     if (this->cell_count_real_sensor_->state > 0 && this->cell_count_settings_number_->state > 0) {

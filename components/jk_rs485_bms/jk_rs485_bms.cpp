@@ -794,6 +794,7 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
   ESP_LOGD(TAG, "JkRS485Bms::decode_jk02_cell_info_: 1");
 
   if (this->arr[1] == 0) {
+    ESP_LOGD(TAG, " ===============================================================================================");
     ESP_LOGD(TAG, " if (this->arr[1] == 0) - offset: %d) ", offset);
 
     for (uint8_t i = 0; i < cells; i++) {
@@ -848,6 +849,8 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
 
   } else {
     if (this->arr[1] == 1) {
+      ESP_LOGD(TAG, " ===============================================================================================");
+
       ESP_LOGD(TAG, " if (this->arr[1] == 1)");
       ESP_LOGD(TAG, " if (this->arr[1] == 1) - offset: %d) ", offset);
 
@@ -1058,9 +1061,10 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
       this->publish_state_(this->balancing_current_sensor_, int16_to_float(&data[138 + offset]) * 0.001f);
 
     } else {
-      offset = offset * 2;  // Copy the offset from the previous conditional.
-
+      ESP_LOGD(TAG, " ===============================================================================================");
       ESP_LOGD(TAG, " if (this->arr[1] == 2)");
+
+      offset = offset * 2;  // Copy the offset from the previous conditional.
 
       ESP_LOGD(TAG, " if (this->arr[1] == 2) - offset: %d) ", offset);
 

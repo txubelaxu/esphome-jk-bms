@@ -877,6 +877,7 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
 
   if (this->arr[1] == 0) {
     ESP_LOGD(TAG, " ===============================================================================================");
+    ESP_LOGD(TAG, " if (this->arr[1] == 0)");
     ESP_LOGD(TAG, " if (this->arr[1] == 0) - offset: %d) ", offset);
 
     // 58    2   0x00 0x0D              cell average voltage  0.001        V

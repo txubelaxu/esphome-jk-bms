@@ -100,7 +100,7 @@ logger:
     esp32_ble_tracker: WARN
     jk_bms_ble: WARN
     jk_rs485_bms: DEBUG
-    jk_rs485_sniffer: WARN
+    jk_rs485_sniffer: DEBUG
   #   scheduler: DEBUG
   #   component: DEBUG
   #   sensor: DEBUG
@@ -983,28 +983,28 @@ text_sensor:
     jk_rs485_bms_id: bms2
     errors:
       name: "${jkibms_bottom_right_02} errors"
-    # operation_status:                                                           #2025-06-11: No need.
-    #   name: "${jkibms_bottom_right_02} operation status"
-    # battery_type:                                                             #2025-06-10: Not needed, with the normal bat power is enough.
-    #   name: "${jkibms_bottom_right_02} bat type"
+    operation_status: #2025-06-11: No need.
+      name: "${jkibms_bottom_right_02} operation status"
+    battery_type: #2025-06-10: Not needed, with the normal bat power is enough.
+      name: "${jkibms_bottom_right_02} bat type"
     total_runtime_formatted:
       name: "${jkibms_bottom_right_02} total runtime formatted"
     info_vendorid: #2025-06-10: With comms seems not to be present.
       name: "${jkibms_bottom_right_02} info vendorid"
-    # info_hardware_version:                                                    #2025-06-10: With comms seems not to be present.
-    #   name: "${jkibms_bottom_right_02} info hardware version"
-    # info_software_version:                                                    #2025-06-10: With comms seems not to be present.
-    #   name: "${jkibms_bottom_right_02} info software version"
-    # info_device_name:                                                         #2025-06-10: With comms seems not to be present.
-    #   name: "${jkibms_bottom_right_02} info device name"
-    # info_device_password:                                                     #2025-06-10: With comms seems not to be present.
-    #   name: "${jkibms_bottom_right_02} info device password"
+    info_hardware_version: #2025-06-10: With comms seems not to be present.
+      name: "${jkibms_bottom_right_02} info hardware version"
+    info_software_version: #2025-06-10: With comms seems not to be present.
+      name: "${jkibms_bottom_right_02} info software version"
+    info_device_name: #2025-06-10: With comms seems not to be present.
+      name: "${jkibms_bottom_right_02} info device name"
+    info_device_password: #2025-06-10: With comms seems not to be present.
+      name: "${jkibms_bottom_right_02} info device password"
     network_nodes_available:
       name: "${jkibms_bottom_right_02} network nodes available"
-    # info_device_serial_number:                                                #2025-06-10: With comms seems not to be present.
-    #   name: "${jkibms_bottom_right_02} info device serial number"
-    # info_device_setup_passcode:                                               #2025-06-10: With comms seems not to be present.
-    #   name: "${jkibms_bottom_right_02} info device setup passcode"
+    info_device_serial_number: #2025-06-10: With comms seems not to be present.
+      name: "${jkibms_bottom_right_02} info device serial number"
+    info_device_setup_passcode: #2025-06-10: With comms seems not to be present.
+      name: "${jkibms_bottom_right_02} info device setup passcode"
 
   # ###################################################
   - platform: wifi_info

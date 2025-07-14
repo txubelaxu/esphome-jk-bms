@@ -36,7 +36,7 @@ esphome:
   # min_version: 2025.5.0
   name_add_mac_suffix: false
   project:
-    name: "txubelaxu.esphome-jk-bms"
+    name: "rabbit3dcustom.esphome-jk-bms"
     version: main
 
 esp32:

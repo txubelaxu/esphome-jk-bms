@@ -511,9 +511,7 @@ int JkRS485Sniffer::found_next_node_to_discover(void) {
 void JkRS485Sniffer::loop() {
   uint32_t now = millis();
 
-  ESP_LOGD(TAG, "JkRS485Sniffer::loop()-->");
-
-  // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-->");
+  ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-->");
 
   if (this->rx_buffer_.size() == this->rx_buffer_.max_size()) {
     ESP_LOGW(TAG, "### Buffer cleared buffer size: %d", this->rx_buffer_.size());
@@ -659,9 +657,7 @@ void JkRS485Sniffer::loop() {
     }
   }
 
-  // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()--<");
-
-  ESP_LOGD(TAG, "JkRS485Sniffer::loop()-->");
+  ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-->");
 
 }  // JkRS485Sniffer::loop()
 

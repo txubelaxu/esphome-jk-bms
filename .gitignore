@@ -14,4 +14,22 @@ __pycache__/
 
 secrets.yaml
 test.yaml
+**/*.yaml
+
+.idea/
+.esphome/
+**/.pioenvs/
+**/.piolibdeps/
+**/lib/
+**/src/
+**/partitions.csv
+
+__pycache__/
+*.py[cod]
+*$py.class
+/.vs
+
+secrets.yaml
 test.yaml
+**/*.yml
+**/*.yaml

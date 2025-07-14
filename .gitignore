@@ -1,5 +1,5 @@
+
 .idea/
-secrets.yaml
 .esphome/
 **/.pioenvs/
 **/.piolibdeps/
@@ -11,3 +11,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 /.vs
+
+secrets.yaml
+test.yaml

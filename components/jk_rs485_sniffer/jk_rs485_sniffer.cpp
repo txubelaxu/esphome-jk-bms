@@ -511,7 +511,7 @@ int JkRS485Sniffer::found_next_node_to_discover(void) {
 void JkRS485Sniffer::loop() {
   uint32_t now = millis();
 
-  ESP_LOGD(TAG, "JkRS485Sniffer::loop()-->"));
+  ESP_LOGD(TAG, "JkRS485Sniffer::loop()-->");
 
   // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-->");
 
@@ -661,7 +661,8 @@ void JkRS485Sniffer::loop() {
 
   // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()--<");
 
-  ESP_LOGD(TAG, "JkRS485Sniffer::loop()--<"));
+  ESP_LOGD(TAG, "JkRS485Sniffer::loop()-->");
+
 }  // JkRS485Sniffer::loop()
 
 // void JkRS485Sniffer::send_rs485_message(uint8_t message[])

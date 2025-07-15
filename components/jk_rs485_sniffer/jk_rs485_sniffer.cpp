@@ -657,7 +657,7 @@ void JkRS485Sniffer::loop() {
     }
   }
 
-  ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-->");
+  ESP_LOGVV(TAG, "JkRS485Sniffer::loop()--<");
 
 }  // JkRS485Sniffer::loop()
 

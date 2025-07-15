@@ -1285,13 +1285,13 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
 
   float temp_param_value;
 
-  if (this->arr[0] == 0) {
-    this->arr[0] = 1;
-  } else {
-    this->arr[0] = 0;
-  }
+  // if (this->arr[0] == 0) {
+  //   this->arr[0] = 1;
+  // } else {
+  //   this->arr[0] = 0;
+  // }
 
-  ESP_LOGD(TAG, " array 0 = %d", arr[0]);
+  // ESP_LOGD(TAG, " array 0 = %d", arr[0]);
 
   // JK02_24S response example:
   //
@@ -1316,375 +1316,375 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
   // 5     1   0x4F                   Frame counter
   // 6  [0]   4   0x58 0x02 0x00 0x00    ** [JK-PB2A16S-20P v14] VOLTAGE SMART SLEEP
 
-  if (this->arr[0] == 0) { /* FIRST SPLIT*/
-    temp_param_value = uint32_to_float(&data[6]) * 0.001f;
-    // ESP_LOGV(TAG, "  Voltage Smart Sleep: %f", temp_param_value); ///(float) jk_get_32bit(6) * 0.001f);
-    this->publish_state_(this->cell_smart_sleep_voltage_number_, temp_param_value);
+  // if (this->arr[0] == 0) { /* FIRST SPLIT*/
+  temp_param_value = uint32_to_float(&data[6]) * 0.001f;
+  // ESP_LOGV(TAG, "  Voltage Smart Sleep: %f", temp_param_value); ///(float) jk_get_32bit(6) * 0.001f);
+  this->publish_state_(this->cell_smart_sleep_voltage_number_, temp_param_value);
 
-    // 10 [4]   4   0x54 0x0B 0x00 0x00    Cell UVP
-    temp_param_value = uint32_to_float(&data[10]) * 0.001f;
-    // ESP_LOGV(TAG, "  Cell UVP: %f V", temp_param_value); ///(float) jk_get_32bit(10) * 0.001f);
-    this->publish_state_(this->cell_undervoltage_protection_number_, temp_param_value);
+  // 10 [4]   4   0x54 0x0B 0x00 0x00    Cell UVP
+  temp_param_value = uint32_to_float(&data[10]) * 0.001f;
+  // ESP_LOGV(TAG, "  Cell UVP: %f V", temp_param_value); ///(float) jk_get_32bit(10) * 0.001f);
+  this->publish_state_(this->cell_undervoltage_protection_number_, temp_param_value);
 
-    // 14 [8]   4   0x80 0x0C 0x00 0x00    Cell UVP Recovery
-    temp_param_value = uint32_to_float(&data[14]) * 0.001f;
-    // ESP_LOGV(TAG, "  Cell UVPR: %f V", temp_param_value); /// (float) jk_get_32bit(14) * 0.001f);
-    this->publish_state_(this->cell_undervoltage_protection_recovery_number_,
-                         temp_param_value);  /// (float) jk_get_32bit(14) * 0.001f);
+  // 14 [8]   4   0x80 0x0C 0x00 0x00    Cell UVP Recovery
+  temp_param_value = uint32_to_float(&data[14]) * 0.001f;
+  // ESP_LOGV(TAG, "  Cell UVPR: %f V", temp_param_value); /// (float) jk_get_32bit(14) * 0.001f);
+  this->publish_state_(this->cell_undervoltage_protection_recovery_number_,
+                       temp_param_value);  /// (float) jk_get_32bit(14) * 0.001f);
 
-    // 18 [12]   4   0xCC 0x10 0x00 0x00    Cell OVP
-    temp_param_value = uint32_to_float(&data[18]) * 0.001f;
-    /// ESP_LOGV(TAG, "%02X%02X%02X%02X Cell OVP: %f V", data[18], data[19], data[20], data[21], (float)
-    /// jk_get_32bit(18));
-    this->publish_state_(this->cell_overvoltage_protection_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(18) * 0.001f);
+  // 18 [12]   4   0xCC 0x10 0x00 0x00    Cell OVP
+  temp_param_value = uint32_to_float(&data[18]) * 0.001f;
+  /// ESP_LOGV(TAG, "%02X%02X%02X%02X Cell OVP: %f V", data[18], data[19], data[20], data[21], (float)
+  /// jk_get_32bit(18));
+  this->publish_state_(this->cell_overvoltage_protection_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(18) * 0.001f);
 
-    // 22 [16]   4   0x68 0x10 0x00 0x00    Cell OVP Recovery
-    temp_param_value = uint32_to_float(&data[22]) * 0.001f;
-    // ESP_LOGI(TAG, "  Cell OVPR: %f V", temp_param_value); /// (float) jk_get_32bit(22) * 0.001f);
-    this->publish_state_(this->cell_overvoltage_protection_recovery_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(22) * 0.001f);
+  // 22 [16]   4   0x68 0x10 0x00 0x00    Cell OVP Recovery
+  temp_param_value = uint32_to_float(&data[22]) * 0.001f;
+  // ESP_LOGI(TAG, "  Cell OVPR: %f V", temp_param_value); /// (float) jk_get_32bit(22) * 0.001f);
+  this->publish_state_(this->cell_overvoltage_protection_recovery_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(22) * 0.001f);
 
-    // 26 [20]   4   0x0A 0x00 0x00 0x00    Balance trigger voltage
-    temp_param_value = uint32_to_float(&data[26]) * 0.001f;
-    // ESP_LOGV(TAG, "  Balance trigger voltage: %f V", temp_param_value); ///(float) jk_get_32bit(26) * 0.001f);
-    this->publish_state_(this->cell_balancing_trigger_voltage_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(26) * 0.001f);
+  // 26 [20]   4   0x0A 0x00 0x00 0x00    Balance trigger voltage
+  temp_param_value = uint32_to_float(&data[26]) * 0.001f;
+  // ESP_LOGV(TAG, "  Balance trigger voltage: %f V", temp_param_value); ///(float) jk_get_32bit(26) * 0.001f);
+  this->publish_state_(this->cell_balancing_trigger_voltage_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(26) * 0.001f);
 
-    // 30 [24]   4   0x00 0x00 0x00 0x00    ** [JK-PB2A16S-20P v14] SOC-100% VOLTAGE
-    temp_param_value = uint32_to_float(&data[30]) * 0.001f;
-    // ESP_LOGV(TAG, "  SOC-100 VOLTAGE: %f V", temp_param_value); ///(float) jk_get_32bit(30) * 0.001f);
-    this->publish_state_(this->cell_soc100_voltage_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(30) * 0.001f);
+  // 30 [24]   4   0x00 0x00 0x00 0x00    ** [JK-PB2A16S-20P v14] SOC-100% VOLTAGE
+  temp_param_value = uint32_to_float(&data[30]) * 0.001f;
+  // ESP_LOGV(TAG, "  SOC-100 VOLTAGE: %f V", temp_param_value); ///(float) jk_get_32bit(30) * 0.001f);
+  this->publish_state_(this->cell_soc100_voltage_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(30) * 0.001f);
 
-    // 34 [28]   4   0x00 0x00 0x00 0x00    ** [JK-PB2A16S-20P v14] SOC-0% VOLTAGE
-    temp_param_value = uint32_to_float(&data[34]) * 0.001f;
-    // ESP_LOGV(TAG, "  SOC-0 VOLTAGE: %f V", temp_param_value); ///(float) jk_get_32bit(34) * 0.001f);
-    this->publish_state_(this->cell_soc0_voltage_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(34) * 0.001f);
+  // 34 [28]   4   0x00 0x00 0x00 0x00    ** [JK-PB2A16S-20P v14] SOC-0% VOLTAGE
+  temp_param_value = uint32_to_float(&data[34]) * 0.001f;
+  // ESP_LOGV(TAG, "  SOC-0 VOLTAGE: %f V", temp_param_value); ///(float) jk_get_32bit(34) * 0.001f);
+  this->publish_state_(this->cell_soc0_voltage_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(34) * 0.001f);
 
-    // 38 [32]   4   0x00 0x00 0x00 0x00    ** [JK-PB2A16S-20P v14] VOLTAGE CELL REQUEST CHARGE VOLTAGE [RCV]
-    temp_param_value = uint32_to_float(&data[38]) * 0.001f;
-    // ESP_LOGV(TAG, "  CELL REQUEST CHARGE VOLTAGE [RCV]: %f V", temp_param_value); ///(float) jk_get_32bit(38) *
-    // 0.001f);
-    this->publish_state_(this->cell_request_charge_voltage_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(38) * 0.001f);
+  // 38 [32]   4   0x00 0x00 0x00 0x00    ** [JK-PB2A16S-20P v14] VOLTAGE CELL REQUEST CHARGE VOLTAGE [RCV]
+  temp_param_value = uint32_to_float(&data[38]) * 0.001f;
+  // ESP_LOGV(TAG, "  CELL REQUEST CHARGE VOLTAGE [RCV]: %f V", temp_param_value); ///(float) jk_get_32bit(38) *
+  // 0.001f);
+  this->publish_state_(this->cell_request_charge_voltage_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(38) * 0.001f);
 
-    // 42 [36]   4   0x00 0x00 0x00 0x00    ** [JK-PB2A16S-20P v14] VOLTAGE CELL REQUEST FLOAT VOLTAGE
-    temp_param_value = uint32_to_float(&data[42]) * 0.001f;
-    // ESP_LOGV(TAG, "  CELL REQUEST FLOAT VOLTAGE [RFV]: %f V", temp_param_value); ///(float) jk_get_32bit(42) *
-    // 0.001f);
-    this->publish_state_(this->cell_request_float_voltage_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(42) * 0.001f);
+  // 42 [36]   4   0x00 0x00 0x00 0x00    ** [JK-PB2A16S-20P v14] VOLTAGE CELL REQUEST FLOAT VOLTAGE
+  temp_param_value = uint32_to_float(&data[42]) * 0.001f;
+  // ESP_LOGV(TAG, "  CELL REQUEST FLOAT VOLTAGE [RFV]: %f V", temp_param_value); ///(float) jk_get_32bit(42) *
+  // 0.001f);
+  this->publish_state_(this->cell_request_float_voltage_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(42) * 0.001f);
 
-    // 46 [40]   4   0xF0 0x0A 0x00 0x00    Power off voltage
-    temp_param_value = uint32_to_float(&data[46]) * 0.001f;
-    // ESP_LOGV(TAG, "  Sys Power off voltage: %f V", temp_param_value); ///(float) jk_get_32bit(46) * 0.001f);
-    this->publish_state_(this->cell_power_off_voltage_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(46) * 0.001f);
+  // 46 [40]   4   0xF0 0x0A 0x00 0x00    Power off voltage
+  temp_param_value = uint32_to_float(&data[46]) * 0.001f;
+  // ESP_LOGV(TAG, "  Sys Power off voltage: %f V", temp_param_value); ///(float) jk_get_32bit(46) * 0.001f);
+  this->publish_state_(this->cell_power_off_voltage_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(46) * 0.001f);
 
-    // 50 [44]   4   0xA8 0x61 0x00 0x00    Max. charge current                 CurBatCOC
-    temp_param_value = uint32_to_float(&data[50]) * 0.001f;
-    // ESP_LOGV(TAG, "  Max. charging current: %f A", temp_param_value); ///(float) jk_get_32bit(50) * 0.001f);
-    this->publish_state_(this->max_charging_current_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(50) * 0.001f);
+  // 50 [44]   4   0xA8 0x61 0x00 0x00    Max. charge current                 CurBatCOC
+  temp_param_value = uint32_to_float(&data[50]) * 0.001f;
+  // ESP_LOGV(TAG, "  Max. charging current: %f A", temp_param_value); ///(float) jk_get_32bit(50) * 0.001f);
+  this->publish_state_(this->max_charging_current_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(50) * 0.001f);
 
-    // 54 [48]   4   0x1E 0x00 0x00 0x00    Charge OCP delay                    TIMBatCOCPDly   Charging
-    // Overcurrent 0x0030 48  UINT32 4 RW充电过流保护延迟TIMBatCOCPDly    S 02.10.10.     30.00.      02.04.
-    // 00.00.00.03.        72.3E      <===== Protection Delay (s)
-    temp_param_value = uint32_to_float(&data[54]);
-    // ESP_LOGV(TAG, "  Charge OCP delay: %f s", temp_param_value); ///(float) jk_get_32bit(54));
-    this->publish_state_(this->charging_overcurrent_protection_delay_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(54));
+  // 54 [48]   4   0x1E 0x00 0x00 0x00    Charge OCP delay                    TIMBatCOCPDly   Charging
+  // Overcurrent 0x0030 48  UINT32 4 RW充电过流保护延迟TIMBatCOCPDly    S 02.10.10.     30.00.      02.04.
+  // 00.00.00.03.        72.3E      <===== Protection Delay (s)
+  temp_param_value = uint32_to_float(&data[54]);
+  // ESP_LOGV(TAG, "  Charge OCP delay: %f s", temp_param_value); ///(float) jk_get_32bit(54));
+  this->publish_state_(this->charging_overcurrent_protection_delay_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(54));
 
-    // 58 [52]   4   0x3C 0x00 0x00 0x00    Charge OCP recovery time            TIMBatCOCPRDly  Charging
-    // Overcurrent Protection Release Delay (s)
-    temp_param_value = uint32_to_float(&data[58]);
-    // ESP_LOGV(TAG, "  Charge OCP recovery delay: %f s", temp_param_value); ///(float) jk_get_32bit(58));
-    this->publish_state_(this->charging_overcurrent_protection_recovery_delay_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(58));
+  // 58 [52]   4   0x3C 0x00 0x00 0x00    Charge OCP recovery time            TIMBatCOCPRDly  Charging
+  // Overcurrent Protection Release Delay (s)
+  temp_param_value = uint32_to_float(&data[58]);
+  // ESP_LOGV(TAG, "  Charge OCP recovery delay: %f s", temp_param_value); ///(float) jk_get_32bit(58));
+  this->publish_state_(this->charging_overcurrent_protection_recovery_delay_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(58));
 
-    // 62 [56]   4   0xF0 0x49 0x02 0x00    Max. discharge current CurBatDcOC
-    // 0x0038 56 UINT32 4 RW持续放电电流CurBatDcOC    mA
-    // 02.10.10.    38.00.      02.04.             00.00.04.4C.         30.AC.          (044C=1100)
+  // 62 [56]   4   0xF0 0x49 0x02 0x00    Max. discharge current CurBatDcOC
+  // 0x0038 56 UINT32 4 RW持续放电电流CurBatDcOC    mA
+  // 02.10.10.    38.00.      02.04.             00.00.04.4C.         30.AC.          (044C=1100)
 
-    temp_param_value = uint32_to_float(&data[62]) * 0.001f;
-    // ESP_LOGV(TAG, "  Max. discharging current: %f A", temp_param_value); ///(float) jk_get_32bit(62) * 0.001f);
-    this->publish_state_(this->max_discharging_current_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(62) * 0.001f);
+  temp_param_value = uint32_to_float(&data[62]) * 0.001f;
+  // ESP_LOGV(TAG, "  Max. discharging current: %f A", temp_param_value); ///(float) jk_get_32bit(62) * 0.001f);
+  this->publish_state_(this->max_discharging_current_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(62) * 0.001f);
 
-    // 66 [60]   4   0x2C 0x01 0x00 0x00    Discharge OCP delay                 TIMBatDcOCPDly   Discharge
-    // Overcurrent Protection Delay
-    temp_param_value = uint32_to_float(&data[66]);
-    // ESP_LOGV(TAG, "  Discharge OCP delay: %f s", temp_param_value); ///(float) jk_get_32bit(66));
-    this->publish_state_(this->discharging_overcurrent_protection_delay_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(66) * 0.001f);
+  // 66 [60]   4   0x2C 0x01 0x00 0x00    Discharge OCP delay                 TIMBatDcOCPDly   Discharge
+  // Overcurrent Protection Delay
+  temp_param_value = uint32_to_float(&data[66]);
+  // ESP_LOGV(TAG, "  Discharge OCP delay: %f s", temp_param_value); ///(float) jk_get_32bit(66));
+  this->publish_state_(this->discharging_overcurrent_protection_delay_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(66) * 0.001f);
 
-    // 70 [64]   4   0x3C 0x00 0x00 0x00    Discharge OCP recovery time         TIMBatDcOCPRDly  Discharge
-    // Overcurrent Protection Release Delay
-    temp_param_value = uint32_to_float(&data[70]);
-    // ESP_LOGV(TAG, "  Discharge OCP recovery time: %f s", temp_param_value); ///(float) jk_get_32bit(70));
-    this->publish_state_(this->discharging_overcurrent_protection_recovery_delay_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(70) * 0.001f);
+  // 70 [64]   4   0x3C 0x00 0x00 0x00    Discharge OCP recovery time         TIMBatDcOCPRDly  Discharge
+  // Overcurrent Protection Release Delay
+  temp_param_value = uint32_to_float(&data[70]);
+  // ESP_LOGV(TAG, "  Discharge OCP recovery time: %f s", temp_param_value); ///(float) jk_get_32bit(70));
+  this->publish_state_(this->discharging_overcurrent_protection_recovery_delay_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(70) * 0.001f);
 
-    // 74 [68]   4   0x3C 0x00 0x00 0x00    SCPR delay                          TIMBatSCPRDly    Short Circuit
-    // Protection Recovery Delay
-    temp_param_value = uint32_to_float(&data[74]);
-    // ESP_LOGV(TAG, "  SCP recovery time: %f s", temp_param_value); ///(float) jk_get_32bit(74));
-    this->publish_state_(this->short_circuit_protection_recovery_delay_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(74) * 0.001f);
+  // 74 [68]   4   0x3C 0x00 0x00 0x00    SCPR delay                          TIMBatSCPRDly    Short Circuit
+  // Protection Recovery Delay
+  temp_param_value = uint32_to_float(&data[74]);
+  // ESP_LOGV(TAG, "  SCP recovery time: %f s", temp_param_value); ///(float) jk_get_32bit(74));
+  this->publish_state_(this->short_circuit_protection_recovery_delay_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(74) * 0.001f);
 
-    // 78 [72]   4   0xD0 0x07 0x00 0x00    Max balance current
-    temp_param_value = uint32_to_float(&data[78]) * 0.001f;
-    // ESP_LOGV(TAG, "  Max. balance current: %f A", temp_param_value); ///(float) jk_get_32bit(78) * 0.001f);
-    this->publish_state_(this->max_balancing_current_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(78) * 0.001f);
+  // 78 [72]   4   0xD0 0x07 0x00 0x00    Max balance current
+  temp_param_value = uint32_to_float(&data[78]) * 0.001f;
+  // ESP_LOGV(TAG, "  Max. balance current: %f A", temp_param_value); ///(float) jk_get_32bit(78) * 0.001f);
+  this->publish_state_(this->max_balancing_current_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(78) * 0.001f);
 
-    // 82 [76]   4   0xBC 0x02 0x00 0x00    Charge OTP                          TMPBatCOT        Charging Over
-    // Temperature Protection
-    temp_param_value = int32_to_float(&data[82]) * 0.1f;
-    // ESP_LOGV(TAG, "  Charging OTP: %f °C", temp_param_value);
-    this->publish_state_(this->charging_overtemperature_protection_number_, temp_param_value);
+  // 82 [76]   4   0xBC 0x02 0x00 0x00    Charge OTP                          TMPBatCOT        Charging Over
+  // Temperature Protection
+  temp_param_value = int32_to_float(&data[82]) * 0.1f;
+  // ESP_LOGV(TAG, "  Charging OTP: %f °C", temp_param_value);
+  this->publish_state_(this->charging_overtemperature_protection_number_, temp_param_value);
 
-    // 86 [80]   4   0x58 0x02 0x00 0x00    Charge OTP Recovery                 TMPBatCOTPR      Charging Over
-    // Temperature Protection Recovery
-    temp_param_value = int32_to_float(&data[86]) * 0.1f;
-    // ESP_LOGV(TAG, "  Charge OTP recovery: %f °C", temp_param_value);
-    this->publish_state_(this->charging_overtemperature_protection_recovery_number_, temp_param_value);
+  // 86 [80]   4   0x58 0x02 0x00 0x00    Charge OTP Recovery                 TMPBatCOTPR      Charging Over
+  // Temperature Protection Recovery
+  temp_param_value = int32_to_float(&data[86]) * 0.1f;
+  // ESP_LOGV(TAG, "  Charge OTP recovery: %f °C", temp_param_value);
+  this->publish_state_(this->charging_overtemperature_protection_recovery_number_, temp_param_value);
 
-    // 90 [84]    4   0xBC 0x02 0x00 0x00    Discharge OTP                       TMPBatDcOT
-    temp_param_value = int32_to_float(&data[90]) * 0.1f;
-    // ESP_LOGV(TAG, "  Discharge OTP: %f °C", temp_param_value);
-    this->publish_state_(this->discharging_overtemperature_protection_number_, temp_param_value);
+  // 90 [84]    4   0xBC 0x02 0x00 0x00    Discharge OTP                       TMPBatDcOT
+  temp_param_value = int32_to_float(&data[90]) * 0.1f;
+  // ESP_LOGV(TAG, "  Discharge OTP: %f °C", temp_param_value);
+  this->publish_state_(this->discharging_overtemperature_protection_number_, temp_param_value);
 
-  } else {
-    /* SECOND SPLIT*/
-    // 22 parameters per each execution.
+  // } else {
+  /* SECOND SPLIT*/
+  // 22 parameters per each execution.
 
-    // 94 [88]    4   0x58 0x02 0x00 0x00    Discharge OTP Recovery              TMPBatDcOTPR
-    temp_param_value = int32_to_float(&data[94]) * 0.1f;
-    // ESP_LOGV(TAG, "  Discharge OTP recovery: %f °C", temp_param_value);
-    this->publish_state_(this->discharging_overtemperature_protection_recovery_number_, temp_param_value);
+  // 94 [88]    4   0x58 0x02 0x00 0x00    Discharge OTP Recovery              TMPBatDcOTPR
+  temp_param_value = int32_to_float(&data[94]) * 0.1f;
+  // ESP_LOGV(TAG, "  Discharge OTP recovery: %f °C", temp_param_value);
+  this->publish_state_(this->discharging_overtemperature_protection_recovery_number_, temp_param_value);
 
-    // 98 [92]   4   0x38 0xFF 0xFF 0xFF    Charge UTP                          TMPBatCUT        Charging Low
-    // Temperature Protection
-    temp_param_value = int32_to_float(&data[98]) * 0.1f;
-    // ESP_LOGI(TAG, "  Charge UTP: %f °C", temp_param_value);
-    this->publish_state_(this->charging_lowtemperature_protection_number_, temp_param_value);
+  // 98 [92]   4   0x38 0xFF 0xFF 0xFF    Charge UTP                          TMPBatCUT        Charging Low
+  // Temperature Protection
+  temp_param_value = int32_to_float(&data[98]) * 0.1f;
+  // ESP_LOGI(TAG, "  Charge UTP: %f °C", temp_param_value);
+  this->publish_state_(this->charging_lowtemperature_protection_number_, temp_param_value);
 
-    // 102 [96]   4   0x9C 0xFF 0xFF 0xFF    Charge UTP Recovery                 TMPBatCUTPR      Charging Low
-    // Temperature Protection Recovery
-    temp_param_value = int32_to_float(&data[102]) * 0.1f;
-    // ESP_LOGI(TAG, "  Charge UTP recovery: %f °C", temp_param_value);
-    this->publish_state_(this->charging_lowtemperature_protection_recovery_number_, temp_param_value);
+  // 102 [96]   4   0x9C 0xFF 0xFF 0xFF    Charge UTP Recovery                 TMPBatCUTPR      Charging Low
+  // Temperature Protection Recovery
+  temp_param_value = int32_to_float(&data[102]) * 0.1f;
+  // ESP_LOGI(TAG, "  Charge UTP recovery: %f °C", temp_param_value);
+  this->publish_state_(this->charging_lowtemperature_protection_recovery_number_, temp_param_value);
 
-    // 106 [100]  4   0x84 0x03 0x00 0x00    MOS OTP                             TMPMosOT         MOS
-    // Overtemperature Protection
-    temp_param_value = int32_to_float(&data[106]) * 0.1f;
-    // ESP_LOGI(TAG, "  MOS OTP: %f °C", temp_param_value);
-    this->publish_state_(this->mos_overtemperature_protection_number_, temp_param_value);
+  // 106 [100]  4   0x84 0x03 0x00 0x00    MOS OTP                             TMPMosOT         MOS
+  // Overtemperature Protection
+  temp_param_value = int32_to_float(&data[106]) * 0.1f;
+  // ESP_LOGI(TAG, "  MOS OTP: %f °C", temp_param_value);
+  this->publish_state_(this->mos_overtemperature_protection_number_, temp_param_value);
 
-    // 110 [104]   4   0xBC 0x02 0x00 0x00    MOS OTP Recovery
-    temp_param_value = int32_to_float(&data[110]) * 0.1f;
-    // ESP_LOGI(TAG, "  MOS OTP recovery: %f °C", temp_param_value);
-    this->publish_state_(this->mos_overtemperature_protection_recovery_number_, temp_param_value);
+  // 110 [104]   4   0xBC 0x02 0x00 0x00    MOS OTP Recovery
+  temp_param_value = int32_to_float(&data[110]) * 0.1f;
+  // ESP_LOGI(TAG, "  MOS OTP recovery: %f °C", temp_param_value);
+  this->publish_state_(this->mos_overtemperature_protection_recovery_number_, temp_param_value);
 
-    /*2025-07-06: SETTIGNS CELL COUNT IS MOVED OUTSIDE OF THE SPLIT */
-    // 114 [108]  4   0x0D 0x00 0x00 0x00    cell count settings
-    // temp_param_value = uint32_to_float(&data[114]);
-    // float temp_cell_count;
-    // temp_cell_count = uint32_to_float(&data[114]);
+  /*2025-07-06: SETTIGNS CELL COUNT IS MOVED OUTSIDE OF THE SPLIT */
+  // 114 [108]  4   0x0D 0x00 0x00 0x00    cell count settings
+  // temp_param_value = uint32_to_float(&data[114]);
+  // float temp_cell_count;
+  // temp_cell_count = uint32_to_float(&data[114]);
 
-    // ESP_LOGVV(TAG, "  cell count settings: %f", temp_cell_count);              ///(float) jk_get_32bit(114));
-    // this->publish_state_(this->cell_count_settings_number_, temp_cell_count);  ///(float) data[114]);
-    /*2025-07-06: SETTIGNS CELL COUNT IS MOVED OUTSIDE OF THE SPLIT */
+  // ESP_LOGVV(TAG, "  cell count settings: %f", temp_cell_count);              ///(float) jk_get_32bit(114));
+  // this->publish_state_(this->cell_count_settings_number_, temp_cell_count);  ///(float) data[114]);
+  /*2025-07-06: SETTIGNS CELL COUNT IS MOVED OUTSIDE OF THE SPLIT */
 
-    // 118 [112]  4   0x01 0x00 0x00 0x00    Charge switch BatChargeEN
-    //  ESP_LOGI(TAG, "  Charge switch: %s", ((bool) data[118]) ? "on" : "off");
-    ESP_LOGV(TAG, " [0x%02X]* charging_switch_                                     is byte %02X address %p",
-             this->address_, (data[118]), (void *) this->charging_switch_);
-    this->publish_state_(this->charging_switch_, (bool) data[118]);
+  // 118 [112]  4   0x01 0x00 0x00 0x00    Charge switch BatChargeEN
+  //  ESP_LOGI(TAG, "  Charge switch: %s", ((bool) data[118]) ? "on" : "off");
+  ESP_LOGV(TAG, " [0x%02X]* charging_switch_                                     is byte %02X address %p",
+           this->address_, (data[118]), (void *) this->charging_switch_);
+  this->publish_state_(this->charging_switch_, (bool) data[118]);
 
-    // 122 [116]  4   0x01 0x00 0x00 0x00    Discharge switch
-    // ESP_LOGI(TAG, "  Discharge switch: %s", ((bool) data[122]) ? "on" : "off");
-    ESP_LOGV(TAG, " [0x%02X]* discharging_switch_                                     is byte %02X address %p",
-             this->address_, (data[122]), (void *) this->discharging_switch_);
-    this->publish_state_(this->discharging_switch_, (bool) data[122]);
+  // 122 [116]  4   0x01 0x00 0x00 0x00    Discharge switch
+  // ESP_LOGI(TAG, "  Discharge switch: %s", ((bool) data[122]) ? "on" : "off");
+  ESP_LOGV(TAG, " [0x%02X]* discharging_switch_                                     is byte %02X address %p",
+           this->address_, (data[122]), (void *) this->discharging_switch_);
+  this->publish_state_(this->discharging_switch_, (bool) data[122]);
 
-    // 126 [120 = 0x78]  4   0x01 0x00 0x00 0x00    Balancer switch
-    ESP_LOGI(TAG, "  Balancer switch: %s", ((bool) data[126]) ? "on" : "off");
-    // 02.10.10.78.00.02.04.00.00.00.00.37.A9
-    // 02.10.10.78.00.02.04.00.00.00.01.F6.69.
-    ESP_LOGV(TAG, " [0x%02X]* balancer_switch_                                     is byte %02X address %p",
-             this->address_, (data[126]), (void *) this->balancer_switch_);
-    this->publish_state_(this->balancer_switch_, (bool) (data[126]));
+  // 126 [120 = 0x78]  4   0x01 0x00 0x00 0x00    Balancer switch
+  ESP_LOGI(TAG, "  Balancer switch: %s", ((bool) data[126]) ? "on" : "off");
+  // 02.10.10.78.00.02.04.00.00.00.00.37.A9
+  // 02.10.10.78.00.02.04.00.00.00.01.F6.69.
+  ESP_LOGV(TAG, " [0x%02X]* balancer_switch_                                     is byte %02X address %p",
+           this->address_, (data[126]), (void *) this->balancer_switch_);
+  this->publish_state_(this->balancer_switch_, (bool) (data[126]));
 
-    // 130 [124]  4   0x88 0x13 0x00 0x00    Nominal battery capacity CapBatCell  [Nominal_Capacity] (CellInfo)
-    // ESP_LOGI(TAG, "  Nominal battery capacity: %f Ah", (float) jk_get_32bit(130) * 0.001f);
-    // this->publish_state_(this->battery_capacity_total_setting_sensor_, (float) jk_get_32bit(130) * 0.001f);
+  // 130 [124]  4   0x88 0x13 0x00 0x00    Nominal battery capacity CapBatCell  [Nominal_Capacity] (CellInfo)
+  // ESP_LOGI(TAG, "  Nominal battery capacity: %f Ah", (float) jk_get_32bit(130) * 0.001f);
+  // this->publish_state_(this->battery_capacity_total_setting_sensor_, (float) jk_get_32bit(130) * 0.001f);
 
-    // 134 [128] 4   0xDC 0x05 0x00 0x00    SCP DELAY (us)
-    // ESP_LOGI(TAG, "  SCP DELAY: %f us", (float) jk_get_32bit(134) * 0.001f);
-    temp_param_value = uint32_to_float(&data[134]) * 0.001f;
-    this->publish_state_(this->short_circuit_protection_delay_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(134) * 0.001f);
+  // 134 [128] 4   0xDC 0x05 0x00 0x00    SCP DELAY (us)
+  // ESP_LOGI(TAG, "  SCP DELAY: %f us", (float) jk_get_32bit(134) * 0.001f);
+  temp_param_value = uint32_to_float(&data[134]) * 0.001f;
+  this->publish_state_(this->short_circuit_protection_delay_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(134) * 0.001f);
 
-    // 138 [132]  4   0xE4 0x0C 0x00 0x00    Start balance voltage
-    // ESP_LOGI(TAG, "  Start balance voltage: %f V", (float) jk_get_32bit(138) * 0.001f);
-    temp_param_value = uint32_to_float(&data[138]) * 0.001f;
-    this->publish_state_(this->cell_balancing_starting_voltage_number_,
-                         temp_param_value);  ///(float) jk_get_32bit(138) * 0.001f);
+  // 138 [132]  4   0xE4 0x0C 0x00 0x00    Start balance voltage
+  // ESP_LOGI(TAG, "  Start balance voltage: %f V", (float) jk_get_32bit(138) * 0.001f);
+  temp_param_value = uint32_to_float(&data[138]) * 0.001f;
+  this->publish_state_(this->cell_balancing_starting_voltage_number_,
+                       temp_param_value);  ///(float) jk_get_32bit(138) * 0.001f);
 
-    // 142   4   0x00 0x00 0x00 0x00
-    // ESP_LOGI(TAG, "         142: %02X%02X%02X%02X",data[142],data[143],data[144],data[145]);
-    // 146   4   0x00 0x00 0x00 0x00
-    // ESP_LOGI(TAG, "         146: %02X%02X%02X%02X",data[146],data[147],data[148],data[149]);
-    // 150   4   0x00 0x00 0x00 0x00
-    // ESP_LOGI(TAG, "         150: %02X%02X%02X%02X",data[150],data[151],data[152],data[153]);
-    // 154   4   0x00 0x00 0x00 0x00
-    // ESP_LOGI(TAG, "         154: %02X%02X%02X%02X",data[154],data[155],data[156],data[157]);
-    // 158   4   0x00 0x00 0x00 0x00    Con. wire resistance 1
-    // 162   4   0x00 0x00 0x00 0x00    Con. wire resistance 2
-    // 166   4   0x00 0x00 0x00 0x00    Con. wire resistance 3
-    // 170   4   0x00 0x00 0x00 0x00    Con. wire resistance 4
-    // 174   4   0x00 0x00 0x00 0x00    Con. wire resistance 5
-    // 178   4   0x00 0x00 0x00 0x00    Con. wire resistance 6
-    // 182   4   0x00 0x00 0x00 0x00    Con. wire resistance 7
-    // 186   4   0x00 0x00 0x00 0x00    Con. wire resistance 8
-    // 190   4   0x00 0x00 0x00 0x00    Con. wire resistance 9
-    // 194   4   0x00 0x00 0x00 0x00    Con. wire resistance 10
-    // 198   4   0x00 0x00 0x00 0x00    Con. wire resistance 11
-    // 202   4   0x00 0x00 0x00 0x00    Con. wire resistance 12
-    // 206   4   0x00 0x00 0x00 0x00    Con. wire resistance 13
-    // 210   4   0x00 0x00 0x00 0x00    Con. wire resistance 14
-    // 214   4   0x00 0x00 0x00 0x00    Con. wire resistance 15
-    // 218   4   0x00 0x00 0x00 0x00    Con. wire resistance 16
-    // 222   4   0x00 0x00 0x00 0x00    Con. wire resistance 17
-    // 226   4   0x00 0x00 0x00 0x00    Con. wire resistance 18
-    // 230   4   0x00 0x00 0x00 0x00    Con. wire resistance 19
-    // 234   4   0x00 0x00 0x00 0x00    Con. wire resistance 20
-    // 238   4   0x00 0x00 0x00 0x00    Con. wire resistance 21
-    // 242   4   0x00 0x00 0x00 0x00    Con. wire resistance 22
-    // 246   4   0x00 0x00 0x00 0x00    Con. wire resistance 23
-    // 250   4   0x00 0x00 0x00 0x00    Con. wire resistance 24
-    // for (uint8_t i = 0; i < 24; i++) {
-    //  ESP_LOGV(TAG, "  Con. wire resistance %d: %f Ohm", i + 1, (float) jk_get_32bit(i * 4 + 158) * 0.001f);
-    //}
+  // 142   4   0x00 0x00 0x00 0x00
+  // ESP_LOGI(TAG, "         142: %02X%02X%02X%02X",data[142],data[143],data[144],data[145]);
+  // 146   4   0x00 0x00 0x00 0x00
+  // ESP_LOGI(TAG, "         146: %02X%02X%02X%02X",data[146],data[147],data[148],data[149]);
+  // 150   4   0x00 0x00 0x00 0x00
+  // ESP_LOGI(TAG, "         150: %02X%02X%02X%02X",data[150],data[151],data[152],data[153]);
+  // 154   4   0x00 0x00 0x00 0x00
+  // ESP_LOGI(TAG, "         154: %02X%02X%02X%02X",data[154],data[155],data[156],data[157]);
+  // 158   4   0x00 0x00 0x00 0x00    Con. wire resistance 1
+  // 162   4   0x00 0x00 0x00 0x00    Con. wire resistance 2
+  // 166   4   0x00 0x00 0x00 0x00    Con. wire resistance 3
+  // 170   4   0x00 0x00 0x00 0x00    Con. wire resistance 4
+  // 174   4   0x00 0x00 0x00 0x00    Con. wire resistance 5
+  // 178   4   0x00 0x00 0x00 0x00    Con. wire resistance 6
+  // 182   4   0x00 0x00 0x00 0x00    Con. wire resistance 7
+  // 186   4   0x00 0x00 0x00 0x00    Con. wire resistance 8
+  // 190   4   0x00 0x00 0x00 0x00    Con. wire resistance 9
+  // 194   4   0x00 0x00 0x00 0x00    Con. wire resistance 10
+  // 198   4   0x00 0x00 0x00 0x00    Con. wire resistance 11
+  // 202   4   0x00 0x00 0x00 0x00    Con. wire resistance 12
+  // 206   4   0x00 0x00 0x00 0x00    Con. wire resistance 13
+  // 210   4   0x00 0x00 0x00 0x00    Con. wire resistance 14
+  // 214   4   0x00 0x00 0x00 0x00    Con. wire resistance 15
+  // 218   4   0x00 0x00 0x00 0x00    Con. wire resistance 16
+  // 222   4   0x00 0x00 0x00 0x00    Con. wire resistance 17
+  // 226   4   0x00 0x00 0x00 0x00    Con. wire resistance 18
+  // 230   4   0x00 0x00 0x00 0x00    Con. wire resistance 19
+  // 234   4   0x00 0x00 0x00 0x00    Con. wire resistance 20
+  // 238   4   0x00 0x00 0x00 0x00    Con. wire resistance 21
+  // 242   4   0x00 0x00 0x00 0x00    Con. wire resistance 22
+  // 246   4   0x00 0x00 0x00 0x00    Con. wire resistance 23
+  // 250   4   0x00 0x00 0x00 0x00    Con. wire resistance 24
+  // for (uint8_t i = 0; i < 24; i++) {
+  //  ESP_LOGV(TAG, "  Con. wire resistance %d: %f Ohm", i + 1, (float) jk_get_32bit(i * 4 + 158) * 0.001f);
+  //}
 
-    // 254   4   0x00 0x00 0x00 0x00
-    // ESP_LOGI(TAG, "         254: %02X%02X%02X%02X",data[254],data[255],data[256],data[257]);
-    // 258   4   0x00 0x00 0x00 0x00
-    // ESP_LOGI(TAG, "         258: %02X%02X%02X%02X",data[258],data[259],data[260],data[261]);
-    // 262   4   0x00 0x00 0x00 0x00
-    // ESP_LOGI(TAG, "         262: %02X%02X%02X%02X",data[262],data[263],data[264],data[265]);
-    // 266   4   0x00 0x00 0x00 0x00
-    // ESP_LOGI(TAG, "         266: %02X%02X%02X%02X",data[266],data[267],data[268],data[269]);
-    // 270 [264]   4   0x00 0x00 0x00 0x00 (USED BY SNIFFER)
-    // ESP_LOGI(TAG, "  Device address: 0x%02X", data[270]);
-    // ESP_LOGI(TAG, "         270: %02X%02X%02X%02X",data[270],data[271],data[272],data[273]);
+  // 254   4   0x00 0x00 0x00 0x00
+  // ESP_LOGI(TAG, "         254: %02X%02X%02X%02X",data[254],data[255],data[256],data[257]);
+  // 258   4   0x00 0x00 0x00 0x00
+  // ESP_LOGI(TAG, "         258: %02X%02X%02X%02X",data[258],data[259],data[260],data[261]);
+  // 262   4   0x00 0x00 0x00 0x00
+  // ESP_LOGI(TAG, "         262: %02X%02X%02X%02X",data[262],data[263],data[264],data[265]);
+  // 266   4   0x00 0x00 0x00 0x00
+  // ESP_LOGI(TAG, "         266: %02X%02X%02X%02X",data[266],data[267],data[268],data[269]);
+  // 270 [264]   4   0x00 0x00 0x00 0x00 (USED BY SNIFFER)
+  // ESP_LOGI(TAG, "  Device address: 0x%02X", data[270]);
+  // ESP_LOGI(TAG, "         270: %02X%02X%02X%02X",data[270],data[271],data[272],data[273]);
 
-    // 274 [268]  4   0x00 0x00 0x00 0x00    TIMProdischarge: Discharge pre-charging time
-    // ESP_LOGI(TAG, "         274: %02X%02X%02X%02X",data[274],data[275],data[276],data[277]);
-    temp_param_value = uint32_to_float(&data[274]);
-    ESP_LOGI(TAG, "  Precharging time from discharged: %f s",
-             temp_param_value);  ///(float) ((int32_t) jk_get_32bit(274)));
-    this->publish_state_(this->precharging_time_from_discharge_number_,
-                         temp_param_value);  ///(float) ((int32_t) jk_get_32bit(274)));
+  // 274 [268]  4   0x00 0x00 0x00 0x00    TIMProdischarge: Discharge pre-charging time
+  // ESP_LOGI(TAG, "         274: %02X%02X%02X%02X",data[274],data[275],data[276],data[277]);
+  temp_param_value = uint32_to_float(&data[274]);
+  ESP_LOGI(TAG, "  Precharging time from discharged: %f s",
+           temp_param_value);  ///(float) ((int32_t) jk_get_32bit(274)));
+  this->publish_state_(this->precharging_time_from_discharge_number_,
+                       temp_param_value);  ///(float) ((int32_t) jk_get_32bit(274)));
 
-    // 278   4   0x00 0x00 0x00 0x00  //60 e3 16 00          10023c3218feffffffbfe90102000000000001
-    /// ESP_LOGI(TAG, "      unkown 278: %02X%02X%02X%02X",data[278],data[279],data[280],data[281]);
+  // 278   4   0x00 0x00 0x00 0x00  //60 e3 16 00          10023c3218feffffffbfe90102000000000001
+  /// ESP_LOGI(TAG, "      unkown 278: %02X%02X%02X%02X",data[278],data[279],data[280],data[281]);
 
-    // 282 [276]   1   0x00                   New controls bitmask
-    // ** [JK-PB2A16S-20P v14]
-    //    bit0: HEATING_SWITCH_ENABLED                 1
-    //    bit1: DISABLE_TEMP_SENSOR_SWITCH_ENABLED     2
-    //    bit2: GPS Heartbeat                          4
-    //    bit3: port switch (1:RS485|0:CAN)            8
-    //    bit4: DISPLAY_ALWAYS_ON_SWITCH_ENABLED       16
-    //    bit5: Special Charger                        32
-    //    bit6: SMART_SLEEP_ON_SWITCH_ENABLED          64
-    //    bit7: disable_pcl_module_switch_ENABLED      128
-    // ESP_LOGI(TAG, "  Before binary 0
-    // -------------------------------------------------------------------------------------------");
-    bool value_tmp;
+  // 282 [276]   1   0x00                   New controls bitmask
+  // ** [JK-PB2A16S-20P v14]
+  //    bit0: HEATING_SWITCH_ENABLED                 1
+  //    bit1: DISABLE_TEMP_SENSOR_SWITCH_ENABLED     2
+  //    bit2: GPS Heartbeat                          4
+  //    bit3: port switch (1:RS485|0:CAN)            8
+  //    bit4: DISPLAY_ALWAYS_ON_SWITCH_ENABLED       16
+  //    bit5: Special Charger                        32
+  //    bit6: SMART_SLEEP_ON_SWITCH_ENABLED          64
+  //    bit7: disable_pcl_module_switch_ENABLED      128
+  // ESP_LOGI(TAG, "  Before binary 0
+  // -------------------------------------------------------------------------------------------");
+  bool value_tmp;
 
-    value_tmp = this->check_bit_of_byte_(data[282], 0);
-    ESP_LOGV(TAG, "[0x%02X]* heating_switch_                      is bit 0 of 0x%02X is %02X address %p",
-             this->address_, data[282], value_tmp, (void *) this->heating_switch_);
-    this->publish_state_(this->heating_switch_, value_tmp);
-    // ESP_LOGI(TAG, "  heating switch: %s", ( this->check_bit_(data[282], 1)) ? "on" : "off");
-    value_tmp = this->check_bit_of_byte_(data[282], 1);
-    ESP_LOGV(TAG, "[0x%02X]* disable_temperature_sensors_switch_  is bit 1 of 0x%02X is %02X address %p",
-             this->address_, data[282], value_tmp, (void *) this->disable_temperature_sensors_switch_);
-    this->publish_state_(this->disable_temperature_sensors_switch_, value_tmp);
-    value_tmp = this->check_bit_of_byte_(data[282], 2);
-    ESP_LOGV(TAG, "[0x%02X]* gps_heartbeat_switch_                is bit 2 of 0x%02X is %02X address %p",
-             this->address_, data[282], value_tmp, (void *) this->gps_heartbeat_switch_);
-    this->publish_state_(this->gps_heartbeat_switch_, value_tmp);
-    value_tmp = this->check_bit_of_byte_(data[282], 3);
-    ESP_LOGV(TAG, "[0x%02X]* port_selection_switch_               is bit 3 of 0x%02X is %02X address %p",
-             this->address_, data[282], value_tmp, (void *) this->port_selection_switch_);
-    this->publish_state_(this->port_selection_switch_, value_tmp);
-    // ESP_LOGI(TAG, "  Port switch: %s", this->check_bit_(data[282], 8) ? "RS485" : "CAN");
-    value_tmp = this->check_bit_of_byte_(data[282], 4);
-    ESP_LOGV(TAG, "[0x%02X]* display_always_on_switch_            is bit 4 of 0x%02X is %02X address %p",
-             this->address_, data[282], value_tmp, (void *) this->display_always_on_switch_);
-    this->publish_state_(this->display_always_on_switch_, value_tmp);
-    value_tmp = this->check_bit_of_byte_(data[282], 5);
-    ESP_LOGV(TAG, "[0x%02X]* special_charger_switch_              is bit 5 of 0x%02X is %02X address %p",
-             this->address_, data[282], value_tmp, (void *) this->special_charger_switch_);
-    this->publish_state_(this->special_charger_switch_, value_tmp);
-    value_tmp = this->check_bit_of_byte_(data[282], 6);
-    ESP_LOGV(TAG, "[0x%02X]* smart_sleep_on_switch_               is bit 6 of 0x%02X is %02X address %p",
-             this->address_, data[282], value_tmp, (void *) this->smart_sleep_on_switch_);
-    this->publish_state_(this->smart_sleep_on_switch_, value_tmp);
-    value_tmp = this->check_bit_of_byte_(data[282], 7);
-    ESP_LOGV(TAG, "[0x%02X]* disable_pcl_module_switch_           is bit 7 of 0x%02X is %02X address %p",
-             this->address_, data[282], value_tmp, (void *) this->disable_pcl_module_switch_);
-    this->publish_state_(this->disable_pcl_module_switch_, value_tmp);
+  value_tmp = this->check_bit_of_byte_(data[282], 0);
+  ESP_LOGV(TAG, "[0x%02X]* heating_switch_                      is bit 0 of 0x%02X is %02X address %p", this->address_,
+           data[282], value_tmp, (void *) this->heating_switch_);
+  this->publish_state_(this->heating_switch_, value_tmp);
+  // ESP_LOGI(TAG, "  heating switch: %s", ( this->check_bit_(data[282], 1)) ? "on" : "off");
+  value_tmp = this->check_bit_of_byte_(data[282], 1);
+  ESP_LOGV(TAG, "[0x%02X]* disable_temperature_sensors_switch_  is bit 1 of 0x%02X is %02X address %p", this->address_,
+           data[282], value_tmp, (void *) this->disable_temperature_sensors_switch_);
+  this->publish_state_(this->disable_temperature_sensors_switch_, value_tmp);
+  value_tmp = this->check_bit_of_byte_(data[282], 2);
+  ESP_LOGV(TAG, "[0x%02X]* gps_heartbeat_switch_                is bit 2 of 0x%02X is %02X address %p", this->address_,
+           data[282], value_tmp, (void *) this->gps_heartbeat_switch_);
+  this->publish_state_(this->gps_heartbeat_switch_, value_tmp);
+  value_tmp = this->check_bit_of_byte_(data[282], 3);
+  ESP_LOGV(TAG, "[0x%02X]* port_selection_switch_               is bit 3 of 0x%02X is %02X address %p", this->address_,
+           data[282], value_tmp, (void *) this->port_selection_switch_);
+  this->publish_state_(this->port_selection_switch_, value_tmp);
+  // ESP_LOGI(TAG, "  Port switch: %s", this->check_bit_(data[282], 8) ? "RS485" : "CAN");
+  value_tmp = this->check_bit_of_byte_(data[282], 4);
+  ESP_LOGV(TAG, "[0x%02X]* display_always_on_switch_            is bit 4 of 0x%02X is %02X address %p", this->address_,
+           data[282], value_tmp, (void *) this->display_always_on_switch_);
+  this->publish_state_(this->display_always_on_switch_, value_tmp);
+  value_tmp = this->check_bit_of_byte_(data[282], 5);
+  ESP_LOGV(TAG, "[0x%02X]* special_charger_switch_              is bit 5 of 0x%02X is %02X address %p", this->address_,
+           data[282], value_tmp, (void *) this->special_charger_switch_);
+  this->publish_state_(this->special_charger_switch_, value_tmp);
+  value_tmp = this->check_bit_of_byte_(data[282], 6);
+  ESP_LOGV(TAG, "[0x%02X]* smart_sleep_on_switch_               is bit 6 of 0x%02X is %02X address %p", this->address_,
+           data[282], value_tmp, (void *) this->smart_sleep_on_switch_);
+  this->publish_state_(this->smart_sleep_on_switch_, value_tmp);
+  value_tmp = this->check_bit_of_byte_(data[282], 7);
+  ESP_LOGV(TAG, "[0x%02X]* disable_pcl_module_switch_           is bit 7 of 0x%02X is %02X address %p", this->address_,
+           data[282], value_tmp, (void *) this->disable_pcl_module_switch_);
+  this->publish_state_(this->disable_pcl_module_switch_, value_tmp);
 
-    //  // Loggear memoria libre
-    //  ESP_LOGD(TAG, "Free Heap: %u bytes", heap_caps_get_free_size(MALLOC_CAP_8BIT));
-    //  // Loggear tiempo de actividad
-    //  ESP_LOGD(TAG, "Uptime: %u seconds", millis() / 1000);
+  //  // Loggear memoria libre
+  //  ESP_LOGD(TAG, "Free Heap: %u bytes", heap_caps_get_free_size(MALLOC_CAP_8BIT));
+  //  // Loggear tiempo de actividad
+  //  ESP_LOGD(TAG, "Uptime: %u seconds", millis() / 1000);
 
-    //  ESP_LOGI(TAG, "  After binary 7
-    //  -------------------------------------------------------------------------------------");
+  //  ESP_LOGI(TAG, "  After binary 7
+  //  -------------------------------------------------------------------------------------");
 
-    // 283 [28?]   1   0x00                   New controls bitmask
-    // ** [JK-PB2A16S-20P v14]
-    //    bit0: TIMED_STORED_DATA_SWITCH_ENABLED       1
-    //    bit1: CHARGING_FLOAT_MODE_SWITCH_ENABLED     2
-    //    bit2: ?                                      4
-    //    bit3: ?                                      8
-    //    bit4: ?                                      16
-    //    bit5: ?                                      32
-    //    bit6: ?                                      64
-    //    bit7: ?                                      128
-    value_tmp = this->check_bit_of_byte_(data[283], 0);
-    ESP_LOGV(TAG, "[0x%02X]* timed_stored_data_switch_            is bit 8 of 0x%02X is %02X address %p",
-             this->address_, data[283], value_tmp, (void *) this->timed_stored_data_switch_);
-    this->publish_state_(this->timed_stored_data_switch_, value_tmp);
-    // ESP_LOGI(TAG, "  timed_stored_data_switch: %s", ( this->check_bit_(data[283], 1)) ? "on" : "off");
-    value_tmp = this->check_bit_of_byte_(data[283], 1);
-    ESP_LOGV(TAG, "[0x%02X]* charging_float_mode_switch_          is bit 9 of 0x%02X is %02X address %p",
-             this->address_, data[283], value_tmp, (void *) this->charging_float_mode_switch_);
-    this->publish_state_(this->charging_float_mode_switch_, value_tmp);
-    // ESP_LOGI(TAG, "  charging_float_mode_switch: %s", ( this->check_bit_(data[283], 2)) ? "on" : "off");
-    // ESP_LOGI(TAG, "  switch bit2: %s", ( this->check_bit_(data[283], 2)) ? "on" : "off");
-    // ESP_LOGI(TAG, "  switch bit3: %s", ( this->check_bit_(data[283], 3)) ? "on" : "off");
-    // ESP_LOGI(TAG, "  switch bit4: %s", ( this->check_bit_(data[283], 4)) ? "on" : "off");
-    // ESP_LOGI(TAG, "  switch bit5: %s", ( this->check_bit_(data[283], 5)) ? "on" : "off");
-    // ESP_LOGI(TAG, "  switch bit6: %s", ( this->check_bit_(data[283], 6)) ? "on" : "off");
-    // ESP_LOGI(TAG, "  switch bit7: %s", ( this->check_bit_(data[283], 7)) ? "on" : "off");
+  // 283 [28?]   1   0x00                   New controls bitmask
+  // ** [JK-PB2A16S-20P v14]
+  //    bit0: TIMED_STORED_DATA_SWITCH_ENABLED       1
+  //    bit1: CHARGING_FLOAT_MODE_SWITCH_ENABLED     2
+  //    bit2: ?                                      4
+  //    bit3: ?                                      8
+  //    bit4: ?                                      16
+  //    bit5: ?                                      32
+  //    bit6: ?                                      64
+  //    bit7: ?                                      128
+  value_tmp = this->check_bit_of_byte_(data[283], 0);
+  ESP_LOGV(TAG, "[0x%02X]* timed_stored_data_switch_            is bit 8 of 0x%02X is %02X address %p", this->address_,
+           data[283], value_tmp, (void *) this->timed_stored_data_switch_);
+  this->publish_state_(this->timed_stored_data_switch_, value_tmp);
+  // ESP_LOGI(TAG, "  timed_stored_data_switch: %s", ( this->check_bit_(data[283], 1)) ? "on" : "off");
+  value_tmp = this->check_bit_of_byte_(data[283], 1);
+  ESP_LOGV(TAG, "[0x%02X]* charging_float_mode_switch_          is bit 9 of 0x%02X is %02X address %p", this->address_,
+           data[283], value_tmp, (void *) this->charging_float_mode_switch_);
+  this->publish_state_(this->charging_float_mode_switch_, value_tmp);
+  // ESP_LOGI(TAG, "  charging_float_mode_switch: %s", ( this->check_bit_(data[283], 2)) ? "on" : "off");
+  // ESP_LOGI(TAG, "  switch bit2: %s", ( this->check_bit_(data[283], 2)) ? "on" : "off");
+  // ESP_LOGI(TAG, "  switch bit3: %s", ( this->check_bit_(data[283], 3)) ? "on" : "off");
+  // ESP_LOGI(TAG, "  switch bit4: %s", ( this->check_bit_(data[283], 4)) ? "on" : "off");
+  // ESP_LOGI(TAG, "  switch bit5: %s", ( this->check_bit_(data[283], 5)) ? "on" : "off");
+  // ESP_LOGI(TAG, "  switch bit6: %s", ( this->check_bit_(data[283], 6)) ? "on" : "off");
+  // ESP_LOGI(TAG, "  switch bit7: %s", ( this->check_bit_(data[283], 7)) ? "on" : "off");
 
-    // 284   2   0X00 0X00
-    // 286   4   0x00 0x00 0x00 0x00
-    // ESP_LOGI(TAG, "  TIMSmartSleep: %d H", (uint8_t) (data[286]));
-    this->publish_state_(this->smart_sleep_time_sensor_, (uint8_t) (data[286]));
-    //  ESP_LOGI(TAG, "  Data field enable control 0: %d", (uint8_t) (data[287]));
+  // 284   2   0X00 0X00
+  // 286   4   0x00 0x00 0x00 0x00
+  // ESP_LOGI(TAG, "  TIMSmartSleep: %d H", (uint8_t) (data[286]));
+  this->publish_state_(this->smart_sleep_time_sensor_, (uint8_t) (data[286]));
+  //  ESP_LOGI(TAG, "  Data field enable control 0: %d", (uint8_t) (data[287]));
 
-  } /*SPLIT IN TWO*/
+  // } /*SPLIT IN TWO*/
 
   /*MOVED TO THE END, TO ALWAYS READ THE SETTINGS CELL COUNT.*/
   float temp_cell_count;

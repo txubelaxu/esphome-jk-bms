@@ -641,9 +641,9 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
           // this->decode_jk04_settings_(data);
         } else {
           ESP_LOGVV(TAG, "frame_type: 0x01 and not PROTOCOL_VERSION_JK04 => decode_jk02_settings_()");
-          ESP_LOGD(TAG, "frame_type: 0x01 ===========================================================================");
-          ESP_LOGD(TAG, "frame_type: 0x01 =============================START===================================");
-          ESP_LOGD(TAG, "frame_type: 0x01 ===========================================================================");
+          ESP_LOGVV(TAG, "frame_type: 0x01 ==========================================================================");
+          ESP_LOGVV(TAG, "frame_type: 0x01 =============================START 0x01===================================");
+          ESP_LOGVV(TAG, "frame_type: 0x01 ==========================================================================");
           this->decode_jk02_settings_(data);
         }
         break;
@@ -659,6 +659,9 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
           // {
           ESP_LOGVV(TAG, "on_jk_rs485_sniffer_data: 0x02 - cell_count_settings_number_ ");
           ESP_LOGVV(TAG, "frame_type: 0x02 and not PROTOCOL_VERSION_JK04 => decode_jk02_cell_info_()");
+          ESP_LOGVV(TAG, "frame_type: 0x02 ==========================================================================");
+          ESP_LOGVV(TAG, "frame_type: 0x02 =============================START 0x02===================================");
+          ESP_LOGVV(TAG, "frame_type: 0x02 ==========================================================================");
           this->decode_jk02_cell_info_(data);
           // } else {
           //   ESP_LOGI(TAG, "Frame type 0x%02X received from address 0x%02X. But 0x01 frame type must be processed
@@ -670,10 +673,14 @@ void JkRS485Bms::on_jk_rs485_sniffer_data(const uint8_t &origin_address, const u
         ESP_LOGD(TAG, "on_jk_rs485_sniffer_data: 0x03");
 
         ESP_LOGI(TAG, "Decoding DEVICE "
-                      "info............................................................................................"
+                      "info............................................................"
                       "................................................................");
 
         ESP_LOGVV(TAG, "frame_type: 0x03 => decode_device_info_()");
+        ESP_LOGVV(TAG, "frame_type: 0x03 ALL PROTOCOLS => decode_device_info_()");
+        ESP_LOGVV(TAG, "frame_type: 0x03 ==========================================================================");
+        ESP_LOGVV(TAG, "frame_type: 0x03 =============================START 0x03===================================");
+        ESP_LOGVV(TAG, "frame_type: 0x03 ==========================================================================");
         this->decode_device_info_(data);
         break;
       default:

@@ -9,6 +9,7 @@ substitutions:
   friendly_name: "Fake ESP32 JK BMS hub RS485 01"
   esp_ip: 192.168.1.244
   device_description: "Monitor and control the JK-BMS Inverter PB_xxx via RS485 internal"
+
   external_components_source: github://rabbit3dcustom/esphome-jk-bms@main
   # external_components_source: github://txubelaxu/esphome-jk-bms@2.0
   # external_components_source: github://txubelaxu/esphome-jk-bms@v2.1
@@ -61,8 +62,8 @@ api:
   #   key: "wHoekU4R5Zza1nKnNpb6exVAYwJIdGZivXSN+WoZBx8="
 
 # To have a "next url" for improv serial
-web_server:
-  port: 80
+# web_server:
+#   port: 80
 
 # Allow Over-The-Air updates
 ota:
@@ -144,11 +145,12 @@ jk_rs485_bms: # I left the 0x01 free in order to update each of the bms, so I do
   - id: bms1
     rs485_address: 0x02
     jk_rs485_sniffer_id: sniffer0
-    update_interval: 100s
+    # update_interval: 100s
+
   - id: bms2
     rs485_address: 0x03
     jk_rs485_sniffer_id: sniffer0
-    update_interval: 90s
+    # update_interval: 90s
 
 # ###################################################
 # BINARY SENSORS
@@ -158,24 +160,24 @@ binary_sensor:
     jk_rs485_bms_id: bms1
     status_balancing:
       name: "${jkibms_top_right_01} status balancing"
-    # status_precharging:
-    #   name: "${jkibms_top_right_01} status precharging"
+    status_precharging:
+      name: "${jkibms_top_right_01} status precharging"
     status_charging:
       name: "${jkibms_top_right_01} status charging"
     status_discharging:
       name: "${jkibms_top_right_01} status discharging"
     status_online:
       name: "${jkibms_top_right_01} status online"
-    # status_heating:                                               #2025-06-11: No need.
-    #   name: "${jkibms_top_right_01} status heating"
-    # alarm_wireres:                                                #2025-06-11: No need.
-    #   name: "${jkibms_top_right_01} alarm WireRes"
+    status_heating: #2025-06-11: No need.
+      name: "${jkibms_top_right_01} status heating"
+    alarm_wireres: #2025-06-11: No need.
+      name: "${jkibms_top_right_01} alarm WireRes"
     alarm_mosotp:
       name: "${jkibms_top_right_01} alarm MosOTP"
-    # alarm_cellquantity:                                           #2025-06-11: No need.
-    #   name: "${jkibms_top_right_01} alarm CellQuantity"
-    # alarm_cursensorerr:                                           #2025-06-11: No need.
-    #   name: "${jkibms_top_right_01} alarm CurSensorErr"
+    alarm_cellquantity: #2025-06-11: No need.
+      name: "${jkibms_top_right_01} alarm CellQuantity"
+    alarm_cursensorerr: #2025-06-11: No need.
+      name: "${jkibms_top_right_01} alarm CurSensorErr"
     alarm_cellovp:
       name: "${jkibms_top_right_01} alarm CellOVP"
     alarm_batovp:
@@ -188,8 +190,8 @@ binary_sensor:
       name: "${jkibms_top_right_01} alarm ChOTP"
     alarm_chutp:
       name: "${jkibms_top_right_01} alarm ChUTP"
-    # alarm_cpuauxcommuerr:                                             #2025-06-11: No need.
-    #   name: "${jkibms_top_right_01} alarm CPUAuxCommuErr"
+    alarm_cpuauxcommuerr: #2025-06-11: No need.
+      name: "${jkibms_top_right_01} alarm CPUAuxCommuErr"
     alarm_celluvp:
       name: "${jkibms_top_right_01} alarm CellUVP"
     alarm_batuvp:
@@ -235,24 +237,24 @@ binary_sensor:
     jk_rs485_bms_id: bms2
     status_balancing:
       name: "${jkibms_bottom_right_02} status balancing"
-    # status_precharging:
-    #   name: "${jkibms_bottom_right_02} status precharging"
+    status_precharging:
+      name: "${jkibms_bottom_right_02} status precharging"
     status_charging:
       name: "${jkibms_bottom_right_02} status charging"
     status_discharging:
       name: "${jkibms_bottom_right_02} status discharging"
     status_online:
       name: "${jkibms_bottom_right_02} status online"
-    # status_heating:                                                   #2025-06-11: No need.
-    #   name: "${jkibms_bottom_right_02} status heating"
-    # alarm_wireres:                                                    #2025-06-11: No need.
-    #   name: "${jkibms_bottom_right_02} alarm WireRes"
+    status_heating: #2025-06-11: No need.
+      name: "${jkibms_bottom_right_02} status heating"
+    alarm_wireres: #2025-06-11: No need.
+      name: "${jkibms_bottom_right_02} alarm WireRes"
     alarm_mosotp:
       name: "${jkibms_bottom_right_02} alarm MosOTP"
-    # alarm_cellquantity:                                               #2025-06-11: No need.
-    #   name: "${jkibms_bottom_right_02} alarm CellQuantity"
-    # alarm_cursensorerr:                                               #2025-06-11: No need.
-    #   name: "${jkibms_bottom_right_02} alarm CurSensorErr"
+    alarm_cellquantity: #2025-06-11: No need.
+      name: "${jkibms_bottom_right_02} alarm CellQuantity"
+    alarm_cursensorerr: #2025-06-11: No need.
+      name: "${jkibms_bottom_right_02} alarm CurSensorErr"
     alarm_cellovp:
       name: "${jkibms_bottom_right_02} alarm CellOVP"
     alarm_batovp:
@@ -379,8 +381,8 @@ number:
       name: "${jkibms_top_right_01} cell count settings"
     battery_capacity_total_settings:
       name: "${jkibms_top_right_01} bat capacity total settings"
-    # precharging_time_from_discharge:
-    #   name: "${jkibms_top_right_01} precharging time from discharge"
+    precharging_time_from_discharge:
+      name: "${jkibms_top_right_01} precharging time from discharge"
     cell_request_charge_voltage_time:
       name: "${jkibms_top_right_01} cell request charge volt time"
     cell_request_float_voltage_time:
@@ -452,8 +454,8 @@ number:
       name: "${jkibms_bottom_right_02} cell count settings"
     battery_capacity_total_settings:
       name: "${jkibms_bottom_right_02} bat capacity total settings"
-    # precharging_time_from_discharge:
-    #   name: "${jkibms_bottom_right_02} precharging time from discharge"
+    precharging_time_from_discharge:
+      name: "${jkibms_bottom_right_02} precharging time from discharge"
     cell_request_charge_voltage_time:
       name: "${jkibms_bottom_right_02} cell request charge volt time"
     cell_request_float_voltage_time:
@@ -599,10 +601,10 @@ sensor:
       name: "${jkibms_top_right_01} bat current"
     battery_power:
       name: "${jkibms_top_right_01} bat power"
-    # battery_power_charging:                                     #2025-06-10: Not needed, with the normal bat power is enough.
-    #   name: "${jkibms_top_right_01} bat power charging"
-    # battery_power_discharging:                                  #2025-06-10: Not needed, with the normal bat power is enough.
-    #   name: "${jkibms_top_right_01} bat power discharging"
+    battery_power_charging: #2025-06-10: Not needed, with the normal bat power is enough.
+      name: "${jkibms_top_right_01} bat power charging"
+    battery_power_discharging: #2025-06-10: Not needed, with the normal bat power is enough.
+      name: "${jkibms_top_right_01} bat power discharging"
     temperature_sensor_1:
       name: "${jkibms_top_right_01} temp sensor 1"
     temperature_sensor_2:
@@ -623,8 +625,8 @@ sensor:
       name: "${jkibms_top_right_01} charging cycles"
     battery_capacity_total_charging_cycle:
       name: "${jkibms_top_right_01} bat capacity total charging cycle"
-    # battery_total_runtime:                                                            #2025-06-10: Not needed, with the normal bat power is enough.
-    #   name: "${jkibms_top_right_01} bat total runtime"
+    battery_total_runtime: #2025-06-10: Not needed, with the normal bat power is enough.
+      name: "${jkibms_top_right_01} bat total runtime"
     balancing_current:
       name: "${jkibms_top_right_01} balancing current"
     errors_bitmask:
@@ -633,9 +635,9 @@ sensor:
       name: "${jkibms_top_right_01} cell count real"
     smart_sleep_time:
       name: "${jkibms_top_right_01} smart sleep time"
-    # powertube_temperature_protection:                                                 #2025-06-10: Not needed. Unknown with comms.
+    # powertube_temperature_protection: #2025-06-10: Not needed. Unknown with comms.
     #   name: "${jkibms_top_right_01} powertube temp protection"
-    # powertube_temperature_protection_recovery:                                        #2025-06-10: Not needed. Unknown with comms.
+    # powertube_temperature_protection_recovery: #2025-06-10: Not needed. Unknown with comms.
     #   name: "${jkibms_top_right_01} powertube temp protection recovery"
     battery_total_alarms_count:
       name: "${jkibms_top_right_01} bat total alarms count"
@@ -643,9 +645,9 @@ sensor:
       name: "${jkibms_top_right_01} bat total alarms active"
     emergency_time_countdown:
       name: "${jkibms_top_right_01} emergency time countdown"
-    # uart1_protocol_number:                                                          #2025-06-10: Not needed
+    # uart1_protocol_number: #2025-06-10: Not needed
     #   name: "${jkibms_top_right_01} uart1 protocol number"
-    # uart2_protocol_number:                                                          #2025-06-10: Not needed
+    # uart2_protocol_number: #2025-06-10: Not needed
     #   name: "${jkibms_top_right_01} uart2 protocol number"
     battery_soh_valuation:
       name: "${jkibms_top_right_01} bat soh valuation"
@@ -824,20 +826,20 @@ sensor:
       name: "${jkibms_bottom_right_02} cell count real"
     smart_sleep_time:
       name: "${jkibms_bottom_right_02} smart sleep time"
-    powertube_temperature_protection: #2025-06-10: Not needed. Unknown with comms.
-      name: "${jkibms_bottom_right_02} powertube temp protection"
-    powertube_temperature_protection_recovery: #2025-06-10: Not needed. Unknown with comms.
-      name: "${jkibms_bottom_right_02} powertube temp protection recovery"
+    # powertube_temperature_protection:
+    #   name: "${jkibms_bottom_right_02} powertube temp protection"
+    # powertube_temperature_protection_recovery:
+    #   name: "${jkibms_bottom_right_02} powertube temp protection recovery"
     battery_total_alarms_count:
       name: "${jkibms_bottom_right_02} bat total alarms count"
     battery_total_alarms_active:
       name: "${jkibms_bottom_right_02} bat total alarms active"
     emergency_time_countdown:
       name: "${jkibms_bottom_right_02} emergency time countdown"
-    uart1_protocol_number: #2025-06-10: Not needed
-      name: "${jkibms_bottom_right_02} uart1 protocol number"
-    uart2_protocol_number: #2025-06-10: Not needed
-      name: "${jkibms_bottom_right_02} uart2 protocol number"
+    # uart1_protocol_number:
+    #   name: "${jkibms_bottom_right_02} uart1 protocol number"
+    # uart2_protocol_number:
+    #   name: "${jkibms_bottom_right_02} uart2 protocol number"
     battery_soh_valuation:
       name: "${jkibms_bottom_right_02} bat soh valuation"
     discharging_overcurrent_protection_release_time:
@@ -869,12 +871,13 @@ switch:
     turn_off_action:
       - lambda: |-
           id(sniffer0).set_broadcast_changes_to_all_bms(false);
+
     # JK-01 SWITCH
     # ###################################################
   - platform: jk_rs485_bms
     jk_rs485_bms_id: bms1
-    # precharging:
-    #   name: "${jkibms_top_right_01} precharging"
+    precharging:
+      name: "${jkibms_top_right_01} precharging"
     charging:
       name: "${jkibms_top_right_01} charging"
     discharging:
@@ -883,10 +886,10 @@ switch:
       name: "${jkibms_top_right_01} balancing"
     emergency:
       name: "${jkibms_top_right_01} emergency"
-    # heating:
-    #   name: "${jkibms_top_right_01} heating"
-    # display_always_on:
-    #   name: "${jkibms_top_right_01} display_always_on"
+    heating:
+      name: "${jkibms_top_right_01} heating"
+    display_always_on:
+      name: "${jkibms_top_right_01} display_always_on"
     charging_float_mode:
       name: "${jkibms_top_right_01} charging float mode"
     timed_stored_data:
@@ -908,8 +911,8 @@ switch:
     # ###################################################
   - platform: jk_rs485_bms
     jk_rs485_bms_id: bms2
-    # precharging:
-    #   name: "${jkibms_bottom_right_02} precharging"
+    precharging:
+      name: "${jkibms_bottom_right_02} precharging"
     charging:
       name: "${jkibms_bottom_right_02} charging"
     discharging:
@@ -918,10 +921,10 @@ switch:
       name: "${jkibms_bottom_right_02} balancing"
     emergency:
       name: "${jkibms_bottom_right_02} emergency"
-    # heating:
-    #   name: "${jkibms_bottom_right_02} heating"
-    # display_always_on:
-    #   name: "${jkibms_bottom_right_02} display_always_on"
+    heating:
+      name: "${jkibms_bottom_right_02} heating"
+    display_always_on:
+      name: "${jkibms_bottom_right_02} display_always_on"
     charging_float_mode:
       name: "${jkibms_bottom_right_02} charging float mode"
     timed_stored_data:
@@ -956,8 +959,8 @@ text_sensor:
       name: "${jkibms_top_right_01} errors"
     operation_status: #2025-06-11: No need.
       name: "${jkibms_top_right_01} operation status"
-    battery_type: #2025-06-10: Not needed, with the normal bat power is enough.
-      name: "${jkibms_top_right_01} bat type"
+    # battery_type: #2025-06-10: Not needed, with the normal bat power is enough.
+    #   name: "${jkibms_top_right_01} bat type"
     total_runtime_formatted:
       name: "${jkibms_top_right_01} total runtime formatted"
     info_vendorid: #2025-06-10: With comms seems not to be present.
@@ -985,8 +988,8 @@ text_sensor:
       name: "${jkibms_bottom_right_02} errors"
     operation_status: #2025-06-11: No need.
       name: "${jkibms_bottom_right_02} operation status"
-    battery_type: #2025-06-10: Not needed, with the normal bat power is enough.
-      name: "${jkibms_bottom_right_02} bat type"
+    # battery_type: #2025-06-10: Not needed, with the normal bat power is enough.
+    #   name: "${jkibms_bottom_right_02} bat type"
     total_runtime_formatted:
       name: "${jkibms_bottom_right_02} total runtime formatted"
     info_vendorid: #2025-06-10: With comms seems not to be present.

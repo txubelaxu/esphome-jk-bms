@@ -29,7 +29,6 @@ __pycache__/
 *$py.class
 /.vs
 
-secrets.yaml
-test.yaml
+yml-mine/
 **/*.yml
-**/*.yaml
+secrets.yaml

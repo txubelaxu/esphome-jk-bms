@@ -11,6 +11,7 @@ CONF_JK_RS485_SNIFFER_ID = "jk_rs485_sniffer_id"
 CONF_RX_TIMEOUT = "rx_timeout"
 CONF_PROTOCOL_VERSION = "protocol_version"
 CONF_TALK_PIN = "talk_pin"
+CONF_MASTER_FW_VERSION = "master_fw_version"
 
 jk_rs485_sniffer_ns = cg.esphome_ns.namespace("jk_rs485_sniffer")
 
@@ -29,13 +30,17 @@ PROTOCOL_VERSION_OPTIONS = {
     "JK02_32S": ProtocolVersion.PROTOCOL_VERSION_JK02_32S,
 }
 
+MasterFWVersion = jk_rs485_sniffer_ns.enum("MasterFWVersion")
+
 CONFIG_SCHEMA = (
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(JkRS485Sniffer),
             cv.Required(CONF_PROTOCOL_VERSION): cv.enum(
                 PROTOCOL_VERSION_OPTIONS, upper=True
-            ),         
+            ),        
+            cv.Optional(CONF_MASTER_FW_VERSION, default="1532"
+            ): cv.positive_time_period_milliseconds,             
             cv.Optional(CONF_TALK_PIN): pins.internal_gpio_output_pin_schema,
             cv.Optional(
                 CONF_RX_TIMEOUT, default="50ms"

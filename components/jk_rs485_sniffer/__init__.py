@@ -39,7 +39,7 @@ CONFIG_SCHEMA = (
             cv.Required(CONF_PROTOCOL_VERSION): cv.enum(
                 PROTOCOL_VERSION_OPTIONS, upper=True
             ),        
-            cv.Optional(CONF_MASTER_FW_VERSION, default="1532"): cv.int,             
+            cv.Optional(CONF_MASTER_FW_VERSION, default="1532"): cv.string,             
             cv.Optional(CONF_TALK_PIN): pins.internal_gpio_output_pin_schema,
             cv.Optional(
                 CONF_RX_TIMEOUT, default="50ms"

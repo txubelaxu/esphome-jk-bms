@@ -233,6 +233,8 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16(std::uint8_t 
                                                                    std::uint8_t third_element_of_frame,
                                                                    std::uint16_t register_address,
                                                                    std::uint16_t value) {
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16-->");
+
   uint8_t frame[13];
   uint8_t size = 0;
 
@@ -271,11 +273,16 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16(std::uint8_t 
   const uint32_t now = millis();
   this->rs485_network_node[slave_address].last_request_sent = now;
   this->last_jk_rs485_network_activity_ = now;
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16--<");
+
 }
 
 void JkRS485Sniffer::send_command_switch_or_number_to_slave_int32(std::uint8_t slave_address,
                                                                   std::uint8_t third_element_of_frame,
                                                                   std::uint16_t register_address, std::int32_t value) {
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_int32-->");
+
   uint8_t frame[13];
   uint8_t size = 0;
 
@@ -314,6 +321,9 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_int32(std::uint8_t s
   const uint32_t now = millis();
   this->rs485_network_node[slave_address].last_request_sent = now;
   this->last_jk_rs485_network_activity_ = now;
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_int32--<");
+
 }
 
 void JkRS485Sniffer::send_request_to_slave(uint8_t address, uint8_t frame_type) {
@@ -490,6 +500,8 @@ bool JkRS485Sniffer::calculate_next_pooling(void) {
 }
 
 int JkRS485Sniffer::found_next_node_to_discover(void) {
+  ESP_LOGVV(TAG, "JkRS485Sniffer::found_next_node_to_discover-->");
+
   int found_index = -1;
   for (uint8_t j = this->pooling_index.scan_address + 1; j < 16; ++j) {
     if (!rs485_network_node[j].available) {
@@ -505,6 +517,9 @@ int JkRS485Sniffer::found_next_node_to_discover(void) {
       }
     }
   }
+  
+  ESP_LOGVV(TAG, "JkRS485Sniffer::found_next_node_to_discover--<");
+
   return (found_index);
 }
 

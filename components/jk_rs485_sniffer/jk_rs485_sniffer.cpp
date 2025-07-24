@@ -588,7 +588,7 @@ void JkRS485Sniffer::loop() {
     ESP_LOGD(TAG, "JkRS485Sniffer::loop()-..........................................");
     ESP_LOGD(TAG, "JkRS485Sniffer::loop()-changed is not TRUE = %d or", changed);
     ESP_LOGD(TAG, "JkRS485Sniffer::loop()-cont_manage>=5 = %d or ", cont_manage);
-    ESP_LOGD(TAG, "JkRS485Sniffer::loop()-original_buffer_size < 8 ( %s )", this->rx_buffer_.size()).c_str() );
+    ESP_LOGD(TAG, "JkRS485Sniffer::loop()-original_buffer_size < 8 ( %s )", rx_buffer_.size()).c_str() );
     ESP_LOGD(TAG, "JkRS485Sniffer::loop()-..........................................");
 
     if (original_buffer_size == 0) {

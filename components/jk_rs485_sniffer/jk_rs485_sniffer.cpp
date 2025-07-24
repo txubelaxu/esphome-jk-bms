@@ -565,7 +565,7 @@ void JkRS485Sniffer::loop() {
     ESP_LOGD(TAG, "JkRS485Sniffer::loop()-..........................................");
 
     do {
-      ESP_LOGD(TAG, "JkRS485Sniffer::loop()-Do.............");
+      ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-Do.............");
       cont_manage++;
       ESP_LOGV(TAG, "JkRS485Sniffer::loop()-Buffer number %d:    %s", cont_manage,
                format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
@@ -581,15 +581,15 @@ void JkRS485Sniffer::loop() {
         original_buffer_size = this->rx_buffer_.size();
       }
 
-      ESP_LOGD(TAG, "JkRS485Sniffer::loop()-While.............");
+      ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-While.............");
 
     } while (cont_manage < 5 && changed == true && original_buffer_size >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
 
-    ESP_LOGD(TAG, "JkRS485Sniffer::loop()-..........................................");
-    ESP_LOGD(TAG, "JkRS485Sniffer::loop()-changed is not TRUE = %d or", changed);
-    ESP_LOGD(TAG, "JkRS485Sniffer::loop()-cont_manage>=5 = %d or ", cont_manage);
-    ESP_LOGD(TAG, "JkRS485Sniffer::loop()-original_buffer_size < 8 ( %s )", rx_buffer_.size()).c_str() );
-    ESP_LOGD(TAG, "JkRS485Sniffer::loop()-..........................................");
+    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-..........................................");
+    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-changed is not TRUE = %d or", changed);
+    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-cont_manage>=5 = %d or ", cont_manage);
+//    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-original_buffer_size < 8 ( %s )", rx_buffer_.size()).c_str() );
+    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-..........................................");
 
     if (original_buffer_size == 0) {
       ESP_LOGV(TAG, "JkRS485Sniffer::loop()-Buffer empty");

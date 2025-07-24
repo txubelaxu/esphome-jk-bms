@@ -583,7 +583,8 @@ void JkRS485Sniffer::loop() {
 
       ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-While.............");
 
-    } while (cont_manage < 5 && changed == true && original_buffer_size >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
+    // } while (cont_manage < 5 && changed == true && original_buffer_size >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
+    } while (cont_manage < 15 && changed == true && original_buffer_size >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
 
     ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-..........................................");
     ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-changed is not TRUE = %d or", changed);
@@ -821,7 +822,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-.........................................................");                        
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-Return 7 ??¿¿??¿");
         // continue with next;
-        return (BufferResponses.BUFFER_RESPONSE_NO_START_SEQUENCE);
+        return (BUFFER_RESPONSE_NO_START_SEQUENCE);
       }
     }
   }

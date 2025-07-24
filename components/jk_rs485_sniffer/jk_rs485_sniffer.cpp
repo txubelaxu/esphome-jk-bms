@@ -755,11 +755,17 @@ void JkRS485Sniffer::printBuffer(uint16_t max_length) {
 void JkRS485Sniffer::detected_master_activity_now(void) {
   const uint32_t now = millis();
 
+  ESP_LOGVV(TAG, "JkRS485Sniffer::detected_master_activity_now()-->");
+
+
   if (this->act_as_master) {
     this->act_as_master = false;
     ESP_LOGI(TAG, "JK MASTER DETECTED IN THE NETWORK");
   }
   this->last_master_activity = now;
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::detected_master_activity_now()--<");
+
 }
 
 uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
@@ -779,11 +785,14 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
   if (this->rx_buffer_.size() >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE) {
     ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[JKPB_RS485_MASTER_SHORT_REQUEST_SIZE: %d bytes]",JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
-    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(),
-                          pattern_response_header.end());
+
+    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
+
     if (it == this->rx_buffer_.end()) {
-      // Start sequence NOT FOUND (0x55AAEB90) --> maybe short response to a real master request?
-      // no squence
+      // Start sequence NOT FOUND (0x55AAEB90) --> maybe short response to a real master request?      
+      // no squence 
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-No start sequence found. (0x55AAEB90) ");                        
+
       uint16_t computed_checksum = crc16_c(raw, 6);
       uint16_t remote_checksum = ((uint16_t(raw[6]) << 8) | (uint16_t(raw[7]) << 0));
 
@@ -812,29 +821,36 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-.........................................................");                        
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-Return 7 ??¿¿??¿");
         // continue with next;
-        return (7);
+        return (BufferResponses.BUFFER_RESPONSE_NO_START_SEQUENCE);
       }
     }
   }
 
   if (this->rx_buffer_.size() >= JKPB_RS485_MASTER_REQUEST_SIZE) {
     ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[JKPB_RS485_MASTER_REQUEST_SIZE: %d bytes]",JKPB_RS485_MASTER_REQUEST_SIZE);    
-    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(),
-                          pattern_response_header.end());
+    
+    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
+
     bool try_with_master_request_size = false;
+
     if (it == this->rx_buffer_.end()) {
       // no sequence
       try_with_master_request_size = true;
+
     } else {
       // sequence found, but where?
       size_t index = std::distance(this->rx_buffer_.begin(), it);
+
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[JKPB_RS485_MASTER_REQUEST_SIZE - START SEQUENCE FOUND AT POSITION: %d ]",index);          
+
       if (index >= JKPB_RS485_MASTER_REQUEST_SIZE) {
         try_with_master_request_size = true;
       }
+
     }
 
     if (try_with_master_request_size == true) {
-      // Start sequence NOT FOUND (0x55AAEB90) --> maybe short response to a real master request?
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[JKPB_RS485_MASTER_REQUEST_SIZE]- START SEQUENCE FOUND WITHING THE FRAME try_with_master_request_size == true");          
 
       uint16_t computed_checksum = crc16_c(raw, 9);
       uint16_t remote_checksum = ((uint16_t(raw[9]) << 8) | (uint16_t(raw[10]) << 0));
@@ -843,6 +859,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-CHECKSUM failed! 0x%04X != 0x%04X", computed_checksum, remote_checksum);
         // NO, OR THERE WAS A COMM. ERROR
       } else {
+
         address = raw[0];
 
         ESP_LOGI(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-REAL master is speaking to address 0x%02X (request)", address);

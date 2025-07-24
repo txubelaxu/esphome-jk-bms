@@ -20,6 +20,18 @@ enum ProtocolVersion {
   PROTOCOL_VERSION_JK02_32S,
 };
 
+enum BufferResponses {
+  BUFFER_RESPONSE_0,
+  BUFFER_RESPONSE_1,
+  BUFFER_RESPONSE_2,
+  BUFFER_RESPONSE_3,
+  BUFFER_RESPONSE_4,
+  BUFFER_RESPONSE_5,
+  BUFFER_RESPONSE_6,
+  BUFFER_RESPONSE_NO_START_SEQUENCE,
+  BUFFER_RESPONSE_8
+};
+
 class JkRS485SnifferDevice;
 
 class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public Component {

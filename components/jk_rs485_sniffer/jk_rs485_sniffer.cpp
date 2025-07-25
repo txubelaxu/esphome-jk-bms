@@ -953,11 +953,15 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-AFTER ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-.........................................................");                        
         //ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-Return 6 ??¿¿??¿");        
+
+        address = raw[0];
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-Assign address: [0x%02X]", address);
       }
 
       if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
         // continue
         ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-###############################Sequence found SIZE: %d", (this->rx_buffer_.size()));
+        frame_well_formed = true;
       } else {
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-Return 3 ??¿¿??¿");        
         return (BUFFER_RESPONSE_BUFFER_SIZE_LESS_THAN_RESPONSE_SIZE_AFTER_ERASE);
@@ -981,13 +985,26 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE");        
 
-    uint8_t computed_checksum = chksum(raw, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
+    //2025-07-25-rabbit: Cant be the checksum with the full buffer(raw)
+    // uint8_t computed_checksum = chksum(raw, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
+    // uint8_t remote_checksum = raw[JKPB_RS485_CHECKSUM_INDEX];
+
+    // Define the start and end positions for the new variable
+    // For example, if you want to start from index 4 and go up to JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM
+    int indexPos = 0;
+    const uint8_t *data_for_checksum = &raw[indexPos]; // Starting from index 0
+    uint16_t length_for_checksum = JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM - indexPos; // Adjust length if starting offset
+
+    uint8_t computed_checksum = chksum(data_for_checksum, length_for_checksum);
     uint8_t remote_checksum = raw[JKPB_RS485_CHECKSUM_INDEX];
+    
 
     if (raw[JKPB_RS485_FRAME_TYPE_ADDRESS] == 1) {
       address = raw[JKPB_RS485_FRAME_TYPE_ADDRESS_FOR_FRAME_TYPE_x01 + 6];
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- IF Change address to: [0x%02X]", address);
     } else {
       address = raw[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS];
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- ELSE Change address to: [0x%02X]", address);
     }
 
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X ", this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);

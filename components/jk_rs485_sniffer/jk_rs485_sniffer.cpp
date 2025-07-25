@@ -1031,7 +1031,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
                                this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
 
         //After deletion the variable should be assigned again
-        raw = &this->rx_buffer_[0];
+        const uint8_t *raw = &this->rx_buffer_[0];
 
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-.........................................................");                        
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-AFTER ERASE: [buffer: %d bytes]",this->rx_buffer_.size());                        
@@ -1132,7 +1132,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         //2025-07-25-rabbit: This will maintain the frame with the address.
         this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index);
         //After deletion the variable should be assigned again
-        raw = &this->rx_buffer_[0];
+        const uint8_t *raw = &this->rx_buffer_[0];
        
         // continue with next;
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-.........................................................");                        

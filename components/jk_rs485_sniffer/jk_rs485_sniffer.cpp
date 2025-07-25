@@ -1016,19 +1016,16 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         // IT IS NOT A SHORT REQUEST OR THERE WAS A COMM. ERROR --> continue whith manage_rx_buffer code
       } else {
         address = raw[0];
-        // ESP_LOGI(TAG, "REAL master is speaking to address 0x%02X (short request)",address);
+        ESP_LOGVV(TAG, "REAL master is speaking to address 0x%02X (short request)",address);
 
         // this->rs485_network_node[0].last_message_received=now;
         // this->detected_master_activity_now();
 
         // this->set_node_availability(0,1);
-        std::vector<uint8_t> data(this->rx_buffer_.begin() + 0,
-                                  this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
-        ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-Answer received for MASTER (type: SHORT REQUEST for address %02X, %d bytes)", address,
-                 data.size());
+        std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
+        ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-Answer received for MASTER (type: SHORT REQUEST for address %02X, %d bytes)", address, data.size());
                  
-        this->rx_buffer_.erase(this->rx_buffer_.begin(),
-                               this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
+        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
 
         //After deletion the variable should be assigned again
         const uint8_t *raw = &this->rx_buffer_[0];
@@ -1087,10 +1084,6 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         this->set_node_availability(0, 1);
 
         //2025-07-25/01-rabbit: Avoid deleting the header of the frame with the address.
-        // std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() +
-        // JKPB_RS485_MASTER_REQUEST_SIZE-1); ESP_LOGD(TAG, "Frame received from MASTER (type: REQUEST for address %02X,
-        // %d bytes)",address, data.size());
-
         // this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_MASTER_REQUEST_SIZE);
         // //After deletion the variable should be assigned again
         // *raw = &this->rx_buffer_[0];        
@@ -1128,11 +1121,13 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         // printBuffer(index);
         
         //2025-07-25-rabbit: Delete the previous info except the address section. 
-        // this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index);
+        // this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index);        
         //2025-07-25-rabbit: This will maintain the frame with the address.
-        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index);
+        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index - JKPB_RS485_RESPONSE_SIZE);        
         //After deletion the variable should be assigned again
         const uint8_t *raw = &this->rx_buffer_[0];
+        //Get the real address
+        address = raw[0];
        
         // continue with next;
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-.........................................................");                        
@@ -1167,7 +1162,19 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   // Start sequence (0x55AAEB90) //55aaeb90 0105
 
   if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE");        
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE");
+    
+    //2025-07-25-rabbit: the address is supossed to be extract in the previous if, so now we can delete the address section
+    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
+    size_t index = std::distance(this->rx_buffer_.begin(), it);
+    this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index);        
+    //After deletion the variable should be assigned again
+    const uint8_t *raw = &this->rx_buffer_[0];
+
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 02-.........................................................");                        
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 02-AFTER ERASE: [buffer: %d bytes]",this->rx_buffer_.size());                        
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 02-AFTER ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 02-.........................................................");     
 
     //2025-07-25-rabbit: Cant be the checksum with the full buffer(raw)
     uint8_t computed_checksum = chksum(raw, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
@@ -1245,8 +1252,6 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_()-Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-  %s", format_hex_pretty(&data.front(), data.size()).c_str());
 
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::manage_rx_buffer_: 1");
-
     bool found = false;
 
     for (auto *device : this->devices_) {
@@ -1255,17 +1260,6 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
       ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::manage_rx_buffer_()->on_jk_rs485_sniffer_data()");
       ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::on_jk_rs485_sniffer_data()-->*************************************************************************");      
       ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::on_jk_rs485_sniffer_data()-->*************************************************************************");      
-
-      // //Delete the address frame and leave the frame.
-      // auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
-      // size_t index = std::distance(this->rx_buffer_.begin(), it);
-      // this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index);      
-      //   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::on_jk_rs485_sniffer_data()-->.........................................................");                        
-      //   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::on_jk_rs485_sniffer_data()-->AFTER ERASE: [buffer: %d bytes]",this->rx_buffer_.size());                        
-      //   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::on_jk_rs485_sniffer_data()-->AFTER ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
-      //   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::on_jk_rs485_sniffer_data()-->.........................................................");       
-      // //After deletion the variable should be assigned again
-      // *raw = &this->rx_buffer_[0];
 
       device->on_jk_rs485_sniffer_data(address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS], data, this->nodes_available);
 

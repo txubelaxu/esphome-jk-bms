@@ -926,7 +926,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     }
   } else {
     //if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {    
-    ESP_LOGvV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[buffer: %d bytes] < [JKPB_RS485_RESPONSE_SIZE: %d bytes]",this->rx_buffer_.size(),JKPB_RS485_RESPONSE_SIZE);    
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[buffer: %d bytes] < [JKPB_RS485_RESPONSE_SIZE: %d bytes]",this->rx_buffer_.size(),JKPB_RS485_RESPONSE_SIZE);    
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-Return 5 ??¿¿??¿");        
     return (BUFFER_RESPONSE_BUFFER_SIZE_LESS_THAN_RESPONSE_SIZE);
   }

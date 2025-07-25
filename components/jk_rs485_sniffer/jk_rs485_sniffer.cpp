@@ -771,14 +771,18 @@ void JkRS485Sniffer::detected_master_activity_now(void) {
 }
 
 uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
+
   const uint8_t *raw = &this->rx_buffer_[0];
   uint8_t address = 0;
+  bool frame_well_formed = false;
+
 
   const uint32_t now = millis();
 
   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-->");
   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-address: %02X ", address);
-
+  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-frame_well_formed: %d ", frame_well_formed);
+  
   /*
   const size_t free_heap = heap_caps_get_largest_free_block(MALLOC_CAP_8BIT);
   ESP_LOGV(TAG, "free_heap %f kBytes [buffer: %d bytes]",((float)free_heap/1024),this->rx_buffer_.size());
@@ -787,7 +791,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[buffer: %d bytes]",this->rx_buffer_.size());
 
   if (this->rx_buffer_.size() >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE) {
-    ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[JKPB_RS485_MASTER_SHORT_REQUEST_SIZE: %d bytes]",JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
+    ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- >=[JKPB_RS485_MASTER_SHORT_REQUEST_SIZE: %d bytes]",JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
 
     auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
 
@@ -830,7 +834,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   }
 
   if (this->rx_buffer_.size() >= JKPB_RS485_MASTER_REQUEST_SIZE) {
-    ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[JKPB_RS485_MASTER_REQUEST_SIZE: %d bytes]",JKPB_RS485_MASTER_REQUEST_SIZE);    
+    ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- >=[JKPB_RS485_MASTER_REQUEST_SIZE: %d bytes]",JKPB_RS485_MASTER_REQUEST_SIZE);    
     
     auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
 
@@ -870,19 +874,26 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         this->rs485_network_node[0].last_message_received = now;
         this->detected_master_activity_now();
         this->set_node_availability(0, 1);
-        // std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() +
-        // JKPB_RS485_MASTER_REQUEST_SIZE-1); ESP_LOGD(TAG, "Frame received from MASTER (type: REQUEST for address %02X,
-        // %d bytes)",address, data.size());
-        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_MASTER_REQUEST_SIZE);
 
-        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-.........................................................");                        
-        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-AFTER ERASE: [buffer: %d bytes]",this->rx_buffer_.size());                        
-        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-AFTER ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
-        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-.........................................................");                        
+        //2025-07-25-rabbit: Avoid deleting the header of the frame with the address.
+        
+        // // std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() +
+        // // JKPB_RS485_MASTER_REQUEST_SIZE-1); ESP_LOGD(TAG, "Frame received from MASTER (type: REQUEST for address %02X,
+        // // %d bytes)",address, data.size());
 
-        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-Return 6 ??¿¿??¿");
-        // continue with next;
-        return (6);
+        // this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_MASTER_REQUEST_SIZE);
+
+        // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-.........................................................");                        
+        // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-AFTER ERASE: [buffer: %d bytes]",this->rx_buffer_.size());                        
+        // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-AFTER ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
+        // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-.........................................................");                        
+
+        // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-Return 6 ??¿¿??¿");
+        // // continue with next;
+        // return (6);
+
+        //2025-07-25-rabbit: Avoid deleting the header of the frame with the address^^^^^^^^^^^^.
+
       }
     }
   }
@@ -951,23 +962,20 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
       ESP_LOGW(TAG, "JkRS485Sniffer::manage_rx_buffer_()-CHECKSUM failed! 0x%02X != 0x%02X", computed_checksum, remote_checksum);
 
-      //2025-07-25-rabbit: Let see what happends if this block is commented
+      auto it_next = std::search(this->rx_buffer_.begin() + 1, this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
+      size_t index_next = std::distance(this->rx_buffer_.begin(), it_next);
 
-      // auto it_next = std::search(this->rx_buffer_.begin() + 1, this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
-      // size_t index_next = std::distance(this->rx_buffer_.begin(), it_next);
-      // if (index_next > 0) {
-      //   // printBuffer(index);
-      //   this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index_next);
-      // } else {
-      //   this->rx_buffer_.clear();
-      // }
-      //   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-Return 10 ??¿¿??¿");        
-      // return (10);
-
-      //2025-07-25-rabbit: Let see what happends if this block is commented ^^^^^^^^^^^^^^
-
+      if (index_next > 0) {
+        // printBuffer(index);
+        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index_next);
+      } else {
+        this->rx_buffer_.clear();
+      }
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-Return 10 ??¿¿??¿");        
+      return (10);
 
     } else {
+
       this->rs485_network_node[address].last_message_received = now;
 
       if (address == 0) {

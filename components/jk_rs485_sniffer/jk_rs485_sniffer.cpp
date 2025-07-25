@@ -35,16 +35,25 @@ std::vector<unsigned char> pattern_response_header = {0x55, 0xAA, 0xEB, 0x90};
 
 std::vector<uint8_t> hexStringToVector(const std::string &hexString) {
   std::vector<uint8_t> result;
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::hexStringToVector()-->");
+
   for (size_t i = 0; i < hexString.length(); i += 2) {
     std::string byteString = hexString.substr(i, 2);
     uint8_t byte = static_cast<uint8_t>(std::stoi(byteString, nullptr, 16));
     result.push_back(byte);
   }
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::hexStringToVector()--<");
+
   return result;
 }
 
 uint16_t crc16_c(const uint8_t data[], const uint16_t len) {
   uint16_t crc = 0xFFFF;
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::crc16_c()-->");
+
   for (uint16_t i = 0; i < len; ++i) {
     crc ^= data[i];
     for (int j = 0; j < 8; ++j) {
@@ -55,6 +64,9 @@ uint16_t crc16_c(const uint8_t data[], const uint16_t len) {
       }
     }
   }
+  
+  ESP_LOGVV(TAG, "JkRS485Sniffer::crc16_c()--<");
+
   return (((crc & 0x00FF) << 8) | ((crc & 0xFF00)) >> 8);
 }
 
@@ -87,6 +99,10 @@ bool JkRS485Sniffer::get_broadcast_changes_to_all_bms() const { return this->bro
 
 void JkRS485Sniffer::handle_bms2sniffer_event(std::uint8_t slave_address, std::string event, std::uint8_t frame_type) {
   // Maneja el evento aquí. Por ejemplo, puedes imprimir el evento:
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-->");
+
+
   ESP_LOGD(TAG, "Received Event from BMS.. [address:0x%02X] @ %d -->  %s", slave_address, frame_type, event.c_str());
   const uint32_t now = millis();
 
@@ -109,6 +125,9 @@ void JkRS485Sniffer::handle_bms2sniffer_event(std::uint8_t slave_address, std::s
   if (this->act_as_master == true) {
     this->last_message_received_acting_as_master = now;
   }
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()--<");
+
 }
 
 void JkRS485Sniffer::handle_bms2sniffer_switch_or_number_uint32_event(std::uint8_t slave_address,
@@ -122,6 +141,9 @@ void JkRS485Sniffer::handle_bms2sniffer_switch_or_number_uint32_event(std::uint8
 
   // 02.10.10.00.00.02.04.00.00.0D.AC.35.C6 (13)
 
+  ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_switch_or_number_uint32_event()-->");
+
+
   if (rs485_network_node[slave_address].available) {
     send_command_switch_or_number_to_slave_uint32(slave_address, third_element_of_frame, register_address, value);
   }
@@ -134,6 +156,7 @@ void JkRS485Sniffer::handle_bms2sniffer_switch_or_number_uint32_event(std::uint8
       }
     }
   }
+  ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_switch_or_number_uint32_event()--<");
 
   //  return (status == 0);
 }
@@ -147,6 +170,9 @@ void JkRS485Sniffer::handle_bms2sniffer_switch_or_number_int32_event(std::uint8_
 
   // 02.10.10.78.00.02.04.00.00.00.00.37.A9
 
+  ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_switch_or_number_int32_event()-->");
+
+
   if (rs485_network_node[slave_address].available) {
     send_command_switch_or_number_to_slave_int32(slave_address, third_element_of_frame, register_address, value);
   }
@@ -159,6 +185,7 @@ void JkRS485Sniffer::handle_bms2sniffer_switch_or_number_int32_event(std::uint8_
       }
     }
   }
+  ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_switch_or_number_int32_event()--<");
 
   //  return (status == 0);
 }
@@ -167,6 +194,9 @@ void JkRS485Sniffer::handle_bms2sniffer_switch_or_number_uint16_event(std::uint8
                                                                       std::uint8_t third_element_of_frame,
                                                                       std::uint16_t register_address,
                                                                       std::uint16_t value) {
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_switch_or_number_int32_event()-->");  
+
   if (rs485_network_node[slave_address].available) {
     send_command_switch_or_number_to_slave_uint16(slave_address, third_element_of_frame, register_address, value);
     rs485_network_node[slave_address].last_device_info_request_received_OK = 0;
@@ -181,6 +211,7 @@ void JkRS485Sniffer::handle_bms2sniffer_switch_or_number_uint16_event(std::uint8
       }
     }
   }
+  ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_switch_or_number_int32_event()--<");  
 
   //  return (status == 0);
 }
@@ -876,7 +907,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         this->set_node_availability(0, 1);
 
         //2025-07-25-rabbit: Avoid deleting the header of the frame with the address.
-        
+
         // // std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() +
         // // JKPB_RS485_MASTER_REQUEST_SIZE-1); ESP_LOGD(TAG, "Frame received from MASTER (type: REQUEST for address %02X,
         // // %d bytes)",address, data.size());
@@ -910,9 +941,12 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
       if (index > 0) {
         // printBuffer(index);
-        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index);
-        //Missing store the address for the frame????¿¿¿
-
+        
+        //2025-07-25-rabbit: Delete the previous info except the address section. 
+        // this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index);
+        //2025-07-25-rabbit: This will maintain the frame with the address.
+        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index - JKPB_RS485_MASTER_REQUEST_SIZE);
+       
         // continue with next;
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-.........................................................");                        
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-AFTER ERASE: [buffer: %d bytes]",this->rx_buffer_.size());                        

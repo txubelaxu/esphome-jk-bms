@@ -961,7 +961,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_initial(void) {
 
     bool found = false;
     for (auto *device : this->devices_) {
-        SP_LOGD(TAG, "2");
+        ESP_LOGD(TAG, "2");
         device->on_jk_rs485_sniffer_data(address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS], data, this->nodes_available );   
         found = true;
     }

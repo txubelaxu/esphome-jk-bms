@@ -31,6 +31,8 @@ static const uint16_t TIME_BETWEEN_CONSECUTIVE_REQUEST_SENDINGS_TO_SAME_SLAVE = 
 static const uint16_t TIME_BETWEEN_NETWORK_SCAN_MILLISECONDS = 500;  // mejorar
 static const uint16_t NO_MESSAGE_RECEIVED_TIME_SET_AS_UNAVAILABLE_MILLISECONDS = 10000;
 
+int old_address = -1;
+
 std::vector<unsigned char> pattern_response_header = {0x55, 0xAA, 0xEB, 0x90};
 
 std::vector<uint8_t> hexStringToVector(const std::string &hexString) {
@@ -1194,17 +1196,22 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     2025-07-25-rabbit: For firmwares >= 15.38 the master is comming in the 0F 
       and the frames 01 and 02 are comming together without the address section.
       the computed checksum should be different in this situation.
-      Lets make a workarround to avoid the checksum.
+      Lets make a workarround to avoid the checksum and to have again the address 0.
     */    
     
     uint8_t computed_checksum = chksum(raw, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
     uint8_t remote_checksum = raw[JKPB_RS485_CHECKSUM_INDEX];
 
-
-    //Lets make a workarround to avoid the checksum.
+    //Lets make a workarround to avoid the checksum and to have again the address 0.
     if (index ==0)
     {
       computed_checksum = remote_checksum;
+      if( old_address == 0 && address > 15)
+      {
+        address = 0;
+        old_address = -1;
+      }
+
     }
 
     
@@ -1277,6 +1284,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     //Add a variable to the esphome config yaml, to force the user to choose the firmware version.
     if (try_with_master_request_size && address==15){
         address = 0;
+        old_address = address;
     }
 
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-FOUND FRAME.........................................................");                        

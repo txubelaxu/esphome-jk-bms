@@ -1168,14 +1168,14 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   } else {
     //if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {    
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[buffer: %d bytes] < [JKPB_RS485_RESPONSE_SIZE: %d bytes]",this->rx_buffer_.size(),JKPB_RS485_RESPONSE_SIZE);    
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-Return 5 ??¿¿??¿");        
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-Return 5 == BUFFER_RESPONSE_BUFFER_SIZE_LESS_THAN_RESPONSE_SIZE ");        
     return (BUFFER_RESPONSE_BUFFER_SIZE_LESS_THAN_RESPONSE_SIZE);
   }
 
   // Start sequence (0x55AAEB90) //55aaeb90 0105
 
   if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE 02");
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 02-this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE");
     
     //2025-07-25-rabbit: the address is supossed to be extract in the previous 'if', so now we can delete the address section
     auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
@@ -1184,15 +1184,30 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     //After deletion the variable should be assigned again
     const uint8_t *raw = &this->rx_buffer_[0];
 
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[JKPB_RS485_MASTER_REQUEST_SIZE - START SEQUENCE FOUND AT POSITION: %d ]",index);          
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 02-.........................................................");                        
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 02-AFTER ERASE: [buffer: %d bytes]",this->rx_buffer_.size());                        
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 02-AFTER ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 02-.........................................................");     
 
-    //2025-07-25-rabbit: Cant be the checksum with the full buffer(raw)
+    /*
+    2025-07-25-rabbit: For firmwares >= 15.38 the master is comming in the 0F 
+      and the frames 01 and 02 are comming together without the address section.
+      the computed checksum should be different in this situation.
+      Lets make a workarround to avoid the checksum.
+    */    
+    
     uint8_t computed_checksum = chksum(raw, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
     uint8_t remote_checksum = raw[JKPB_RS485_CHECKSUM_INDEX];
 
+
+    //Lets make a workarround to avoid the checksum.
+    if (index ==0)
+    {
+      computed_checksum = remote_checksum;
+    }
+
+    
     // Define the start and end positions for the new variable
     // For example, if you want to start from index 4 and go up to JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM
     // int indexPos = 0;
@@ -1275,9 +1290,11 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     bool found = false;
 
     for (auto *device : this->devices_) {
+
       ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::on_jk_rs485_sniffer_data()-->*************************************************************************");
       ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::on_jk_rs485_sniffer_data()-->*************************************************************************");
       ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::manage_rx_buffer_()->on_jk_rs485_sniffer_data()");
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::manage_rx_buffer_()->on_jk_rs485_sniffer_data(%d, %d)", address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
       ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::on_jk_rs485_sniffer_data()-->*************************************************************************");      
       ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JkRS485Sniffer::on_jk_rs485_sniffer_data()-->*************************************************************************");      
 

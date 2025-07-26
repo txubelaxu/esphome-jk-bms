@@ -124,6 +124,10 @@ void JkRS485Sniffer::handle_bms2sniffer_event(std::uint8_t slave_address, std::s
   this->last_jk_rs485_network_activity_ = now;
   if (this->act_as_master == true) {
     this->last_message_received_acting_as_master = now;
+    ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-Acting as a master");
+  }
+  else{
+    ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-Master BMS is present.");
   }
 
   ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()--<");
@@ -795,6 +799,10 @@ void JkRS485Sniffer::detected_master_activity_now(void) {
     this->act_as_master = false;
     ESP_LOGI(TAG, "JK MASTER DETECTED IN THE NETWORK");
   }
+  else{
+    ESP_LOGVV(TAG, "JkRS485Sniffer::detected_master_activity_now()-No master detected");
+  }
+  
   this->last_master_activity = now;
 
   ESP_LOGVV(TAG, "JkRS485Sniffer::detected_master_activity_now()--<");
@@ -984,6 +992,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   uint8_t address = 0;
   bool frame_well_formed = false;
 
+  bool try_with_master_request_size = false;
 
   const uint32_t now = millis();
 
@@ -1049,7 +1058,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     
     auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
 
-    bool try_with_master_request_size = false;
+    //bool try_with_master_request_size = false;
 
     if (it == this->rx_buffer_.end()) {
       // no sequence
@@ -1248,6 +1257,12 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE + 1);
     //DELETE THE FRAME THAT IS GOING TO BE PROCESSED.
     // this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE);
+
+    //2025-07-26-rabbit: Workarround for master address that is comming at 0F(15). 
+    //Add a variable to the esphome config yaml, to force the user to choose the firmware version.
+    if (try_with_master_request_size && address==15){
+        address = 0;
+    }
 
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-FOUND FRAME.........................................................");                        
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-FOUND FRAME: [buffer: %d bytes]",this->rx_buffer_.size());                        

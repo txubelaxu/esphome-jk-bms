@@ -32,8 +32,8 @@ enum BufferResponses {
   BUFFER_RESPONSE_8,
   BUFFER_RESPONSE_9,
   BUFFER_RESPONSE_10,
-  BUFFER_RESPONSE_JK_BMS_ADDRESS_GREATER_15,
-  BUFFER_RESPONSE_FRAME_PROCESSED,
+  BUFFER_RESPONSE_JK_BMS_ADDRESS_GREATER_15, //11
+  BUFFER_RESPONSE_FRAME_PROCESSED, //12
 };
 
 class JkRS485SnifferDevice;
@@ -125,7 +125,7 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
   uint8_t manage_rx_buffer_20250727(void); //This is mess that i tried to improve.
 
   uint8_t manage_rx_buffer_(void);
-  
+
   void set_node_availability(uint8_t address,bool value);
   std::string nodes_available_to_string();
 

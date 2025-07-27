@@ -1423,7 +1423,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         // JKPB_RS485_MASTER_REQUEST_SIZE-1); ESP_LOGD(TAG, "Frame received from MASTER (type: REQUEST for address %02X,
         // %d bytes)",address, data.size());
 
-        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE- buffer before ERASE: %s" ,format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.begin() + JKPB_RS485_MASTER_REQUEST_SIZE).c_str() );        
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE- buffer before ERASE: %s" ,format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.begin()).c_str() );        
 
         this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_MASTER_REQUEST_SIZE);
         // continue with next;

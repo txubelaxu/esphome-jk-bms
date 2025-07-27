@@ -759,6 +759,7 @@ void JkRS485Sniffer::set_node_availability(uint8_t address, bool value) {
 
   if (this->rs485_network_node[address].available == value) {
     // no changes
+    ESP_LOGVV(TAG, "JkRS485Sniffer::set_node_availability()-NO CHANGES");
   } else {
     uint8_t previous_value = this->rs485_network_node[address].available;
     this->rs485_network_node[address].available = value;
@@ -766,10 +767,8 @@ void JkRS485Sniffer::set_node_availability(uint8_t address, bool value) {
     std::string previous = this->nodes_available;
     this->nodes_available = this->nodes_available_to_string();
 
-    ESP_LOGI(TAG, "NODES AVAILABLE CHANGED: address 0x%02X (%d->%d) [%s] --> [%s]", address, previous_value, value,
-             previous.c_str(), this->nodes_available.c_str());
-    ESP_LOGV(TAG, "NODES AVAILABLE CHANGED: address 0x%02X (%d->%d) [%s] --> [%s]", address, previous_value, value,
-             previous.c_str(), this->nodes_available.c_str());
+    ESP_LOGI(TAG, "NODES AVAILABLE CHANGED: address 0x%02X (%d->%d) [%s] --> [%s]", address, previous_value, value, previous.c_str(), this->nodes_available.c_str());
+    ESP_LOGV(TAG, "NODES AVAILABLE CHANGED: address 0x%02X (%d->%d) [%s] --> [%s]", address, previous_value, value, previous.c_str(), this->nodes_available.c_str());
   }
 
   ESP_LOGVV(TAG, "JkRS485Sniffer::set_node_availability()--<");
@@ -1505,24 +1504,44 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         this->rx_buffer_.clear();
       }
 
-      return (10);
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Before return 10 - address [0x%02X]", address);        
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Return 10 ??¿¿??¿");
+      // return (10);
+      return (BUFFER_RESPONSE_FRAME_CHECKSUM_INCORRECT);
+      
+
     } else {
+
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: CHECKSUM OK 0x%02X != 0x%02X", computed_checksum, remote_checksum);
+
       this->rs485_network_node[address].last_message_received = now;
+
       if (address == 0) {
+
         last_master_activity = now;
+
       } else if (address > 15) {
-        ESP_LOGV(TAG, "(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X | CHECKSUM is correct",
-                 this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);      
+
+        ESP_LOGV(TAG, "(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X | CHECKSUM is correct", this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);      
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: (this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X | CHECKSUM is correct", this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
+
         // printBuffer(0);
+
         this->rx_buffer_.clear();
-        return (11);
+
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Return 11 ??¿¿??¿");
+
+        // return (11);
+        return (BUFFER_RESPONSE_JK_BMS_ADDRESS_GREATER_15);        
+
       } else {
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: this->set_node_availability()-->[0x%02X]", address);
         this->set_node_availability(address, 1);
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: this->set_node_availability()--<[0x%02X]", address);
       }
     }
 
-    ESP_LOGW(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Address before send to devices: [0x%02X]", address);
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Address before send to devices: [0x%02X]", address);
 
 
     std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);

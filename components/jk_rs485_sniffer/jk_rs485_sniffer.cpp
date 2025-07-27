@@ -1490,10 +1490,16 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     uint8_t computed_checksum = chksum(raw, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
     uint8_t remote_checksum = raw[JKPB_RS485_CHECKSUM_INDEX];
 
+    //2025-07-27-rabbit: the address of the device of this frame is at the following positions.
+    // if frame type is 01 => 55.AA.EB.90.01 << the position of the address is: JKPB_RS485_FRAME_TYPE_ADDRESS_FOR_FRAME_TYPE_x01 + 6
+    // the rest of frame types 55.AA.EB.90.02 << or 55.AA.EB.90.03 << is at JKPB_RS485_ADDRESS_OF_RS485_ADDRESS position
+
     if (raw[JKPB_RS485_FRAME_TYPE_ADDRESS] == 1) {
       address = raw[JKPB_RS485_FRAME_TYPE_ADDRESS_FOR_FRAME_TYPE_x01 + 6];
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Frame type [%d] Position [%d]: [%d] equal to address [0x%02X]", raw[JKPB_RS485_FRAME_TYPE_ADDRESS], JKPB_RS485_FRAME_TYPE_ADDRESS_FOR_FRAME_TYPE_x01 + 6, raw[JKPB_RS485_FRAME_TYPE_ADDRESS_FOR_FRAME_TYPE_x01 + 6], address);
     } else {
       address = raw[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS];
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Position [%d]: [%d] equal to address [0x%02X]", JKPB_RS485_ADDRESS_OF_RS485_ADDRESS, raw[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS], address);
     }
 
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: address 0x%02X (request)", address);        
@@ -1573,9 +1579,9 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     }
 
     if (!found) {
-      ESP_LOGW(TAG, "Got JkRS485 but no recipients to send [frame type:0x%02X] 0x%02X!",
-               raw[JKPB_RS485_FRAME_TYPE_ADDRESS], address);
+      ESP_LOGW(TAG, "Got JkRS485 but no recipients to send [frame type:0x%02X] 0x%02X!", raw[JKPB_RS485_FRAME_TYPE_ADDRESS], address);
     }
+
   } else {
     //    ESP_LOGD(TAG, "rx_buffer_.size=%02d",this->rx_buffer_.size());
   }

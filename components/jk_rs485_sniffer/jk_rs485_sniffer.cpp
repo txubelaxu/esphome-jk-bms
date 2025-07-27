@@ -988,7 +988,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_initial(void) {
 }
 
 
-uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
+uint8_t JkRS485Sniffer::manage_rx_buffer_20250727(void) {
 
   const uint8_t *raw = &this->rx_buffer_[0];
   uint8_t address = 0;
@@ -1330,6 +1330,217 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()--<"); 
   return (BUFFER_RESPONSE_FRAME_PROCESSED);
 }
+
+
+
+uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
+  const uint8_t *raw = &this->rx_buffer_[0];
+  uint8_t address = 0;
+
+  const uint32_t now = millis();
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-->");
+  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-address: %02X ", address);
+
+  /*
+  const size_t free_heap = heap_caps_get_largest_free_block(MALLOC_CAP_8BIT);
+  ESP_LOGV(TAG, "free_heap %f kBytes [buffer: %d bytes]",((float)free_heap/1024),this->rx_buffer_.size());
+  */
+
+  ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[buffer: %d bytes]",this->rx_buffer_.size());
+
+  if (this->rx_buffer_.size() >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE) {
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- this->rx_buffer_.size() [%d bytes] >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE: [%d bytes]",this->rx_buffer_.size(),JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
+
+    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(),
+                          pattern_response_header.end());
+    if (it == this->rx_buffer_.end()) {
+      // Start sequence NOT FOUND (0x55AAEB90) --> maybe short response to a real master request?
+      // no squence
+      uint16_t computed_checksum = crc16_c(raw, 6);
+      uint16_t remote_checksum = ((uint16_t(raw[6]) << 8) | (uint16_t(raw[7]) << 0));
+
+      if (computed_checksum != remote_checksum) {
+        ESP_LOGV(TAG, "CHECKSUM failed! 0x%04X != 0x%04X", computed_checksum, remote_checksum);
+        // IT IS NOT A SHORT REQUEST OR THERE WAS A COMM. ERROR --> continue whith manage_rx_buffer code
+      } else {
+        address = raw[0];
+        // ESP_LOGI(TAG, "REAL master is speaking to address 0x%02X (short request)",address);
+
+        // this->rs485_network_node[0].last_message_received=now;
+        // this->detected_master_activity_now();
+
+        // this->set_node_availability(0,1);
+        std::vector<uint8_t> data(this->rx_buffer_.begin() + 0,
+                                  this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
+        ESP_LOGD(TAG, "Answer received for MASTER (type: SHORT REQUEST for address %02X, %d bytes)", address,
+                 data.size());
+        this->rx_buffer_.erase(this->rx_buffer_.begin(),
+                               this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
+        // continue with next;
+        return (7);
+      }
+    }
+  }
+
+  if (this->rx_buffer_.size() >= JKPB_RS485_MASTER_REQUEST_SIZE) {
+
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- this->rx_buffer_.size() [%d bytes] >= JKPB_RS485_MASTER_REQUEST_SIZE: [%d bytes]",this->rx_buffer_.size(),JKPB_RS485_MASTER_REQUEST_SIZE);
+
+    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(),
+                          pattern_response_header.end());
+    bool try_with_master_request_size = false;
+    if (it == this->rx_buffer_.end()) {
+      // no sequence
+      try_with_master_request_size = true;
+    } else {
+      // sequence found, but where?
+      size_t index = std::distance(this->rx_buffer_.begin(), it);
+      if (index >= JKPB_RS485_MASTER_REQUEST_SIZE) {
+        try_with_master_request_size = true;
+      }
+    }
+
+    if (try_with_master_request_size == true) {
+      // Start sequence NOT FOUND (0x55AAEB90) --> maybe short response to a real master request?
+
+      uint16_t computed_checksum = crc16_c(raw, 9);
+      uint16_t remote_checksum = ((uint16_t(raw[9]) << 8) | (uint16_t(raw[10]) << 0));
+
+      if (computed_checksum != remote_checksum) {
+        ESP_LOGV(TAG, "CHECKSUM failed! 0x%04X != 0x%04X", computed_checksum, remote_checksum);
+        // NO, OR THERE WAS A COMM. ERROR
+      } else {
+
+        address = raw[0];
+        ESP_LOGI(TAG, "REAL master is speaking to address 0x%02X (request)", address);
+
+        this->rs485_network_node[0].last_message_received = now;
+        this->detected_master_activity_now();
+        this->set_node_availability(0, 1);
+
+        // std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() +
+        // JKPB_RS485_MASTER_REQUEST_SIZE-1); ESP_LOGD(TAG, "Frame received from MASTER (type: REQUEST for address %02X,
+        // %d bytes)",address, data.size());
+
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE- buffer before ERASE: " ,format_hex_pretty(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_MASTER_REQUEST_SIZE).c_str() );        
+
+        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_MASTER_REQUEST_SIZE);
+        // continue with next;
+
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-Return 6 ??¿¿??¿");        
+        return (6);
+      }
+    }
+  }
+
+  if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- this->rx_buffer_.size() [%d bytes] >= JKPB_RS485_RESPONSE_SIZE: [%d bytes]",this->rx_buffer_.size(),JKPB_RS485_RESPONSE_SIZE);
+
+    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(),
+                          pattern_response_header.end());
+
+    if (it != this->rx_buffer_.end()) {
+      // Sequence found, but where?
+
+      size_t index = std::distance(this->rx_buffer_.begin(), it);
+
+      if (index > 0) {
+        // printBuffer(index);
+        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index);
+        // continue with next;
+      }
+
+      if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
+        // continue
+        ESP_LOGD(TAG, "###############################Sequence found SIZE: %d", (this->rx_buffer_.size()));
+      } else {
+        return (3);
+      }
+    } else {
+      return (4);
+    }
+  } else {
+    return (5);
+  }
+
+  // Start sequence (0x55AAEB90) //55aaeb90 0105
+
+  if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- this->rx_buffer_.size() [%d bytes] >= JKPB_RS485_RESPONSE_SIZE 2: [%d bytes]",this->rx_buffer_.size(),JKPB_RS485_RESPONSE_SIZE);
+    
+    uint8_t computed_checksum = chksum(raw, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
+    uint8_t remote_checksum = raw[JKPB_RS485_CHECKSUM_INDEX];
+
+    if (raw[JKPB_RS485_FRAME_TYPE_ADDRESS] == 1) {
+      address = raw[JKPB_RS485_FRAME_TYPE_ADDRESS_FOR_FRAME_TYPE_x01 + 6];
+    } else {
+      address = raw[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS];
+    }
+
+    ESP_LOGVV(TAG, "(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X ", this->rx_buffer_.size(),
+              address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
+
+    if (computed_checksum != remote_checksum) {
+      ESP_LOGW(TAG, "CHECKSUM failed! 0x%02X != 0x%02X", computed_checksum, remote_checksum);
+      auto it_next = std::search(this->rx_buffer_.begin() + 1, this->rx_buffer_.end(), pattern_response_header.begin(),
+                                 pattern_response_header.end());
+      size_t index_next = std::distance(this->rx_buffer_.begin(), it_next);
+
+      if (index_next > 0) {
+        // printBuffer(index);
+        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + index_next);
+      } else {
+        this->rx_buffer_.clear();
+      }
+
+      return (10);
+    } else {
+      this->rs485_network_node[address].last_message_received = now;
+      if (address == 0) {
+        last_master_activity = now;
+      } else if (address > 15) {
+        ESP_LOGV(TAG, "(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X | CHECKSUM is correct",
+                 this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
+        // printBuffer(0);
+        this->rx_buffer_.clear();
+        return (11);
+      } else {
+        this->set_node_availability(address, 1);
+      }
+    }
+
+    std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
+
+    ESP_LOGD(TAG, "Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
+    ESP_LOGVV(TAG, "data: %s", format_hex_pretty(&data.front(), data.size()).c_str());
+
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_: 1");
+
+    bool found = false;
+    for (auto *device : this->devices_) {
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()->on_jk_rs485_sniffer_data()");
+
+      device->on_jk_rs485_sniffer_data(address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS], data, this->nodes_available);
+
+      found = true;
+    }
+
+    if (!found) {
+      ESP_LOGW(TAG, "Got JkRS485 but no recipients to send [frame type:0x%02X] 0x%02X!",
+               raw[JKPB_RS485_FRAME_TYPE_ADDRESS], address);
+    }
+  } else {
+    //    ESP_LOGD(TAG, "rx_buffer_.size=%02d",this->rx_buffer_.size());
+  }
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()--<");
+
+  this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE);
+  return (12);
+}
+
+
 
 void JkRS485Sniffer::dump_config() {
   ESP_LOGCONFIG(TAG, "JkRS485Sniffer:");

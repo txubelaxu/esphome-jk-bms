@@ -81,28 +81,36 @@ bool JkRS485Sniffer::get_broadcast_changes_to_all_bms() const { return this->bro
 
 void JkRS485Sniffer::handle_bms2sniffer_event(std::uint8_t slave_address, std::string event, std::uint8_t frame_type) {
   // Maneja el evento aquí. Por ejemplo, puedes imprimir el evento:
-  ESP_LOGD(TAG, "Received Event from BMS.. [address:0x%02X] @ %d -->  %s", slave_address, frame_type, event.c_str());
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-->");
+
+
+  ESP_LOGD(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-Received Event from BMS.. [address:0x%02X] @ %d -->  %s", slave_address, frame_type, event.c_str());
   const uint32_t now = millis();
 
   if (frame_type == 1) {
     this->rs485_network_node[slave_address].last_device_settings_request_received_OK = now;
     this->rs485_network_node[slave_address].counter_device_settings_received++;
-    ESP_LOGD(TAG, "updated last_device_settings_request_received_OK");
+    ESP_LOGD(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-updated last_device_settings_request_received_OK");
   } else if (frame_type == 2) {
     this->rs485_network_node[slave_address].last_cell_info_request_received_OK = now;
     this->rs485_network_node[slave_address].counter_cell_info_received++;
-    ESP_LOGD(TAG, "updated last_cell_info_request_received_OK");
+    ESP_LOGD(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-updated last_cell_info_request_received_OK");
   } else if (frame_type == 3) {
     this->rs485_network_node[slave_address].last_device_info_request_received_OK = now;
     this->rs485_network_node[slave_address].counter_device_info_received++;
-    ESP_LOGD(TAG, "updated last_device_info_request_received_OK");
+    ESP_LOGD(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-updated last_device_info_request_received_OK");
   } else {
+    ESP_LOGD(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-ELSE is empty");
   }
 
   this->last_jk_rs485_network_activity_ = now;
   if (this->act_as_master == true) {
     this->last_message_received_acting_as_master = now;
   }
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()--<");
+
 }
 
 void JkRS485Sniffer::handle_bms2sniffer_switch_or_number_uint32_event(std::uint8_t slave_address,
@@ -737,11 +745,15 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   const uint32_t now = millis();
 
   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-->");
+  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-address: %02X ", address);
 
   /*
   const size_t free_heap = heap_caps_get_largest_free_block(MALLOC_CAP_8BIT);
   ESP_LOGV(TAG, "free_heap %f kBytes [buffer: %d bytes]",((float)free_heap/1024),this->rx_buffer_.size());
   */
+
+  ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[buffer: %d bytes]",this->rx_buffer_.size());
+
   if (this->rx_buffer_.size() >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE) {
     auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(),
                           pattern_response_header.end());
@@ -889,7 +901,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
 
     ESP_LOGD(TAG, "Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
-    ESP_LOGVV(TAG, "  %s", format_hex_pretty(&data.front(), data.size()).c_str());
+    ESP_LOGVV(TAG, "data: %s", format_hex_pretty(&data.front(), data.size()).c_str());
 
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_: 1");
 

@@ -493,9 +493,15 @@ jk_rs485_sniffer::JkRS485Sniffer *JkRS485Bms::get_sniffer_parent(void) {
 }
 
 void JkRS485Bms::trigger_bms2sniffer_event(std::string event, std::uint8_t frame_type) {
+
+  ESP_LOGVV(TAG, "JkRS485Bms::trigger_bms2sniffer_event()-->");
+  
   if (this->parent_ != nullptr) {
     this->parent_->handle_bms2sniffer_event(this->address_, event, frame_type);
   }
+
+  ESP_LOGVV(TAG, "JkRS485Bms::trigger_bms2sniffer_event()--<");
+
 }
 
 void JkRS485Bms::trigger_bms2sniffer_switch_or_number_uint32_event(std::uint16_t register_address,

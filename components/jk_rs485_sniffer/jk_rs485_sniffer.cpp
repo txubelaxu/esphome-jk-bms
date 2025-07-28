@@ -396,7 +396,7 @@ void JkRS485Sniffer::send_request_to_slave(uint8_t address, uint8_t frame_type) 
   frame[9] = ((computed_checksum & 0xFF00) >> 8);
   frame[10] = ((computed_checksum & 0x00FF) >> 0);
 
-  ESP_LOGV(TAG, "MESSAGE REQUEST TO SEND>>: %s", format_hex_pretty(frame, 11).c_str());
+  ESP_LOGV(TAG, "JkRS485Sniffer::send_request_to_slave()-MESSAGE REQUEST TO SEND>>: %s", format_hex_pretty(frame, 11).c_str());
   // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + sizeof(frame) / sizeof(frame[0]));
 
@@ -602,7 +602,8 @@ void JkRS485Sniffer::loop() {
     uint8_t cont_manage = 0;
     bool changed = true;
 
-    int maxIterations = 15;
+    int maxIterations = 3;
+    
 
     ESP_LOGD(TAG, "JkRS485Sniffer::loop()-..........................................");
 
@@ -982,7 +983,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     uint8_t computed_checksum = chksum(raw, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
     uint8_t remote_checksum = raw[JKPB_RS485_CHECKSUM_INDEX];
 
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE - chksum()");
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2 - chksum()");
 
 
     //2025-07-27-rabbit: the address of the device of this frame is at the following positions.
@@ -1001,6 +1002,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
 
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: (this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X ", this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
+
 
     if (computed_checksum != remote_checksum) {
       ESP_LOGW(TAG, "CHECKSUM failed! 0x%02X != 0x%02X", computed_checksum, remote_checksum);

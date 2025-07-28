@@ -1,5 +1,6 @@
 
 
+
 uint8_t JkRS485Sniffer::manage_rx_buffer_initial(void) {
 
   const uint8_t *raw = &this->rx_buffer_[0];

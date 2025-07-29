@@ -803,7 +803,7 @@ void JkRS485Sniffer::printBuffer_segmented(uint16_t max_length) {
     // Definimos el ancho máximo de la línea de salida del HEX.
     // Esto se refiere al número de bytes por línea para mayor claridad.
     // 16 bytes por línea es un tamaño común y legible (32 caracteres hexadecimales + espacios).
-    const int BYTES_PER_LINE = 16; 
+    const int BYTES_PER_LINE = 32; 
 
     // Imprimimos la cabecera del log una vez
     // Usamos ESP_LOGI o el nivel de log que consideres más apropiado (ESP_LOGV, ESP_LOGD, etc.)

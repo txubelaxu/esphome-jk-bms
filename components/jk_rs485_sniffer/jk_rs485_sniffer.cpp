@@ -1131,6 +1131,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
     ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
     ESP_LOGVV(TAG, "[%s]", format_hex_pretty(&data.front(), data.size()).c_str());
+    printBuffer_segmented(this->rx_buffer_.size());      
 
     bool found = false;
     for (auto *device : this->devices_) {
@@ -1154,10 +1155,10 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-buffer before ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());  
   printBuffer_segmented(this->rx_buffer_.size());        
   
-
   this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE);
   
   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-buffer after ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
+  
   printBuffer_segmented(this->rx_buffer_.size());
 
   ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-Return 12 ??¿¿??¿");

@@ -607,7 +607,7 @@ void JkRS485Sniffer::loop() {
     // ESP_LOGD(TAG, "JkRS485Sniffer::loop()-..........................................");
 
     do {
-      ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-Do.............");
+      // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-Do.............");
       cont_manage++;
       ESP_LOGV(TAG, "JkRS485Sniffer::loop()-Buffer number %d:[%s]", cont_manage, format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
       printBuffer_segmented(this->rx_buffer_.size());        
@@ -625,16 +625,16 @@ void JkRS485Sniffer::loop() {
         original_buffer_size = this->rx_buffer_.size();
       }
 
-      ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-While.............");
+      // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-While.............");
 
     // } while (cont_manage < 5 && changed == true && original_buffer_size >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
     } while (cont_manage < maxIterations && changed == true && original_buffer_size >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
 
-    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-..........................................");
-    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-changed is not TRUE = %d or", changed);
-    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-cont_manage>=5 = %d or ", cont_manage);
-    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-original_buffer_size ( %d ) < JKPB_RS485_MASTER_SHORT_REQUEST_SIZE ( %d ) < ", rx_buffer_.size(), JKPB_RS485_MASTER_SHORT_REQUEST_SIZE );
-    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-..........................................");
+    // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-..........................................");
+    // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-changed is not TRUE = %d or", changed);
+    // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-cont_manage>=5 = %d or ", cont_manage);
+    // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-original_buffer_size ( %d ) < JKPB_RS485_MASTER_SHORT_REQUEST_SIZE ( %d ) < ", rx_buffer_.size(), JKPB_RS485_MASTER_SHORT_REQUEST_SIZE );
+    // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-..........................................");
 
     if (original_buffer_size == 0) {
       ESP_LOGV(TAG, "JkRS485Sniffer::loop()-Buffer empty");
@@ -736,7 +736,7 @@ void JkRS485Sniffer::loop() {
     }
   }
 
-  ESP_LOGVV(TAG, "JkRS485Sniffer::loop()--<");
+  // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()--<");
 
 }  // JkRS485Sniffer::loop()
 

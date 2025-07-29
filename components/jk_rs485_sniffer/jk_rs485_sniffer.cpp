@@ -633,7 +633,7 @@ void JkRS485Sniffer::loop() {
     ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-..........................................");
     ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-changed is not TRUE = %d or", changed);
     ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-cont_manage>=5 = %d or ", cont_manage);
-//    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-original_buffer_size < 8 ( %s )", rx_buffer_.size()).c_str() );
+    ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-original_buffer_size ( %d ) < JKPB_RS485_MASTER_SHORT_REQUEST_SIZE ( %d ) < ", rx_buffer_.size(), JKPB_RS485_MASTER_SHORT_REQUEST_SIZE );
     ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-..........................................");
 
     if (original_buffer_size == 0) {

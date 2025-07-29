@@ -1067,8 +1067,8 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: (this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X ", this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
 
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2 - chksum() - Position in frame JKPB_RS485_CHECKSUM_INDEX = %d ",JKPB_RS485_CHECKSUM_INDEX );
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2 - chksum() - Elements to calculate checksum JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM = %d ",JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM );
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2 - chksum() - Position in frame JKPB_RS485_CHECKSUM_INDEX = %d value %d",JKPB_RS485_CHECKSUM_INDEX, raw[JKPB_RS485_CHECKSUM_INDEX] );
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2 - chksum() - Elements to calculate checksum JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM = %d value %d",JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM,computed_checksum);
 
     if (computed_checksum != remote_checksum) {
       ESP_LOGW(TAG, "CHECKSUM failed! 0x%02X != 0x%02X", computed_checksum, remote_checksum);

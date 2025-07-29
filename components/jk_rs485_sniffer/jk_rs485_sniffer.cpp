@@ -602,8 +602,7 @@ void JkRS485Sniffer::loop() {
     uint8_t cont_manage = 0;
     bool changed = true;
 
-    int maxIterations = 10;
-    
+    int maxIterations = 5;    
 
     // ESP_LOGD(TAG, "JkRS485Sniffer::loop()-..........................................");
 

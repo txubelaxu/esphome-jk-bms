@@ -219,7 +219,8 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint32(std::uint8_t 
 
   ESP_LOGD(TAG, "MESSAGE REQUEST TO SEND switch >>: %s", format_hex_pretty(frame, size).c_str());
   ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_uint32()-MESSAGE REQUEST TO SEND switch >>:");
-  printBuffer_segmented(frame, 0);         
+  size_t frame_size = sizeof(frame); 
+  this->printBuffer_segmented(frame, frame_size, 0);         
 
 
   //  // Enviar el array de bytes por UART
@@ -267,7 +268,8 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16(std::uint8_t 
 
   ESP_LOGD(TAG, "MESSAGE REQUEST TO SEND switch or number >>: %s", format_hex_pretty(frame, size).c_str());
   ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16()-MESSAGE REQUEST TO SEND switch or number: ");
-  printBuffer_segmented(frame, 0);
+  size_t frame_size = sizeof(frame); 
+  this->printBuffer_segmented(frame, frame_size, 0);
 
   //  // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + size / sizeof(frame[0]));
@@ -313,7 +315,8 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_int32(std::uint8_t s
 
   ESP_LOGD(TAG, "MESSAGE REQUEST TO SEND switch or number >>: %s", format_hex_pretty(frame, size).c_str());
   ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_int32()-MESSAGE REQUEST TO SEND switch or number: ");
-  printBuffer_segmented(frame, 0); 
+  size_t frame_size = sizeof(frame); 
+  this->printBuffer_segmented(frame, frame_size, 0);
 
   //  // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + size / sizeof(frame[0]));
@@ -363,7 +366,9 @@ void JkRS485Sniffer::send_request_to_slave(uint8_t address, uint8_t frame_type) 
 
   ESP_LOGV(TAG, "MESSAGE REQUEST TO SEND>>: %s", format_hex_pretty(frame, 11).c_str());
   ESP_LOGVV(TAG, "JkRS485Sniffer::send_request_to_slave()-MESSAGE REQUEST TO SEND:");
-  printBuffer_segmented(frame, 0);   
+  size_t frame_size = sizeof(frame); 
+  this->printBuffer_segmented(frame, frame_size, 0);
+ 
 
   // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + sizeof(frame) / sizeof(frame[0]));
@@ -848,6 +853,38 @@ void JkRS485Sniffer::printBuffer_segmented(const std::vector<uint8_t>& buffer, u
             if (!current_line_hex.empty()) {
                 ESP_LOGVV(TAG, "    %s", current_line_hex.c_str());
             }
+        }
+    }
+}
+
+// Sobrecarga 2: Para imprimir un array de tipo uint8_t
+void JkRS485Sniffer::printBuffer_segmented(const uint8_t* buffer, size_t buffer_size, uint16_t max_length) {
+    const int BYTES_PER_LINE = 25; 
+
+    ESP_LOGVV(TAG, "Array buffer size: %zu", buffer_size);
+
+    size_t bytes_processed = 0;
+
+    for (size_t i = 0; i < buffer_size; i += BYTES_PER_LINE) {
+        if (max_length > 0 && bytes_processed >= max_length) {
+            break; 
+        }
+
+        std::string current_line_hex;
+        current_line_hex.reserve(BYTES_PER_LINE * 3);
+
+        for (int j = 0; j < BYTES_PER_LINE; ++j) {
+            if ((i + j) < buffer_size && (max_length == 0 || (i + j) < max_length)) {
+                char hexByte[4]; 
+                sprintf(hexByte, "%02X ", buffer[i + j]);
+                current_line_hex += hexByte;
+                bytes_processed++;
+            } else {
+                break;
+            }
+        }
+        if (!current_line_hex.empty()) {
+            ESP_LOGVV(TAG, "    %s", current_line_hex.c_str());
         }
     }
 }

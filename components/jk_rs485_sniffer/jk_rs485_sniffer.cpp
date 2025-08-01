@@ -571,7 +571,8 @@ void JkRS485Sniffer::loop() {
     // ESP_LOGD(TAG, "original_buffer_size < JKPB_RS485_MASTER_SHORT_REQUEST_SIZE");
     // ESP_LOGD(TAG, "..........................................");
 
-      printBuffer_segmented(this->rx_buffer_.size());          
+      printBuffer_segmented(this->rx_buffer_, 0);         
+      
       response = this->manage_rx_buffer_();
       ESP_LOGVV(TAG, "manage_rx_buffer_()-Response: %d:", response);
 
@@ -795,6 +796,50 @@ void JkRS485Sniffer::printBuffer_segmented(uint16_t max_length) {
     }
 }
 
+void JkRS485Sniffer::printBuffer_segmented(const std::vector<uint8_t>& buffer, uint16_t max_length) {
+    // Definimos el ancho máximo de la línea de salida.
+    const int BYTES_PER_LINE = 25; 
+
+    // Imprimimos la cabecera del log una vez
+    ESP_LOGVV(TAG, "Buffer size: %zu", buffer.size());
+
+    // Variable para controlar cuántos bytes hemos procesado
+    size_t bytes_processed = 0;
+
+    // Iteramos sobre el buffer de bytes
+    for (size_t i = 0; i < buffer.size(); ++i) {
+        // Si se especificó un max_length y ya lo hemos alcanzado, salimos del bucle.
+        if (max_length > 0 && bytes_processed >= max_length) {
+            break; 
+        }
+
+        // Si es el inicio de una nueva línea (o la primera línea)
+        if (i % BYTES_PER_LINE == 0) {
+            // Creamos un string para la línea actual de HEX
+            std::string current_line_hex;
+            current_line_hex.reserve(BYTES_PER_LINE * 3); // Aprox. 2 chars + espacio por byte
+
+            // Iteramos para construir la línea actual de HEX
+            for (int j = 0; j < BYTES_PER_LINE; ++j) {
+                // Verificamos si aún estamos dentro de los límites del buffer y de max_length.
+                if ((i + j) < buffer.size() && (max_length == 0 || (i + j) < max_length)) {
+                    // Usamos std::stringstream para una construcción de string más segura y eficiente
+                    char hexByte[4]; 
+                    sprintf(hexByte, "%02X ", buffer[i + j]);
+                    current_line_hex += hexByte;
+                    bytes_processed++;
+                } else {
+                    break; // Salir si excedemos el tamaño del buffer o max_length
+                }
+            }
+            // Imprimimos la línea de HEX completa
+            if (!current_line_hex.empty()) {
+                ESP_LOGVV(TAG, "    %s", current_line_hex.c_str());
+            }
+        }
+    }
+}
+
 void JkRS485Sniffer::detected_master_activity_now(void) {
   const uint32_t now = millis();
 
@@ -994,7 +1039,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     // std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
     std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE);
 
-    printBuffer_segmented(data.size());          
+    printBuffer_segmented(data, 0);         
 
 
     ESP_LOGD(TAG, "Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);

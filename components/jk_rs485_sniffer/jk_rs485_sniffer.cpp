@@ -1021,9 +1021,6 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   const uint8_t *raw = &this->rx_buffer_[0];
   uint8_t address = 0;
   
-  const uint8_t *raw_ptr;
-  std::vector<uint8_t> raw_copy;
-
   const uint32_t now = millis();
 
   // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-->");
@@ -1196,6 +1193,8 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- this->rx_buffer_.size() [%d bytes] >= JKPB_RS485_RESPONSE_SIZE 2: [%d bytes]",this->rx_buffer_.size(),JKPB_RS485_RESPONSE_SIZE);
 
+    const uint8_t *raw_ptr;
+    std::vector<uint8_t> raw_copy;
     raw_copy.assign(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE - 1);
     *raw_ptr = raw_copy.data();      
 

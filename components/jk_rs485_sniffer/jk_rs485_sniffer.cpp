@@ -849,9 +849,10 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   }
 
   if (this->rx_buffer_.size() >= JKPB_RS485_MASTER_REQUEST_SIZE) {
-    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(),
-                          pattern_response_header.end());
+    
+    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
     bool try_with_master_request_size = false;
+
     if (it == this->rx_buffer_.end()) {
       // no sequence
       try_with_master_request_size = true;
@@ -980,7 +981,10 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
       }
     }
 
-    std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
+    //Why get all the buffer, lets get only the frame size.
+    // std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
+    std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE);
+    
 
     ESP_LOGD(TAG, "Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
     ESP_LOGVV(TAG, "data: %s", format_hex_pretty(&data.front(), data.size()).c_str());

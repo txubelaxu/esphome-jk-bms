@@ -899,6 +899,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   }
 
   if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
+
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE");
     
     auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(),pattern_response_header.end());
@@ -947,6 +948,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2-(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X ", this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
 
     if (computed_checksum != remote_checksum) {
+
       ESP_LOGW(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2-CHECKSUM failed! 0x%02X != 0x%02X", computed_checksum, remote_checksum);
 
       auto it_next = std::search(this->rx_buffer_.begin() + 1, this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
@@ -964,10 +966,17 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
       return(10);
 
     } else {
+      
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2-CHECKSUM OK! 0x%02X == 0x%02X", computed_checksum, remote_checksum);
+
       this->rs485_network_node[address].last_message_received = now;
+
       if (address == 0) {
+
         last_master_activity = now;
+
       } else if (address > 15) {
+
         ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2-(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X | CHECKSUM is correct",
                  this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
         // printBuffer(0);
@@ -981,10 +990,12 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
       }
     }
 
-    //Why get all the buffer, lets get only the frame size.
+    //Why get all the buffer?, lets get only the frame size.
     // std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
     std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE);
-    
+
+    printBuffer_segmented(data.size());          
+
 
     ESP_LOGD(TAG, "Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
     ESP_LOGVV(TAG, "data: %s", format_hex_pretty(&data.front(), data.size()).c_str());

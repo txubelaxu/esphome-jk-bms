@@ -1193,10 +1193,9 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- this->rx_buffer_.size() [%d bytes] >= JKPB_RS485_RESPONSE_SIZE 2: [%d bytes]",this->rx_buffer_.size(),JKPB_RS485_RESPONSE_SIZE);
 
-    const uint8_t *raw_ptr;
     std::vector<uint8_t> raw_copy;
     raw_copy.assign(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE - 1);
-    *raw_ptr = raw_copy.data();      
+    const uint8_t *raw_ptr = raw_copy.data();      
 
     uint8_t computed_checksum = chksum(raw_ptr, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
     uint8_t remote_checksum = raw_ptr[JKPB_RS485_CHECKSUM_INDEX];

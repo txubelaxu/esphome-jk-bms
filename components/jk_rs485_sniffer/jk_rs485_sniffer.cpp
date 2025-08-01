@@ -566,7 +566,7 @@ int JkRS485Sniffer::found_next_node_to_discover(void) {
   return (found_index);
 }
 
-void JkRS485Sniffer::loop() {
+void JkRS485Sniffer::loop_old() {
   uint32_t now = millis();
 
   ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-->");
@@ -740,8 +740,144 @@ void JkRS485Sniffer::loop() {
 
 }  // JkRS485Sniffer::loop()
 
-// void JkRS485Sniffer::send_rs485_message(uint8_t message[])
-// }
+void JkRS485Sniffer::loop() {
+  uint32_t now = millis();
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-->");
+
+  if (this->rx_buffer_.size() == this->rx_buffer_.max_size()) {
+    ESP_LOGW(TAG, "JkRS485Sniffer::loop()-### Buffer cleared buffer size: %d", this->rx_buffer_.size());
+    this->rx_buffer_.clear();
+  }
+
+  if (this->available()) {
+    if ((now - this->last_jk_rs485_network_activity_) > MIN_SILENCE_MILLISECONDS) {
+      if (this->act_as_master == false) {
+        ESP_LOGD(TAG, "JkRS485Sniffer::loop()-SILENCE: %f ms", (float) (now - this->last_jk_rs485_network_activity_));
+      } else {
+        ESP_LOGI(TAG, "JkRS485Sniffer::loop()-SILENCE: %f ms", (float) (now - this->last_jk_rs485_network_activity_));
+      }
+    }
+
+    // bulk to Received data to "rx_buffer_"
+    uint8_t byte;
+    while (this->available() && (this->rx_buffer_.size() < this->rx_buffer_.max_size())) {
+      this->read_byte(&byte);
+      this->rx_buffer_.push_back(byte);
+    }
+
+    now = millis();
+    this->last_jk_rs485_network_activity_ = now;
+
+    
+    ESP_LOGV(TAG, "JkRS485Sniffer::loop()-Buffer fill:");
+    printBuffer_segmented(this->rx_buffer_.size());
+  
+    response = this->manage_rx_buffer_();
+
+    ESP_LOGV(TAG, "JkRS485Sniffer::loop()-manage_rx_buffer_()-Response: %d:", response);
+
+    if (original_buffer_size == 0) {
+      ESP_LOGV(TAG, "JkRS485Sniffer::loop()-Buffer empty");
+    }
+
+  } else {
+    // NO RX DATA
+    if ((now - this->last_jk_rs485_network_activity_) > MIN_SILENCE_NEEDED_BEFORE_SPEAKING_MILLISECONDS) {
+      // CAN TX REQUEST IF NEEDED
+      if (now - last_master_activity > SILENCE_BEFORE_ACTING_AS_MASTER) {
+        if (this->act_as_master == false) {
+          // NO MASTER HAS BEEN DETECTED IN THE NETWORK --> ESP WILL ACT AS MASTER
+          this->act_as_master = true;
+          this->set_node_availability(0, 0);
+          ESP_LOGI(TAG, "JkRS485Sniffer::loop()-NO JK MASTER DETECTED IN THE NETWORK. ESP WILL ACT AS MASTER");
+        }
+      }
+
+      ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-this->act_as_master: %d",this->act_as_master);
+
+      if (this->act_as_master) {
+        ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-ESP WILL ACT AS MASTER");
+
+        if (now - last_message_received_acting_as_master > SILENCE_BEFORE_REUSING_NETWORK_ACTING_AS_MASTER) {
+          // Is an special message to send in the queue?
+          // if so, do it and return. TO DO!!!
+          this->last_message_received_acting_as_master = now;
+
+          bool scan_sent = false;
+          // SCAN NEXT UNAVAILABLE NODE
+          if (now - this->last_network_scan > TIME_BETWEEN_NETWORK_SCAN_MILLISECONDS) {
+            int found_index = -1;
+            found_index = this->found_next_node_to_discover();
+
+            if (found_index == -1) {
+              // all nodes are available now
+              ESP_LOGD(TAG, "JkRS485Sniffer::loop()-SCANNING TO DISCOVER...ALL NODES ARE AVAILABLE");
+            } else {
+              
+              ESP_LOGD(TAG, "JkRS485Sniffer::loop()-SCANNING TO DISCOVER...0x%02X [%s]", found_index,this->nodes_available_to_string().c_str());
+              
+              this->pooling_index.scan_address = found_index;
+              
+              this->send_request_to_slave(found_index, 2);
+
+              this->last_network_scan = now;
+              scan_sent = true;
+            }
+          }
+
+          if (scan_sent == false) {
+            if (this->nodes_available_number > 0 &&
+                now - this->last_jk_rs485_pooling_trial_ > TIME_BEFORE_NEXT_POOLING_MILLISENCONDS) {
+              this->last_jk_rs485_pooling_trial_ = now;
+              // NORMAL POOLING LOOP AS MASTER
+              if (this->calculate_next_pooling() == true) {
+                // ESP_LOGI(TAG, "CALCULATED NEXT POOLING...0x%02X @
+                // %d",this->pooling_index.node_address,this->pooling_index.frame_type);
+                this->send_request_to_slave(this->pooling_index.node_address, this->pooling_index.frame_type);
+              }
+            }
+          }
+        }
+
+      } else {
+        // SPEAK WHEN A MASTER IS IN THE NETWORK
+        ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-THERE IS A JK MASTER DETECTED IN THE NETWORK. ESP WILL ACT AS SLAVE");
+
+        for (uint8_t cont = 0; cont < 16; cont++) {
+          if (this->rs485_network_node[cont].available == true) {
+            // repeat device info request
+            if (now - rs485_network_node[cont].last_device_info_request_received_OK > TIME_BETWEEN_DEVICE_INFO_REQUESTS_MILLISECONDS) {
+
+              send_request_to_slave(cont, 03);
+
+              break;
+            }
+          }
+        }
+
+        // decide if node is available (if none info recieved during a time from that address)
+        for (uint8_t cont = 0; cont < 16; cont++) {
+          if (now - this->rs485_network_node[cont].last_message_received >
+              NO_MESSAGE_RECEIVED_TIME_SET_AS_UNAVAILABLE_MILLISECONDS) {
+            this->set_node_availability(cont, 0);
+          }
+
+          // periodically test !!!!!!
+          if (this->rs485_network_node[cont].available && cont > 0) {
+            if (this->rs485_network_node[cont].counter_device_info_received == 0) {
+              this->rs485_network_node[cont].last_device_info_request_received_OK = 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ESP_LOGVV(TAG, "JkRS485Sniffer::loop()--<");
+
+}  // JkRS485Sniffer::loop()
+
 
 std::string JkRS485Sniffer::nodes_available_to_string() {
   std::string bufferHex;
@@ -802,7 +938,7 @@ void JkRS485Sniffer::printBuffer_segmented(uint16_t max_length) {
     // Definimos el ancho máximo de la línea de salida del HEX.
     // Esto se refiere al número de bytes por línea para mayor claridad.
     // 16 bytes por línea es un tamaño común y legible (32 caracteres hexadecimales + espacios).
-    const int BYTES_PER_LINE = 32; 
+    const int BYTES_PER_LINE = 25; 
 
     // Imprimimos la cabecera del log una vez
     // Usamos ESP_LOGI o el nivel de log que consideres más apropiado (ESP_LOGV, ESP_LOGD, etc.)
@@ -854,10 +990,11 @@ void JkRS485Sniffer::printBuffer_segmented(uint16_t max_length) {
                 }
             }
             // Imprimimos la línea de HEX completa
-            ESP_LOGVV(TAG, "  %s", current_line_hex.c_str());
+            ESP_LOGVV(TAG, "  %s [%d bytes per line]", current_line_hex.c_str(), BYTES_PER_LINE );
         }
     }
 }
+
 
 void JkRS485Sniffer::detected_master_activity_now(void) {
   const uint32_t now = millis();

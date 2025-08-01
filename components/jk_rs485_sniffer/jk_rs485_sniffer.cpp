@@ -742,6 +742,7 @@ void JkRS485Sniffer::loop_old() {
 
 void JkRS485Sniffer::loop() {
   uint32_t now = millis();
+  uint8_t response = 0;
 
   ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-->");
 

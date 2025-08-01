@@ -92,7 +92,8 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
   }
 
   
-  void loop_old() override;
+  void loop_old();
+  
   void loop() override;  
 
   void dump_config() override;

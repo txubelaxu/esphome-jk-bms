@@ -1275,7 +1275,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
     // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Address before send to devices: [0x%02X]", address);
 
-    //std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
+    std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
 
     ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
     // ESP_LOGVV(TAG, "[%s]", format_hex_pretty(&data.front(), data.size()).c_str());
@@ -1287,8 +1287,8 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     for (auto *device : this->devices_) {
       // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: on_jk_rs485_sniffer_data()-->");
 
-      // device->on_jk_rs485_sniffer_data(address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS], data, this->nodes_available);
-      device->on_jk_rs485_sniffer_data(address, raw_ptr[JKPB_RS485_FRAME_TYPE_ADDRESS], raw_copy, this->nodes_available);
+      device->on_jk_rs485_sniffer_data(address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS], data, this->nodes_available);
+      // device->on_jk_rs485_sniffer_data(address, raw_ptr[JKPB_RS485_FRAME_TYPE_ADDRESS], raw_copy, this->nodes_available);
 
       // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: on_jk_rs485_sniffer_data()--<");
 

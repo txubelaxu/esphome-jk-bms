@@ -778,9 +778,9 @@ void JkRS485Sniffer::loop() {
 
     ESP_LOGV(TAG, "JkRS485Sniffer::loop()-manage_rx_buffer_()-Response: %d:", response);
 
-    if (original_buffer_size == 0) {
-      ESP_LOGV(TAG, "JkRS485Sniffer::loop()-Buffer empty");
-    }
+    // if (original_buffer_size == 0) {
+    //   ESP_LOGV(TAG, "JkRS485Sniffer::loop()-Buffer empty");
+    // }
 
   } else {
     // NO RX DATA

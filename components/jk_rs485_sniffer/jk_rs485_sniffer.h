@@ -104,6 +104,8 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
 
 
   void printBuffer(uint16_t max_length);
+  void printBuffer_segmented(uint16_t max_length);
+
   uint8_t manage_rx_buffer_(void);
   void set_node_availability(uint8_t address,bool value);
   std::string nodes_available_to_string();

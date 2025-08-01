@@ -218,6 +218,10 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint32(std::uint8_t 
   frame[12] = ((computed_checksum & 0x00FF) >> 0);
 
   ESP_LOGD(TAG, "MESSAGE REQUEST TO SEND switch >>: %s", format_hex_pretty(frame, size).c_str());
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_uint32()-MESSAGE REQUEST TO SEND switch >>:");
+  printBuffer_segmented(frame, 0);         
+
+
   //  // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + size / sizeof(frame[0]));
 
@@ -262,6 +266,9 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16(std::uint8_t 
   frame[10] = ((computed_checksum & 0x00FF) >> 0);
 
   ESP_LOGD(TAG, "MESSAGE REQUEST TO SEND switch or number >>: %s", format_hex_pretty(frame, size).c_str());
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16()-MESSAGE REQUEST TO SEND switch or number: ");
+  printBuffer_segmented(frame, 0);
+
   //  // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + size / sizeof(frame[0]));
 
@@ -305,6 +312,9 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_int32(std::uint8_t s
   frame[12] = ((computed_checksum & 0x00FF) >> 0);
 
   ESP_LOGD(TAG, "MESSAGE REQUEST TO SEND switch or number >>: %s", format_hex_pretty(frame, size).c_str());
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_int32()-MESSAGE REQUEST TO SEND switch or number: ");
+  printBuffer_segmented(frame, 0); 
+
   //  // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + size / sizeof(frame[0]));
 
@@ -352,6 +362,9 @@ void JkRS485Sniffer::send_request_to_slave(uint8_t address, uint8_t frame_type) 
   frame[10] = ((computed_checksum & 0x00FF) >> 0);
 
   ESP_LOGV(TAG, "MESSAGE REQUEST TO SEND>>: %s", format_hex_pretty(frame, 11).c_str());
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_request_to_slave()-MESSAGE REQUEST TO SEND:");
+  printBuffer_segmented(frame, 0);   
+
   // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + sizeof(frame) / sizeof(frame[0]));
 
@@ -614,8 +627,7 @@ void JkRS485Sniffer::loop() {
               // all nodes are available now
               ESP_LOGD(TAG, "SCANNING TO DISCOVER...ALL NODES ARE AVAILABLE");
             } else {
-              ESP_LOGD(TAG, "SCANNING TO DISCOVER...0x%02X [%s]", found_index,
-                       this->nodes_available_to_string().c_str());
+              ESP_LOGD(TAG, "SCANNING TO DISCOVER...0x%02X [%s]", found_index, this->nodes_available_to_string().c_str());
               this->pooling_index.scan_address = found_index;
               this->send_request_to_slave(found_index, 2);
 
@@ -1039,11 +1051,10 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     // std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
     std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE);
 
-    printBuffer_segmented(data, 0);         
-
+    printBuffer_segmented(data, 0);
 
     ESP_LOGD(TAG, "Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
-    ESP_LOGVV(TAG, "data: %s", format_hex_pretty(&data.front(), data.size()).c_str());
+    // ESP_LOGVV(TAG, "data: %s", format_hex_pretty(&data.front(), data.size()).c_str());
 
     ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_: 1");
 

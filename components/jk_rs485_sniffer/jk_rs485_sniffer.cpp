@@ -728,6 +728,67 @@ void JkRS485Sniffer::printBuffer(uint16_t max_length) {
   ESP_LOGI("BUFFER", "(%d): %s", this->rx_buffer_.size(), bufferHex.c_str());
 }
 
+void JkRS485Sniffer::printBuffer_segmented(uint16_t max_length) {
+    // Definimos el ancho máximo de la línea de salida del HEX.
+    // Esto se refiere al número de bytes por línea para mayor claridad.
+    // 16 bytes por línea es un tamaño común y legible (32 caracteres hexadecimales + espacios).
+    const int BYTES_PER_LINE = 25; 
+
+    // Imprimimos la cabecera del log una vez
+    // Usamos ESP_LOGI o el nivel de log que consideres más apropiado (ESP_LOGV, ESP_LOGD, etc.)
+    ESP_LOGE(TAG, "Buffer size: %d", this->rx_buffer_.size());
+
+    // Variable para controlar cuántos bytes hemos procesado
+    size_t bytes_processed = 0;
+
+    // Iteramos sobre el buffer de bytes
+    for (size_t i = 0; i < this->rx_buffer_.size(); ++i) {
+        // Si se especificó un max_length y ya lo hemos alcanzado, salimos del bucle.
+        // Aquí max_length se interpreta como el número máximo de BYTES a imprimir.
+        if (max_length > 0 && bytes_processed >= max_length) {
+            break; 
+        }
+
+        // Si es el inicio de una nueva línea (o la primera línea)
+        if (i % BYTES_PER_LINE == 0) {
+            // Si no es la primera línea, terminamos la anterior antes de iniciar una nueva.
+            if (i != 0) {
+                // No necesitamos una línea de ESP_LOGI separada para la cadena, 
+                // ya que construiremos el sub_segment más adelante.
+            }
+            // Iniciamos una nueva línea de log con indentación
+            // El formato será "  XX YY ZZ..."
+            // La línea real de log se hará al final de cada segmento.
+        }
+
+        // Construimos la cadena hexadecimal para la línea actual.
+        // Esta cadena se construirá de forma incremental para cada segmento de línea.
+        // NOTA: Para no sobrecargar la memoria con una única string gigante,
+        // construiremos los subsegmentos directamente.
+
+        // Si es el inicio de un segmento (cada BYTES_PER_LINE bytes)
+        if (i % BYTES_PER_LINE == 0) {
+            // Preparamos el string para el nuevo segmento de línea
+            std::string current_line_hex;
+            current_line_hex.reserve(BYTES_PER_LINE * 3); // Aprox. 2 chars + espacio por byte
+
+            // Iteramos para construir la línea actual de HEX
+            for (int j = 0; j < BYTES_PER_LINE; ++j) {
+                if ((i + j) < this->rx_buffer_.size() && (max_length == 0 || (i + j) < max_length)) {
+                    char hexByte[4]; // 3 chars + null terminator (ej. "FF ")
+                    sprintf(hexByte, "%02X ", this->rx_buffer_[i + j]);
+                    current_line_hex += hexByte;
+                    bytes_processed++;
+                } else {
+                    break; // Salir si excedemos el tamaño del buffer o max_length
+                }
+            }
+            // Imprimimos la línea de HEX completa
+            ESP_LOGE(TAG, "  %s [%d bytes per line]", current_line_hex.c_str(), BYTES_PER_LINE );
+        }
+    }
+}
+
 void JkRS485Sniffer::detected_master_activity_now(void) {
   const uint32_t now = millis();
 

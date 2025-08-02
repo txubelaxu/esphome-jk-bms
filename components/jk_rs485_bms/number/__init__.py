@@ -1,5 +1,5 @@
 import esphome.codegen as cg
-from esphome.components import number
+from esphome.components import number, number_schema
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_ENTITY_CATEGORY,
@@ -211,7 +211,7 @@ NUMBERS = {
 
 JkRS485BmsNumber = jk_rs485_bms_ns.class_("JkRS485BmsNumber", number.Number, cg.Component)
 
-JK_RS485_NUMBER_SCHEMA = number.NUMBER_SCHEMA.extend(
+JK_RS485_NUMBER_SCHEMA = number_schema.extend(
     {
         cv.GenerateID(): cv.declare_id(JkRS485BmsNumber),
         cv.Optional(CONF_ICON, default=ICON_EMPTY): cv.icon,
@@ -349,12 +349,7 @@ CONFIG_SCHEMA = JK_RS485_BMS_COMPONENT_SCHEMA.extend(
                 cv.Optional(CONF_STEP, default=0.001): cv.float_,
                 cv.Optional(CONF_DEVICE_CLASS, default=DEVICE_CLASS_VOLTAGE):cv.string_strict,                  
             }
-        ),         
-
-
-
-
-
+        ),
         cv.Optional(CONF_MAX_CHARGING_CURRENT): JK_RS485_NUMBER_SCHEMA.extend(
             {
                 cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_AMPERE): cv.string_strict,
@@ -560,12 +555,6 @@ CONFIG_SCHEMA = JK_RS485_BMS_COMPONENT_SCHEMA.extend(
                 cv.Optional(CONF_STEP, default=0.1): cv.float_,
             }
         ),         
-
-
-
-
-
-
 
         cv.Optional(CONF_VOLTAGE_CALIBRATION): JK_RS485_NUMBER_SCHEMA.extend(
             {

@@ -1,5 +1,5 @@
 import esphome.codegen as cg
-from esphome.components import switch
+from esphome.components import switch, switch_schema
 import esphome.config_validation as cv
 from esphome.const import CONF_ICON, CONF_ID
 
@@ -55,43 +55,43 @@ JkRS485BmsSwitch = jk_rs485_bms_ns.class_("JkRS485BmsSwitch", switch.Switch, cg.
 
 CONFIG_SCHEMA = JK_RS485_BMS_COMPONENT_SCHEMA.extend(
     {
-        cv.Optional(CONF_PRECHARGING): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_PRECHARGING): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_CHARGING): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),
-        cv.Optional(CONF_CHARGING): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_CHARGING): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_CHARGING): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),
-        cv.Optional(CONF_DISCHARGING): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_DISCHARGING): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_DISCHARGING): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),
-         cv.Optional(CONF_BALANCING): switch.SWITCH_SCHEMA.extend(
+         cv.Optional(CONF_BALANCING): switch_schema.extend(
              {
                  cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                  cv.Optional(CONF_ICON, default=ICON_BALANCING): cv.icon,
              }
          ).extend(cv.COMPONENT_SCHEMA),
-        cv.Optional(CONF_EMERGENCY): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_EMERGENCY): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_EMERGENCY): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),  
-        cv.Optional(CONF_HEATING): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_HEATING): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_HEATING): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),   
-        cv.Optional(CONF_DISABLE_TEMPERATURE_SENSORS): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_DISABLE_TEMPERATURE_SENSORS): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(
@@ -99,49 +99,49 @@ CONFIG_SCHEMA = JK_RS485_BMS_COMPONENT_SCHEMA.extend(
                 ): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),                    
-         cv.Optional(CONF_DISPLAY_ALWAYS_ON): switch.SWITCH_SCHEMA.extend(
+         cv.Optional(CONF_DISPLAY_ALWAYS_ON): switch_schema.extend(
              {
                  cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                  cv.Optional(CONF_ICON, default=ICON_DISPLAY_ALWAYS_ON): cv.icon,
              }
          ).extend(cv.COMPONENT_SCHEMA),    
-        cv.Optional(CONF_SMART_SLEEP_ON): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_SMART_SLEEP_ON): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_SMART_SLEEP_ON): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),    
-        cv.Optional(CONF_TIMED_STORED_DATA): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_TIMED_STORED_DATA): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_TIMED_STORED_DATA): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),             
-        cv.Optional(CONF_CHARGING_FLOAT_MODE): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_CHARGING_FLOAT_MODE): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_CHARGING_FLOAT_MODE): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),  
-        cv.Optional(CONF_DISABLE_PCL_MODULE): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_DISABLE_PCL_MODULE): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_DISABLE_PCL_MODULE): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),    
-        cv.Optional(CONF_GPS_HEARTBEAT): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_GPS_HEARTBEAT): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_DISABLE_PCL_MODULE): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA),  
-        cv.Optional(CONF_PORT_SELECTION): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_PORT_SELECTION): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_DISABLE_PCL_MODULE): cv.icon,
             }
         ).extend(cv.COMPONENT_SCHEMA), 
-        cv.Optional(CONF_SPECIAL_CHARGER): switch.SWITCH_SCHEMA.extend(
+        cv.Optional(CONF_SPECIAL_CHARGER): switch_schema.extend(
             {
                 cv.GenerateID(): cv.declare_id(JkRS485BmsSwitch),
                 cv.Optional(CONF_ICON, default=ICON_DISABLE_PCL_MODULE): cv.icon,

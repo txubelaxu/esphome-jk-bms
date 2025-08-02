@@ -211,7 +211,7 @@ NUMBERS = {
 
 JkRS485BmsNumber = jk_rs485_bms_ns.class_("JkRS485BmsNumber", number.Number, cg.Component)
 
-JK_RS485_NUMBER_SCHEMA = number_schema.extend(
+JK_RS485_NUMBER_SCHEMA = number_schema(
     {
         cv.GenerateID(): cv.declare_id(JkRS485BmsNumber),
         cv.Optional(CONF_ICON, default=ICON_EMPTY): cv.icon,

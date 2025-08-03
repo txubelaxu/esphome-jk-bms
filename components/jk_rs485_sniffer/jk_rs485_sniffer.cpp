@@ -666,7 +666,8 @@ void JkRS485Sniffer::loop_old() {
           // NO MASTER HAS BEEN DETECTED IN THE NETWORK --> ESP WILL ACT AS MASTER
           this->act_as_master = true;
           this->set_node_availability(0, 0);
-          ESP_LOGI(TAG, "JkRS485Sniffer::loop()-NO JK MASTER DETECTED IN THE NETWORK. ESP WILL ACT AS MASTER");
+          ESP_LOGI(TAG, "NO JK MASTER DETECTED IN THE NETWORK. ESP WILL ACT AS MASTER");
+          ESP_LOGV(TAG, "JkRS485Sniffer::loop()-NO JK MASTER DETECTED IN THE NETWORK. ESP WILL ACT AS MASTER");
         }
       }
 
@@ -770,7 +771,8 @@ void JkRS485Sniffer::loop() {
       if (this->act_as_master == false) {
         ESP_LOGD(TAG, "JkRS485Sniffer::loop()-SILENCE: %f ms", (float) (now - this->last_jk_rs485_network_activity_));
       } else {
-        ESP_LOGI(TAG, "JkRS485Sniffer::loop()-SILENCE: %f ms", (float) (now - this->last_jk_rs485_network_activity_));
+        ESP_LOGI(TAG, "SILENCE: %f ms", (float) (now - this->last_jk_rs485_network_activity_));
+        ESP_LOGV(TAG, "JkRS485Sniffer::loop()-SILENCE: %f ms", (float) (now - this->last_jk_rs485_network_activity_));
       }
     }
 
@@ -805,7 +807,8 @@ void JkRS485Sniffer::loop() {
           // NO MASTER HAS BEEN DETECTED IN THE NETWORK --> ESP WILL ACT AS MASTER
           this->act_as_master = true;
           this->set_node_availability(0, 0);
-          ESP_LOGI(TAG, "JkRS485Sniffer::loop()-NO JK MASTER DETECTED IN THE NETWORK. ESP WILL ACT AS MASTER");
+          ESP_LOGI(TAG, "NO JK MASTER DETECTED IN THE NETWORK. ESP WILL ACT AS MASTER");
+          ESP_LOGV(TAG, "JkRS485Sniffer::loop()-NO JK MASTER DETECTED IN THE NETWORK. ESP WILL ACT AS MASTER");
         }
       }
 
@@ -926,7 +929,7 @@ void JkRS485Sniffer::set_node_availability(uint8_t address, bool value) {
     this->nodes_available = this->nodes_available_to_string();
 
     ESP_LOGI(TAG, "NODES AVAILABLE CHANGED: address 0x%02X (%d->%d) [%s] --> [%s]", address, previous_value, value, previous.c_str(), this->nodes_available.c_str());
-    ESP_LOGV(TAG, "NODES AVAILABLE CHANGED: address 0x%02X (%d->%d) [%s] --> [%s]", address, previous_value, value, previous.c_str(), this->nodes_available.c_str());
+    ESP_LOGV(TAG, "JkRS485Sniffer::set_node_availability()-NODES AVAILABLE CHANGED: address 0x%02X (%d->%d) [%s] --> [%s]", address, previous_value, value, previous.c_str(), this->nodes_available.c_str());
   }
 
   ESP_LOGVV(TAG, "JkRS485Sniffer::set_node_availability()--<");
@@ -1097,7 +1100,7 @@ void JkRS485Sniffer::detected_master_activity_now(void) {
     ESP_LOGI(TAG, "JK MASTER DETECTED IN THE NETWORK");
   }
   else{
-    ESP_LOGVV(TAG, "JkRS485Sniffer::detected_master_activity_now()-No master detected");
+    ESP_LOGV(TAG, "JkRS485Sniffer::detected_master_activity_now()-No master detected");
   }
   
   this->last_master_activity = now;
@@ -1137,8 +1140,6 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
         address = raw[0];
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - address 0x%02X (request)", address);        
-
-        // ESP_LOGI(TAG, "REAL master is speaking to address 0x%02X (short request)",address);
 
         // this->rs485_network_node[0].last_message_received=now;
         // this->detected_master_activity_now();
@@ -1197,8 +1198,8 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
         address = raw[0];
         
-        ESP_LOGI(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE - REAL master is speaking to address 0x%02X (request)", address);
-        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE - address 0x%02X (request)", address);        
+        ESP_LOGI(TAG, "REAL master is speaking to address 0x%02X (request)", address);
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE - REAL master is speaking to address  0x%02X (request)", address);        
 
         this->rs485_network_node[0].last_message_received = now;
         this->detected_master_activity_now();
@@ -1345,7 +1346,9 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
     printBuffer_segmented(data, 0);
 
+    ESP_LOGI(TAG, "Frame received from address: %02X type of information: 0x%02X)  ", address, raw[4]);
     ESP_LOGD(TAG, "Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
+    
     // ESP_LOGVV(TAG, "data: %s", format_hex_pretty(&data.front(), data.size()).c_str());
 
     ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);

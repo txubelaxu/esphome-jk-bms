@@ -105,31 +105,30 @@ void JkRS485Sniffer::handle_bms2sniffer_event(std::uint8_t slave_address, std::s
   ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-->");
 
 
-  ESP_LOGD(TAG, "Received Event from BMS.. [address:0x%02X] @ %d -->  %s", slave_address, frame_type, event.c_str());
+  ESP_LOGD(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-Received Event from BMS.. [address:0x%02X] @ %d -->  %s", slave_address, frame_type, event.c_str());
+
   const uint32_t now = millis();
 
   if (frame_type == 1) {
     this->rs485_network_node[slave_address].last_device_settings_request_received_OK = now;
     this->rs485_network_node[slave_address].counter_device_settings_received++;
-    ESP_LOGD(TAG, "updated last_device_settings_request_received_OK");
+    ESP_LOGD(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-updated last_device_settings_request_received_OK");
   } else if (frame_type == 2) {
     this->rs485_network_node[slave_address].last_cell_info_request_received_OK = now;
     this->rs485_network_node[slave_address].counter_cell_info_received++;
-    ESP_LOGD(TAG, "updated last_cell_info_request_received_OK");
+    ESP_LOGD(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-updated last_cell_info_request_received_OK");
   } else if (frame_type == 3) {
     this->rs485_network_node[slave_address].last_device_info_request_received_OK = now;
     this->rs485_network_node[slave_address].counter_device_info_received++;
-    ESP_LOGD(TAG, "updated last_device_info_request_received_OK");
+    ESP_LOGD(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-updated last_device_info_request_received_OK");
   } else {
+    ESP_LOGD(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-ELSE is empty");
   }
 
   this->last_jk_rs485_network_activity_ = now;
   if (this->act_as_master == true) {
     this->last_message_received_acting_as_master = now;
     ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-Acting as a master");
-  }
-  else{
-    ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()-Master BMS is present.");
   }
 
   ESP_LOGVV(TAG, "JkRS485Sniffer::handle_bms2sniffer_event()--<");
@@ -253,6 +252,11 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint32(std::uint8_t 
   frame[12] = ((computed_checksum & 0x00FF) >> 0);
 
   ESP_LOGD(TAG, "MESSAGE REQUEST TO SEND switch >>: %s", format_hex_pretty(frame, size).c_str());
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_uint32()-MESSAGE REQUEST TO SEND switch >>:");
+  size_t frame_size = sizeof(frame); 
+  this->printBuffer_segmented(frame, frame_size, 0);         
+
+
   //  // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + size / sizeof(frame[0]));
 
@@ -299,6 +303,10 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16(std::uint8_t 
   frame[10] = ((computed_checksum & 0x00FF) >> 0);
 
   ESP_LOGD(TAG, "MESSAGE REQUEST TO SEND switch or number >>: %s", format_hex_pretty(frame, size).c_str());
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16()-MESSAGE REQUEST TO SEND switch or number: ");
+  size_t frame_size = sizeof(frame); 
+  this->printBuffer_segmented(frame, frame_size, 0);
+
   //  // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + size / sizeof(frame[0]));
 
@@ -347,6 +355,10 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_int32(std::uint8_t s
   frame[12] = ((computed_checksum & 0x00FF) >> 0);
 
   ESP_LOGD(TAG, "MESSAGE REQUEST TO SEND switch or number >>: %s", format_hex_pretty(frame, size).c_str());
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_command_switch_or_number_to_slave_int32()-MESSAGE REQUEST TO SEND switch or number: ");
+  size_t frame_size = sizeof(frame); 
+  this->printBuffer_segmented(frame, frame_size, 0);
+
   //  // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + size / sizeof(frame[0]));
 
@@ -396,7 +408,11 @@ void JkRS485Sniffer::send_request_to_slave(uint8_t address, uint8_t frame_type) 
   frame[9] = ((computed_checksum & 0xFF00) >> 8);
   frame[10] = ((computed_checksum & 0x00FF) >> 0);
 
-  ESP_LOGV(TAG, "JkRS485Sniffer::send_request_to_slave()-MESSAGE REQUEST TO SEND>>: %s", format_hex_pretty(frame, 11).c_str());
+  ESP_LOGV(TAG, "MESSAGE REQUEST TO SEND>>: %s", format_hex_pretty(frame, 11).c_str());
+  ESP_LOGVV(TAG, "JkRS485Sniffer::send_request_to_slave()-MESSAGE REQUEST TO SEND:");
+  size_t frame_size = sizeof(frame); 
+  this->printBuffer_segmented(frame, frame_size, 0);
+ 
   // Enviar el array de bytes por UART
   std::vector<uint8_t> data_to_send(frame, frame + sizeof(frame) / sizeof(frame[0]));
 
@@ -606,35 +622,33 @@ void JkRS485Sniffer::loop_old() {
 
     // ESP_LOGD(TAG, "JkRS485Sniffer::loop()-..........................................");
 
-    do {
-      // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-Do.............");
-      cont_manage++;
-      ESP_LOGV(TAG, "JkRS485Sniffer::loop()-Buffer number %d:[%s]", cont_manage, format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
-      printBuffer_segmented(this->rx_buffer_.size());        
+    // do {
+    //   cont_manage++;
+    //   ESP_LOGV(TAG, "Buffer before number %d:    %s", cont_manage,
+    //            format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
+    //   response = this->manage_rx_buffer_();
+    //   ESP_LOGV(TAG, "Response:            %d:", response);
+    //   if (original_buffer_size == rx_buffer_.size()) {
+    //     changed = false;
+    //   } else {
+    //     changed = true;
+    //     original_buffer_size = this->rx_buffer_.size();
+    //   }
+    // } while (cont_manage < 5 && changed == true && original_buffer_size >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
 
-      ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-[buffer: %d bytes]",this->rx_buffer_.size());                        
+    // ESP_LOGD(TAG, "..........................................");
+    // ESP_LOGD(TAG, "changed is not TRUE or");
+    // ESP_LOGD(TAG, "cont_manage>=5 or ");
+    // ESP_LOGD(TAG, "original_buffer_size < JKPB_RS485_MASTER_SHORT_REQUEST_SIZE");
+    // ESP_LOGD(TAG, "..........................................");
+
+      printBuffer_segmented(this->rx_buffer_, 0);         
       
       response = this->manage_rx_buffer_();
+      ESP_LOGVV(TAG, "manage_rx_buffer_()-Response: %d:", response);
 
-      ESP_LOGV(TAG, "JkRS485Sniffer::loop()-manage_rx_buffer_()-Response:            %d:", response);
+      original_buffer_size = this->rx_buffer_.size();      
 
-      if (original_buffer_size == rx_buffer_.size()) {
-        changed = false;
-      } else {
-        changed = true;
-        original_buffer_size = this->rx_buffer_.size();
-      }
-
-      // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-While.............");
-
-    // } while (cont_manage < 5 && changed == true && original_buffer_size >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
-    } while (cont_manage < maxIterations && changed == true && original_buffer_size >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
-
-    // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-..........................................");
-    // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-changed is not TRUE = %d or", changed);
-    // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-cont_manage>=5 = %d or ", cont_manage);
-    // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-original_buffer_size ( %d ) < JKPB_RS485_MASTER_SHORT_REQUEST_SIZE ( %d ) < ", rx_buffer_.size(), JKPB_RS485_MASTER_SHORT_REQUEST_SIZE );
-    // ESP_LOGVV(TAG, "JkRS485Sniffer::loop()-do-exit-..........................................");
 
     if (original_buffer_size == 0) {
       ESP_LOGV(TAG, "JkRS485Sniffer::loop()-Buffer empty");
@@ -815,8 +829,7 @@ void JkRS485Sniffer::loop() {
               // all nodes are available now
               ESP_LOGD(TAG, "JkRS485Sniffer::loop()-SCANNING TO DISCOVER...ALL NODES ARE AVAILABLE");
             } else {
-              
-              ESP_LOGD(TAG, "JkRS485Sniffer::loop()-SCANNING TO DISCOVER...0x%02X [%s]", found_index,this->nodes_available_to_string().c_str());
+              ESP_LOGD(TAG, "SCANNING TO DISCOVER...0x%02X [%s]", found_index, this->nodes_available_to_string().c_str());
               
               this->pooling_index.scan_address = found_index;
               
@@ -996,6 +1009,82 @@ void JkRS485Sniffer::printBuffer_segmented(uint16_t max_length) {
     }
 }
 
+void JkRS485Sniffer::printBuffer_segmented(const std::vector<uint8_t>& buffer, uint16_t max_length) {
+    // Definimos el ancho máximo de la línea de salida.
+    const int BYTES_PER_LINE = 25; 
+
+    // Imprimimos la cabecera del log una vez
+    ESP_LOGVV(TAG, "Buffer size: %zu", buffer.size());
+
+    // Variable para controlar cuántos bytes hemos procesado
+    size_t bytes_processed = 0;
+
+    // Iteramos sobre el buffer de bytes
+    for (size_t i = 0; i < buffer.size(); ++i) {
+        // Si se especificó un max_length y ya lo hemos alcanzado, salimos del bucle.
+        if (max_length > 0 && bytes_processed >= max_length) {
+            break; 
+        }
+
+        // Si es el inicio de una nueva línea (o la primera línea)
+        if (i % BYTES_PER_LINE == 0) {
+            // Creamos un string para la línea actual de HEX
+            std::string current_line_hex;
+            current_line_hex.reserve(BYTES_PER_LINE * 3); // Aprox. 2 chars + espacio por byte
+
+            // Iteramos para construir la línea actual de HEX
+            for (int j = 0; j < BYTES_PER_LINE; ++j) {
+                // Verificamos si aún estamos dentro de los límites del buffer y de max_length.
+                if ((i + j) < buffer.size() && (max_length == 0 || (i + j) < max_length)) {
+                    // Usamos std::stringstream para una construcción de string más segura y eficiente
+                    char hexByte[4]; 
+                    sprintf(hexByte, "%02X ", buffer[i + j]);
+                    current_line_hex += hexByte;
+                    bytes_processed++;
+                } else {
+                    break; // Salir si excedemos el tamaño del buffer o max_length
+                }
+            }
+            // Imprimimos la línea de HEX completa
+            if (!current_line_hex.empty()) {
+                ESP_LOGVV(TAG, "    %s", current_line_hex.c_str());
+            }
+        }
+    }
+}
+
+// Sobrecarga 2: Para imprimir un array de tipo uint8_t
+void JkRS485Sniffer::printBuffer_segmented(const uint8_t* buffer, size_t buffer_size, uint16_t max_length) {
+    const int BYTES_PER_LINE = 25; 
+
+    ESP_LOGVV(TAG, "Array buffer size: %zu", buffer_size);
+
+    size_t bytes_processed = 0;
+
+    for (size_t i = 0; i < buffer_size; i += BYTES_PER_LINE) {
+        if (max_length > 0 && bytes_processed >= max_length) {
+            break; 
+        }
+
+        std::string current_line_hex;
+        current_line_hex.reserve(BYTES_PER_LINE * 3);
+
+        for (int j = 0; j < BYTES_PER_LINE; ++j) {
+            if ((i + j) < buffer_size && (max_length == 0 || (i + j) < max_length)) {
+                char hexByte[4]; 
+                sprintf(hexByte, "%02X ", buffer[i + j]);
+                current_line_hex += hexByte;
+                bytes_processed++;
+            } else {
+                break;
+            }
+        }
+        if (!current_line_hex.empty()) {
+            ESP_LOGVV(TAG, "    %s", current_line_hex.c_str());
+        }
+    }
+}
+
 
 void JkRS485Sniffer::detected_master_activity_now(void) {
   const uint32_t now = millis();
@@ -1023,22 +1112,14 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   
   const uint32_t now = millis();
 
-  // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-->");
+  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-->");
+  // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-address: %02X ", address);
 
-  // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-address: 0x%02X ", address);
-
-  /*
-  const size_t free_heap = heap_caps_get_largest_free_block(MALLOC_CAP_8BIT);
-  ESP_LOGV(TAG, "free_heap %f kBytes [buffer: %d bytes]",((float)free_heap/1024),this->rx_buffer_.size());
-  */
-
-  // ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[buffer: %d bytes]",this->rx_buffer_.size());
+  ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-[buffer: %d bytes]",this->rx_buffer_.size());
 
   if (this->rx_buffer_.size() >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE) {
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- this->rx_buffer_.size() [%d bytes] >= JKPB_RS485_MASTER_SHORT_REQUEST_SIZE: [%d bytes]",this->rx_buffer_.size(),JKPB_RS485_MASTER_SHORT_REQUEST_SIZE);
-
     auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
-
+    
     if (it == this->rx_buffer_.end()) {
       // Start sequence NOT FOUND (0x55AAEB90) --> maybe short response to a real master request?
       // no squence
@@ -1048,7 +1129,8 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
 
       if (computed_checksum != remote_checksum) {
-        ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE: CHECKSUM failed! 0x%04X != 0x%04X", computed_checksum, remote_checksum);
+        ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-CHECKSUM failed! 0x%04X != 0x%04X", computed_checksum, remote_checksum);
+
         // IT IS NOT A SHORT REQUEST OR THERE WAS A COMM. ERROR --> continue whith manage_rx_buffer code
       } else {
         ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE: CHECKSUM OK! 0x%04X == 0x%04X", computed_checksum, remote_checksum);
@@ -1062,14 +1144,14 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         // this->detected_master_activity_now();
 
         // this->set_node_availability(0,1);
-        std::vector<uint8_t> data(this->rx_buffer_.begin() + 0,
-                                  this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
-        ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE: Answer received for MASTER (type: SHORT REQUEST for address %02X, %d bytes)", address,
-                 data.size());
-        this->rx_buffer_.erase(this->rx_buffer_.begin(),
-                               this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
+        std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
+        ESP_LOGD(TAG, "JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-Answer received for MASTER (type: SHORT REQUEST for address %02X, %d bytes)", address, data.size());
+
+        this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_MASTER_SHORT_REQUEST_SIZE - 1);
+
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_SHORT_REQUEST_SIZE-Return 7 ??¿¿??¿");        
         // continue with next;
-        return (7);
+        return(7);
       }
     }
     else
@@ -1079,9 +1161,6 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
   }
 
   if (this->rx_buffer_.size() >= JKPB_RS485_MASTER_REQUEST_SIZE) {
-
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- this->rx_buffer_.size() [%d bytes] >= JKPB_RS485_MASTER_REQUEST_SIZE: [%d bytes]",this->rx_buffer_.size(),JKPB_RS485_MASTER_REQUEST_SIZE);
-
     auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
     bool try_with_master_request_size = false;
 
@@ -1111,7 +1190,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
 
       if (computed_checksum != remote_checksum) {
-        ESP_LOGV(TAG, "CHECKSUM failed! 0x%04X != 0x%04X", computed_checksum, remote_checksum);
+        ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-CHECKSUM failed! 0x%04X != 0x%04X", computed_checksum, remote_checksum);
         // NO, OR THERE WAS A COMM. ERROR
       } else {
         ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE -CHECKSUM OK! 0x%04X == 0x%04X", computed_checksum, remote_checksum);
@@ -1136,23 +1215,26 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
         this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_MASTER_REQUEST_SIZE);
 
-        ESP_LOGVV(TAG, "kRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE- buffer after ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());        
-        printBuffer_segmented(this->rx_buffer_.size());        
-
-
-        // continue with next;
-
-        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-Return 6 ??¿¿??¿");        
-        return (6);
+        if (this->rx_buffer_.size() < JKPB_RS485_MASTER_REQUEST_SIZE)
+        {
+          // continue with next;     
+          ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-Return 6 ??¿¿??¿");        
+          return(6);
+        }
+        else
+        {
+          ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-Buffer to long, continue with the frames.");           
+        }
       }
     }
   }
 
   if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- this->rx_buffer_.size() [%d bytes] >= JKPB_RS485_RESPONSE_SIZE: [%d bytes] and address: [0x%02X]",this->rx_buffer_.size(),JKPB_RS485_RESPONSE_SIZE,address);
-    // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE - address [0x%02X]", address);        
 
-    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE");
+    
+    auto it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(), pattern_response_header.begin(),pattern_response_header.end());
+
 
     if (it != this->rx_buffer_.end()) {
       // Sequence found, but where?
@@ -1177,13 +1259,16 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         // continue
         ESP_LOGD(TAG, "###############################Sequence found SIZE: %d", (this->rx_buffer_.size()));
       } else {
-        return (3);
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-Return 3 ??¿¿??¿");        
+        return(3);
       }
     } else {
-      return (4);
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-Return 4 ??¿¿??¿");        
+      return(4);
     }
   } else {
-    return (5);
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE-Return 5 ??¿¿??¿");        
+    return(5);
   }
 
   // Start sequence (0x55AAEB90) //55aaeb90 0105
@@ -1191,21 +1276,10 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- before JKPB_RS485_RESPONSE_SIZE 2 - address [0x%02X]", address);        
 
   if (this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE) {
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()- this->rx_buffer_.size() [%d bytes] >= JKPB_RS485_RESPONSE_SIZE 2: [%d bytes]",this->rx_buffer_.size(),JKPB_RS485_RESPONSE_SIZE);
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-this->rx_buffer_.size() >= JKPB_RS485_RESPONSE_SIZE 2");
 
-    std::vector<uint8_t> raw_copy;
-    raw_copy.assign(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE - 1);
-    const uint8_t *raw_ptr = raw_copy.data();      
-
-    uint8_t computed_checksum = chksum(raw_ptr, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
-    uint8_t remote_checksum = raw_ptr[JKPB_RS485_CHECKSUM_INDEX];
-
-    // uint8_t computed_checksum = chksum(raw, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
-    // uint8_t remote_checksum = raw[JKPB_RS485_CHECKSUM_INDEX];
-
-    //2025-07-27-rabbit: the address of the device of this frame is at the following positions.
-    // if frame type is 01 => 55.AA.EB.90.01 << the position of the address is: JKPB_RS485_FRAME_TYPE_ADDRESS_FOR_FRAME_TYPE_x01 + 6
-    // the rest of frame types 55.AA.EB.90.02 << or 55.AA.EB.90.03 << is at JKPB_RS485_ADDRESS_OF_RS485_ADDRESS position
+    uint8_t computed_checksum = chksum(raw, JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM);
+    uint8_t remote_checksum = raw[JKPB_RS485_CHECKSUM_INDEX];
 
     if (raw[JKPB_RS485_FRAME_TYPE_ADDRESS] == 1) {
       address = raw[JKPB_RS485_FRAME_TYPE_ADDRESS_FOR_FRAME_TYPE_x01 + 6];
@@ -1215,16 +1289,15 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
       ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: JKPB_RS485_ADDRESS_OF_RS485_ADDRESS - Frame type [%d] Position [%d]: [%d] equal to address [0x%02X]", raw[JKPB_RS485_FRAME_TYPE_ADDRESS], JKPB_RS485_ADDRESS_OF_RS485_ADDRESS, raw[JKPB_RS485_ADDRESS_OF_RS485_ADDRESS], address);
     }
 
-    // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: address 0x%02X (request)", address);        
-
-
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: (this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X ", this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
-    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2 - chksum() - Position in frame JKPB_RS485_CHECKSUM_INDEX = %d value 0x%04X ; JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM = %d value 0x%04X",JKPB_RS485_CHECKSUM_INDEX, raw[JKPB_RS485_CHECKSUM_INDEX] ,JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM,computed_checksum);
+    ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2-(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X ", this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
 
     if (computed_checksum != remote_checksum) {
-      ESP_LOGW(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: CHECKSUM failed! 0x%02X != 0x%02X", computed_checksum, remote_checksum);
-      
+
+      ESP_LOGW(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2-CHECKSUM failed! 0x%02X != 0x%02X", computed_checksum, remote_checksum);
+
       auto it_next = std::search(this->rx_buffer_.begin() + 1, this->rx_buffer_.end(), pattern_response_header.begin(), pattern_response_header.end());
+
+
       size_t index_next = std::distance(this->rx_buffer_.begin(), it_next);
 
       if (index_next > 0) {
@@ -1234,15 +1307,12 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         this->rx_buffer_.clear();
       }
 
-      // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Before return 10 - address [0x%02X]", address);        
-      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Return 10 ??¿¿??¿");
-      // return (10);
-      return (BUFFER_RESPONSE_FRAME_CHECKSUM_INCORRECT);
-      
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2-Return 10 ??¿¿??¿");        
+      return(10);
 
     } else {
-
-      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: CHECKSUM OK! 0x%02X == 0x%02X", computed_checksum, remote_checksum);
+      
+      ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2-CHECKSUM OK! 0x%02X == 0x%02X", computed_checksum, remote_checksum);
 
       this->rs485_network_node[address].last_message_received = now;
 
@@ -1252,17 +1322,15 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 
       } else if (address > 15) {
 
-        ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: (this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X | CHECKSUM is correct", this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);      
-        // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: (this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X | CHECKSUM is correct", this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
-
+        ESP_LOGV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2-(this->rx_buffer_.size():%03d) [address 0x%02X] Frame Type 0x%02X | CHECKSUM is correct",
+                 this->rx_buffer_.size(), address, raw[JKPB_RS485_FRAME_TYPE_ADDRESS]);
         // printBuffer(0);
 
         this->rx_buffer_.clear();
 
-        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Return 11 ??¿¿??¿");
+        ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2-Return 11 ??¿¿??¿");        
+        return(11);
 
-        // return (11);
-        return (BUFFER_RESPONSE_JK_BMS_ADDRESS_GREATER_15);        
 
       } else {
         // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: this->set_node_availability()--><[0x%02X]", address);
@@ -1271,9 +1339,14 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
       }
     }
 
-    // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Address before send to devices: [0x%02X]", address);
+    //Why get all the buffer?, lets get only the frame size.
+    // std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
+    std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE);
 
-    std::vector<uint8_t> data(this->rx_buffer_.begin() + 0, this->rx_buffer_.begin() + this->rx_buffer_.size() + 1);
+    printBuffer_segmented(data, 0);
+
+    ESP_LOGD(TAG, "Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
+    // ESP_LOGVV(TAG, "data: %s", format_hex_pretty(&data.front(), data.size()).c_str());
 
     ESP_LOGD(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_RESPONSE_SIZE 2: Frame received from SLAVE (type: 0x%02X, %d bytes) %02X address", raw[4], data.size(), address);
     // ESP_LOGVV(TAG, "[%s]", format_hex_pretty(&data.front(), data.size()).c_str());
@@ -1301,18 +1374,12 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     //    ESP_LOGD(TAG, "rx_buffer_.size=%02d",this->rx_buffer_.size());
   }
 
-  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-buffer before ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());  
-  printBuffer_segmented(this->rx_buffer_.size());        
-  
   this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + JKPB_RS485_RESPONSE_SIZE);
-  
-  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-buffer after ERASE: %s", format_hex_pretty(&this->rx_buffer_.front(), this->rx_buffer_.size()).c_str());
-  
-  printBuffer_segmented(this->rx_buffer_.size());
 
-  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-Return 12 ??¿¿??¿");
-  // ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()--<"); 
-  return (BUFFER_RESPONSE_FRAME_PROCESSED);
+  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()-JKPB_RS485_MASTER_REQUEST_SIZE-Return 12 ??¿¿??¿");        
+  ESP_LOGVV(TAG, "JkRS485Sniffer::manage_rx_buffer_()--<");  
+  return(12);
+
 }
 
 

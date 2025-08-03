@@ -124,10 +124,9 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
 
   void printBuffer(uint16_t max_length);
   void printBuffer_segmented(uint16_t max_length);
-
-  uint8_t manage_rx_buffer_initial(void); //original method from txubelatxu 
-  uint8_t manage_rx_buffer_20250727(void); //This is mess that i tried to improve.
-
+  void printBuffer_segmented(const std::vector<uint8_t>& buffer, uint16_t max_length);   
+  void printBuffer_segmented(const uint8_t* buffer, size_t buffer_size, uint16_t max_length);
+  
   uint8_t manage_rx_buffer_(void);
 
   void set_node_availability(uint8_t address,bool value);

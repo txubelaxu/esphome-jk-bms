@@ -1,6 +1,4 @@
-MAIN
-
-# esphome-jk-bms
+# ESPHOME-JK-BMS
 
 ![GitHub stars](https://img.shields.io/github/stars/rabbit3dcustom/esphome-jk-bms)
 ![GitHub forks](https://img.shields.io/github/forks/rabbit3dcustom/esphome-jk-bms)
@@ -8,9 +6,19 @@ MAIN
 
 [!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://coff.ee/rabbit3dcustom)
 
-## ESPHome components to monitor Jikong Battery Management Systems (JK-BMS) model PB 15.x via RS-485 with rs485 converter.
+## intro
+    ESPHome components to monitor Jikong Battery Management Systems (JK-BMS) model PB 15.x via RS-485 with rs485 converter.
+
+## Release versions
+
+
+- V1.0: https://github.com/rabbit3dcustom/esphome-jk-bms/releases/tag/v.1.0 - Clean non mandatory files.
+
 
 **NEW:** monitor your new JK-PBx BMSs via internal RS485 network using 1 only ESP. [Click here](https://github.com/rabbit3dcustom/esphome-jk-bms-documentation/tree/main/esphome-jk-bms-component/README.md) for more info. Home Assistant dashboards inside as well.
+
+
+
 
 **Last Change:** Added RCV Time and RFV Time as Read & Write
 

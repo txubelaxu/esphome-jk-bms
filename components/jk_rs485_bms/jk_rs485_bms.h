@@ -711,7 +711,6 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
 
   void decode_jk02_cell_info_(const std::vector<uint8_t> &data);
   void decode_jk02_settings_(const std::vector<uint8_t> &data);
-  void decode_jk04_cell_info_(const std::vector<uint8_t> &data);
   void decode_device_info_(const std::vector<uint8_t> &data);
 
   std::string error_bits_to_string_(uint32_t bitmask);

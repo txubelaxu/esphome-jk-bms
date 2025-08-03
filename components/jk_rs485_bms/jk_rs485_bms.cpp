@@ -726,14 +726,9 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
   // }
   // this->last_cell_info_ = now;
 
-  uint8_t frame_version = FRAME_VERSION_JK02_24S;
+  uint8_t frame_version = PROTOCOL_VERSION_JK02_32S;
 
-  uint8_t offset = 0;
-
-  if (this->protocol_version_ == PROTOCOL_VERSION_JK02_32S) {
-    frame_version = FRAME_VERSION_JK02_32S;
-    offset = 16;
-  }
+  uint8_t offset = 16;
 
   ESP_LOGD(TAG, "Decoding cell info frame.... [ADDRESS: %02X] %d bytes received", this->address_, data.size());
 

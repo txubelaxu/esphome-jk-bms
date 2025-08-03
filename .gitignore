@@ -29,7 +29,7 @@ __pycache__/
 *$py.class
 /.vs
 
-secrets.yaml
-test.yaml
+yml-mine/
 **/*.yml
-**/*.yaml
+secrets.yaml
+components/jk_rs485_sniffer/old_snif.cpp

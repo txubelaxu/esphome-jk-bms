@@ -20,6 +20,22 @@ enum ProtocolVersion {
   PROTOCOL_VERSION_JK02_32S,
 };
 
+enum BufferResponses {
+  BUFFER_RESPONSE_0,
+  BUFFER_RESPONSE_1,
+  BUFFER_RESPONSE_2,
+  BUFFER_RESPONSE_BUFFER_SIZE_LESS_THAN_RESPONSE_SIZE_AFTER_ERASE,
+  BUFFER_RESPONSE_4,
+  BUFFER_RESPONSE_BUFFER_SIZE_LESS_THAN_RESPONSE_SIZE,
+  BUFFER_RESPONSE_6,
+  BUFFER_RESPONSE_NO_START_SEQUENCE,
+  BUFFER_RESPONSE_8,
+  BUFFER_RESPONSE_9,
+  BUFFER_RESPONSE_FRAME_CHECKSUM_INCORRECT, //10,
+  BUFFER_RESPONSE_JK_BMS_ADDRESS_GREATER_15, //11
+  BUFFER_RESPONSE_FRAME_PROCESSED, //12
+};
+
 class JkRS485SnifferDevice;
 
 class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public Component {
@@ -75,7 +91,10 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
     nodes_available.push_back('\0');
   }
 
-  void loop() override;
+  
+  void loop_old();
+  
+  void loop() override;  
 
   void dump_config() override;
 
@@ -107,8 +126,9 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
   void printBuffer_segmented(uint16_t max_length);
   void printBuffer_segmented(const std::vector<uint8_t>& buffer, uint16_t max_length);   
   void printBuffer_segmented(const uint8_t* buffer, size_t buffer_size, uint16_t max_length);
-
+  
   uint8_t manage_rx_buffer_(void);
+
   void set_node_availability(uint8_t address,bool value);
   std::string nodes_available_to_string();
 

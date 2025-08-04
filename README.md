@@ -7,18 +7,29 @@
 [!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://coff.ee/rabbit3dcustom)
 
 ## intro
-    ESPHome components to monitor Jikong Battery Management Systems (JK-BMS) model PB 15.x via RS-485 with rs485 converter.
+
+ESPHome components to monitor Jikong Battery Management Systems (JK-BMS) model PB 15.x via RS-485 with rs485 converter.
+
+[Click here](https://github.com/rabbit3dcustom/esphome-jk-bms-documentation/tree/main/esphome-jk-bms-component/README.md) for more info.
 
 ## Release versions
-
 
 - V1.0: https://github.com/rabbit3dcustom/esphome-jk-bms/releases/tag/v.1.0 - Clean non mandatory files.
 
 
-**NEW:** monitor your new JK-PBx BMSs via internal RS485 network using 1 only ESP. [Click here](https://github.com/rabbit3dcustom/esphome-jk-bms-documentation/tree/main/esphome-jk-bms-component/README.md) for more info. Home Assistant dashboards inside as well.
+### Support
+
+If you want to tip me for this work, you can now buy me a coffee
+
+[!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://coff.ee/rabbit3dcustom)
 
 
+<details>
 
+<summary>Other related information</summary>
+
+## Other related
+**NEW:** monitor your new JK-PBx BMSs via internal RS485 network using 1 only ESP.  Home Assistant dashboards inside as well.
 
 **Last Change:** Added RCV Time and RFV Time as Read & Write
 
@@ -64,12 +75,6 @@ Updated: 0master_2slave example & 0master_7slave example
 
 Last: control your BMSs settings (Switches) "balancing", "charging" and "discharging" switches. New "broadcast mode" to easy switch on/off every BMS in the network.
 
-### Support
-
-If you want to tip me for this work, you can now buy me a coffee
-
-[!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://coff.ee/rabbit3dcustom)
-
 ## Old References
 
 (thanks to [@jblance and @jrventer]
@@ -83,3 +88,4 @@ If you want to tip me for this work, you can now buy me a coffee
 - https://github.com/sshoecraft/jktool
 - https://github.com/Louisvdw/dbus-serialbattery/blob/master/etc/dbus-serialbattery/jkbms.py
 - https://blog.ja-ke.tech/2020/02/07/ltt-power-bms-chinese-protocol.html
+</details>

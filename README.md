@@ -10,14 +10,21 @@
 
 ESPHome components to monitor Jikong Battery Management Systems (JK-BMS) model PB 15.x via RS-485 with rs485 converter.
 
-[Click here](https://github.com/rabbit3dcustom/esphome-jk-bms-documentation/tree/main/esphome-jk-bms-component/README.md) for more info.
+## Manual / Tutorial / How to start
+
+Everything you need is here!
+
+**[Click here](https://github.com/rabbit3dcustom/esphome-jk-bms-documentation/tree/main/esphome-jk-bms-component/README.md) for more info.**
 
 ## Release versions
 
-- V1.0: https://github.com/rabbit3dcustom/esphome-jk-bms/releases/tag/v.1.0 - Clean non mandatory files.
+- V1.0: https://github.com/rabbit3dcustom/esphome-jk-bms/releases/tag/v.1.0 
+    - Clean non mandatory files.
+    - Avoid downloading the home assistant dashboards into the ESP32 compilation
+    - Avoid downloading all the docs related to protocols
 
 
-### Support
+### Support me
 
 If you want to tip me for this work, you can now buy me a coffee
 
@@ -70,8 +77,6 @@ Control your BMSs settings (Numbers):
 - precharging_time_from_discharge
 
 Broadcast is possible with those settings too.
-
-Updated: 0master_2slave example & 0master_7slave example
 
 Last: control your BMSs settings (Switches) "balancing", "charging" and "discharging" switches. New "broadcast mode" to easy switch on/off every BMS in the network.
 

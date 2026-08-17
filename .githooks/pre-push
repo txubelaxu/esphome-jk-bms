@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Blocks a push if any commit being pushed contains secrets.yaml or a
+# real-looking password/key. This is the important safety net: it catches
+# secrets even if a commit was made without the pre-commit hook active
+# (different machine, --no-verify by mistake on the commit, an old commit
+# being merged in, etc.) - it's the last local checkpoint before the data
+# actually leaves the machine.
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+zero="0000000000000000000000000000000000000000"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue   # deleting a remote branch, nothing to check
+
+  if [ "$remote_sha" = "$zero" ]; then
+    # new branch on the remote: only check commits not already known locally
+    # from any other branch/remote (avoids re-scanning old, already-pushed history)
+    mapfile -t shas < <(git rev-list "$local_sha" --not --branches --remotes 2>/dev/null || echo "$local_sha")
+  else
+    mapfile -t shas < <(git rev-list "$remote_sha..$local_sha")
+  fi
+
+  [ "${#shas[@]}" -eq 0 ] && continue
+  bash "$here/secret_guard.sh" commits "${shas[@]}"
+done
+
+exit 0

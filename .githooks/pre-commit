@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Blocks a commit if secrets.yaml or a real-looking password/key is staged.
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+bash "$here/secret_guard.sh" diff

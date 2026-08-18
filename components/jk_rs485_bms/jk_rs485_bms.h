@@ -8,11 +8,6 @@
 #include "../jk_rs485_sniffer/jk_rs485_sniffer.h"
 //#include "esphome/core/component.h"
 
-float uint32_to_float(const uint8_t* byteArray);
-float int32_to_float(const uint8_t* byteArray);
-float uint16_to_float(const uint8_t *byteArray);
-float int16_to_float(const uint8_t *byteArray);
-
 namespace esphome {
 
 namespace jk_rs485_sniffer {
@@ -21,6 +16,15 @@ class JkRS485Sniffer;  // Declaración anticipada
 
 
 namespace jk_rs485_bms {
+
+// Was previously declared/defined at global scope (jk_rs485_bms.cpp), which
+// risked a symbol collision with any other ESPHome component that happens to
+// declare a same-named free function at global scope. Moved into this
+// namespace instead.
+float uint32_to_float(const uint8_t* byteArray);
+float int32_to_float(const uint8_t* byteArray);
+float uint16_to_float(const uint8_t *byteArray);
+float int16_to_float(const uint8_t *byteArray);
 
 class JkRS485BmsSwitch;  // Declaración anticipada de JkRS485BmsSwitch
 class JkRS485BmsNumber;  // Declaración anticipada de JkRS485BmsNumber
@@ -46,10 +50,6 @@ class JkRS485Bms : public PollingComponent, public jk_rs485_sniffer::JkRS485Snif
   JkRS485Bms() = default;
 
   virtual ~JkRS485Bms() = default; // Destructor por defecto
-
-
-  void JkRS485Bms_init(void);
-
 
   void set_sniffer_parent(jk_rs485_sniffer::JkRS485Sniffer *parent);
   

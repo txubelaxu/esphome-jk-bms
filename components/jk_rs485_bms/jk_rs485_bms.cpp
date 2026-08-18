@@ -1082,11 +1082,15 @@ void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
   temp_param_value=int32_to_float(&data[106])*0.1f;
   //ESP_LOGI(TAG, "  MOS OTP: %f °C", temp_param_value);
   this->publish_state_(this->mos_overtemperature_protection_number_, temp_param_value);
+  // powertube_temperature_protection_sensor_ is a read-only mirror of the same
+  // value (kept as a plain sensor, e.g. for HA history graphing) - see issue #51.
+  this->publish_state_(this->powertube_temperature_protection_sensor_, temp_param_value);
 
   // 110 [104]   4   0xBC 0x02 0x00 0x00    MOS OTP Recovery
   temp_param_value=int32_to_float(&data[110])*0.1f;
   //ESP_LOGI(TAG, "  MOS OTP recovery: %f °C", temp_param_value);
   this->publish_state_(this->mos_overtemperature_protection_recovery_number_, temp_param_value);
+  this->publish_state_(this->powertube_temperature_protection_recovery_sensor_, temp_param_value);
 
   // 114 [108]  4   0x0D 0x00 0x00 0x00    cell count settings
   temp_param_value=uint32_to_float(&data[114]);  

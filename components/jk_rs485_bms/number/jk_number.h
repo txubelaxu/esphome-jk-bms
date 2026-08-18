@@ -14,7 +14,6 @@ class JkRS485BmsNumber : public number::Number, public Component {
   // Constructor por defecto necesario para crear instancias sin argumentos
   JkRS485BmsNumber() = default;
 
-  explicit JkRS485BmsNumber(bool initial_state);
   virtual ~JkRS485BmsNumber() = default; // Destructor por defecto
 
 
@@ -32,15 +31,18 @@ class JkRS485BmsNumber : public number::Number, public Component {
  protected:
   void control(float value) override;
 
-  JkRS485Bms *parent_;
-  uint16_t register_address_;
-  uint8_t third_element_of_frame_;
-  uint8_t data_length_;
+  // Default member initializers so the no-arg constructor path used by the
+  // real Python codegen (number/__init__.py) is safe from construction,
+  // rather than relying on set_...() always being called before any use.
+  JkRS485Bms *parent_{nullptr};
+  uint16_t register_address_{0};
+  uint8_t third_element_of_frame_{0};
+  uint8_t data_length_{0};
   float factor_{1000.0f};
-  uint8_t type_;
+  uint8_t type_{0};
 
 
 };
 
-}  // namespace jk_bms_ble
+}  // namespace jk_rs485_bms
 }  // namespace esphome

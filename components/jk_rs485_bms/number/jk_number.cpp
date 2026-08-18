@@ -48,5 +48,5 @@ void JkRS485BmsNumber::control(float value) {
 
 }
 
-}  // namespace jk_bms_ble
+}  // namespace jk_rs485_bms
 }  // namespace esphome

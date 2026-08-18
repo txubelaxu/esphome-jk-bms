@@ -38,10 +38,19 @@ class JkRS485BmsSwitch : public switch_::Switch, public Component {
   
  protected:
 
-  JkRS485Bms *parent_;
-  uint16_t register_address_;
-  uint8_t third_element_of_frame_;
-  uint8_t data_length_;
+  // Default member initializers: the explicit JkRS485BmsSwitch(bool) ctor
+  // calls write_state() (which reads parent_/data_length_) from its own
+  // constructor body, before set_parent()/set_data_length() can ever run.
+  // Without these defaults that's a read of indeterminate memory - with
+  // them, write_state()'s existing `parent_ == nullptr` guard correctly
+  // short-circuits instead. Also protects the no-arg default constructor
+  // path used by the real Python codegen (switch/__init__.py), which relies
+  // on set_...() being called before any use, but wasn't previously
+  // guaranteed at the type level.
+  JkRS485Bms *parent_{nullptr};
+  uint16_t register_address_{0};
+  uint8_t third_element_of_frame_{0};
+  uint8_t data_length_{0};
 };
 
 

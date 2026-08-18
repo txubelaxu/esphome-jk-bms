@@ -252,10 +252,15 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint32(std::uint8_t 
 
   frame[0]  = slave_address ;                   // Slave Address
   frame[1]  = 0x10;                             // 
-  frame[2]  = third_element_of_frame;           // 
-  frame[3]  = (register_address & 0x00FF) >> 0;                 // Register address
-  frame[4]  = 0x00;                             // 
-  frame[5]  = 0x02;                             // 
+  frame[2]  = third_element_of_frame;           //
+  // Register address, big-endian (high byte first): matches the convention
+  // used by every other multi-byte field in this frame family (value below,
+  // checksum, crc16_c()'s own return). Previously only the low byte was
+  // sent and frame[4] was hardcoded to 0, silently dropping the high byte
+  // for any register_address > 0xFF (e.g. 0x010C, precharging time).
+  frame[3]  = (register_address & 0xFF00) >> 8;                 // Register address high byte
+  frame[4]  = (register_address & 0x00FF) >> 0;                 // Register address low byte
+  frame[5]  = 0x02;                             //
   frame[6]  = 4;                                // Length of data in number of Bytes
   frame[7]  = (value & 0xFF000000) >> 24;       // Data Byte 1
   frame[8]  = (value & 0x00FF0000) >> 16;       // Data Byte 2
@@ -292,10 +297,13 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16(std::uint8_t 
 
   frame[0]  = slave_address ;                   // Slave Address
   frame[1]  = 0x10;                             // 
-  frame[2]  = third_element_of_frame;                      // 
-  frame[3]  = register_address;                 // Register address
-  frame[4]  = 0x00;                             // 
-  frame[5]  = 0x01;                             // 
+  frame[2]  = third_element_of_frame;                      //
+  // Register address, big-endian - see send_command_switch_or_number_to_slave_uint32()
+  // for why (previously the high byte was silently dropped for
+  // register_address > 0xFF, e.g. 0x0104, cell request charge/float voltage time).
+  frame[3]  = (register_address & 0xFF00) >> 8; // Register address high byte
+  frame[4]  = (register_address & 0x00FF) >> 0; // Register address low byte
+  frame[5]  = 0x01;                             //
   frame[6]  = 2;                                // Length of data in number of Bytes
   frame[7]  = (value & 0xFF00) >> 8;            // Data Byte 1
   frame[8]  = (value & 0x00FF) >> 0;            // Data Byte 2
@@ -329,10 +337,11 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_int32(std::uint8_t s
 
   frame[0]  = slave_address ;                   // Slave Address
   frame[1]  = 0x10;                             // 
-  frame[2]  = third_element_of_frame;           // 
-  frame[3]  = register_address;                 // Register address
-  frame[4]  = 0x00;                             // 
-  frame[5]  = 0x02;                             // 
+  frame[2]  = third_element_of_frame;           //
+  // Register address, big-endian - see send_command_switch_or_number_to_slave_uint32().
+  frame[3]  = (register_address & 0xFF00) >> 8; // Register address high byte
+  frame[4]  = (register_address & 0x00FF) >> 0; // Register address low byte
+  frame[5]  = 0x02;                             //
   frame[6]  = 4;                                // Length of data in number of Bytes
   frame[7]  = (value & 0xFF000000) >> 24;       // Data Byte 1
   frame[8]  = (value & 0x00FF0000) >> 16;       // Data Byte 2

@@ -10,14 +10,6 @@ static const uint16_t JKPB_RS485_MASTER_SHORT_REQUEST_SIZE = 8;
 static const uint16_t JKPB_RS485_MASTER_REQUEST_SIZE = 11;
 static const uint16_t JKPB_RS485_RESPONSE_SIZE = 308;
 
-// Practical cap on rx_buffer_ growth. std::vector::max_size() (used here
-// previously) is the allocator/address-space limit, effectively unbounded
-// in practice - it never trips before the ESP32 runs out of heap. This is
-// a real ceiling: comfortably more than one full response frame plus
-// resync slack, but small enough to bound worst-case memory use if the
-// RS485 line feeds continuous noise that never forms a recognized frame.
-static const size_t RX_BUFFER_MAX_SIZE = 4 * JKPB_RS485_RESPONSE_SIZE;
-
 static const uint16_t JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM = 299;
 static const uint16_t JKPB_RS485_FRAME_TYPE_ADDRESS = 4;
 static const uint16_t JKPB_RS485_FRAME_TYPE_ADDRESS_FOR_FRAME_TYPE_x01 = 264;
@@ -768,17 +760,22 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     this->rx_buffer_.erase(this->rx_buffer_.begin(), this->rx_buffer_.begin() + count);
   };
 
-  auto find_preamble = [&]() {
-    return std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(),
-                       pattern_response_header.begin(), pattern_response_header.end());
-  };
+  // The preamble location is the same for all three try_parse_* lambdas
+  // below: none of them mutate rx_buffer_ unless they're about to return
+  // true, at which point manage_rx_buffer_() returns immediately without
+  // calling the others. So a single search here replaces what used to be
+  // up to 3 separate std::search() passes over the same buffer per call.
+  auto preamble_it = std::search(this->rx_buffer_.begin(), this->rx_buffer_.end(),
+                                  pattern_response_header.begin(), pattern_response_header.end());
+  const bool preamble_found = (preamble_it != this->rx_buffer_.end());
+  const size_t preamble_index =
+      preamble_found ? std::distance(this->rx_buffer_.begin(), preamble_it) : this->rx_buffer_.size();
 
   auto try_parse_short_request = [&]() -> bool {
     if (this->rx_buffer_.size() < short_size) {
       return false;
     }
-    auto it = find_preamble();
-    if (it != this->rx_buffer_.end()) {
+    if (preamble_found) {
       return false;
     }
 
@@ -805,16 +802,7 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
     if (this->rx_buffer_.size() < request_size) {
       return false;
     }
-    auto it = find_preamble();
-    bool try_with_master_request_size = false;
-    if (it == this->rx_buffer_.end()) {
-      try_with_master_request_size = true;
-    } else {
-      size_t index = std::distance(this->rx_buffer_.begin(), it);
-      if (index >= request_size) {
-        try_with_master_request_size = true;
-      }
-    }
+    const bool try_with_master_request_size = !preamble_found || (preamble_index >= request_size);
 
     if (!try_with_master_request_size) {
       return false;
@@ -846,11 +834,9 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
       return false;
     }
 
-    auto it = find_preamble();
-    if (it != this->rx_buffer_.end()) {
-      size_t index = std::distance(this->rx_buffer_.begin(), it);
-      if (index > 0) {
-        erase_prefix(index);
+    if (preamble_found) {
+      if (preamble_index > 0) {
+        erase_prefix(preamble_index);
         this->rx_preamble_drop_++;
         result = RX_RESYNC;
       }

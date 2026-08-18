@@ -63,11 +63,15 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
     pooling_index.scan_address=0x01;
 
     nodes_available_number=0;
-    nodes_available.reserve(17); 
+    nodes_available.reserve(17);
     for (uint8_t cont = 0; cont < 16; cont++) {
         nodes_available.push_back('0');
     }
     nodes_available.push_back('\0');
+
+    // Reserve upfront so filling rx_buffer_ at runtime doesn't repeatedly
+    // reallocate/copy as it grows towards its cap.
+    this->rx_buffer_.reserve(RX_BUFFER_MAX_SIZE);
   }
 
   void loop() override;
@@ -113,6 +117,15 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
   // anything was due.
   bool decide_next_frame_type(uint8_t node, uint32_t now);
   int found_next_node_to_discover(void);
+
+  // Practical cap on rx_buffer_ growth (see loop()). std::vector::max_size()
+  // is the allocator/address-space limit, effectively unbounded in practice,
+  // so it can't serve as a growth cap. This is a real ceiling: comfortably
+  // more than one full response frame (JKPB_RS485_RESPONSE_SIZE = 308 bytes,
+  // defined in the .cpp) plus resync slack, but small enough to bound
+  // worst-case memory use if the RS485 line feeds continuous noise that
+  // never forms a recognized frame.
+  static constexpr size_t RX_BUFFER_MAX_SIZE = 4 * 308;
 
   std::vector<uint8_t> rx_buffer_;
   uint16_t rx_timeout_{50};

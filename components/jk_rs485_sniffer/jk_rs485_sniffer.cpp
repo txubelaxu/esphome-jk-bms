@@ -10,6 +10,14 @@ static const uint16_t JKPB_RS485_MASTER_SHORT_REQUEST_SIZE = 8;
 static const uint16_t JKPB_RS485_MASTER_REQUEST_SIZE = 11;
 static const uint16_t JKPB_RS485_RESPONSE_SIZE = 308;
 
+// Practical cap on rx_buffer_ growth. std::vector::max_size() (used here
+// previously) is the allocator/address-space limit, effectively unbounded
+// in practice - it never trips before the ESP32 runs out of heap. This is
+// a real ceiling: comfortably more than one full response frame plus
+// resync slack, but small enough to bound worst-case memory use if the
+// RS485 line feeds continuous noise that never forms a recognized frame.
+static const size_t RX_BUFFER_MAX_SIZE = 4 * JKPB_RS485_RESPONSE_SIZE;
+
 static const uint16_t JKPB_RS485_NUMBER_OF_ELEMENTS_TO_COMPUTE_CHECKSUM = 299;
 static const uint16_t JKPB_RS485_FRAME_TYPE_ADDRESS = 4;
 static const uint16_t JKPB_RS485_FRAME_TYPE_ADDRESS_FOR_FRAME_TYPE_x01 = 264;
@@ -514,7 +522,7 @@ int JkRS485Sniffer::found_next_node_to_discover(void){
 void JkRS485Sniffer::loop() {
   uint32_t now = millis();
 
-  if (this->rx_buffer_.size()==this->rx_buffer_.max_size()){
+  if (this->rx_buffer_.size()>=RX_BUFFER_MAX_SIZE){
     ESP_LOGW(TAG, "### Buffer cleared buffer size: %d",this->rx_buffer_.size());
     this->rx_buffer_.clear();
   }
@@ -531,7 +539,7 @@ void JkRS485Sniffer::loop() {
 
     //bulk to Received data to "rx_buffer_"
     uint8_t byte;
-    while (this->available() && (this->rx_buffer_.size()<this->rx_buffer_.max_size())) {
+    while (this->available() && (this->rx_buffer_.size()<RX_BUFFER_MAX_SIZE)) {
       this->read_byte(&byte);
       this->rx_buffer_.push_back(byte);
     }
@@ -850,15 +858,17 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
         return true;
       }
     } else {
-      if (this->rx_buffer_.size() >= header_size) {
-        size_t keep = (header_size > 0) ? header_size - 1 : 0;
-        if (this->rx_buffer_.size() > keep) {
-          erase_prefix(this->rx_buffer_.size() - keep);
-        }
-        this->rx_preamble_drop_++;
-        ESP_LOGV(TAG, "No preamble found, dropping buffer (preamble_drop=%u)", this->rx_preamble_drop_);
-        result = RX_RESYNC;
+      // rx_buffer_.size() >= response_size >= header_size is already
+      // guaranteed by the check at the top of this lambda, so this always
+      // runs; keep the last (header_size - 1) bytes in case they're the
+      // start of a preamble split across UART reads.
+      size_t keep = (header_size > 0) ? header_size - 1 : 0;
+      if (this->rx_buffer_.size() > keep) {
+        erase_prefix(this->rx_buffer_.size() - keep);
       }
+      this->rx_preamble_drop_++;
+      ESP_LOGV(TAG, "No preamble found, dropping buffer (preamble_drop=%u)", this->rx_preamble_drop_);
+      result = RX_RESYNC;
       return true;
     }
 
@@ -876,14 +886,14 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
       this->rx_response_checksum_fail_++;
       ESP_LOGW(TAG, "CHECKSUM failed! 0x%02X != 0x%02X (resp_fail=%u)", computed_checksum,
                remote_checksum, this->rx_response_checksum_fail_);
+      // Search starts at begin()+1, so index_next is always >0 whether or
+      // not a next preamble is found (search miss -> index_next == size()).
+      // erase_prefix() already clears the buffer when count >= size(), so
+      // this single call covers both outcomes.
       auto it_next = std::search(this->rx_buffer_.begin() + 1, this->rx_buffer_.end(),
                                  pattern_response_header.begin(), pattern_response_header.end());
       size_t index_next = std::distance(this->rx_buffer_.begin(), it_next);
-      if (index_next > 0) {
-        erase_prefix(index_next);
-      } else {
-        this->rx_buffer_.clear();
-      }
+      erase_prefix(index_next);
       result = RX_CHECKSUM_FAIL;
       return true;
     }
@@ -952,6 +962,10 @@ uint8_t JkRS485Sniffer::manage_rx_buffer_(void) {
 void JkRS485Sniffer::dump_config() {
   ESP_LOGCONFIG(TAG, "JkRS485Sniffer:");
   ESP_LOGCONFIG(TAG, "  RX timeout: %d ms", this->rx_timeout_);
+  ESP_LOGCONFIG(TAG, "  RX frames OK: %u", this->rx_frames_ok_);
+  ESP_LOGCONFIG(TAG, "  RX preamble drops: %u", this->rx_preamble_drop_);
+  ESP_LOGCONFIG(TAG, "  RX checksum failures: short=%u request=%u response=%u",
+                this->rx_short_checksum_fail_, this->rx_request_checksum_fail_, this->rx_response_checksum_fail_);
 }
 float JkRS485Sniffer::get_setup_priority() const {
   // After UART bus

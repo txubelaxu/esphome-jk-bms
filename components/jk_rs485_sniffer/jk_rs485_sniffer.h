@@ -37,13 +37,10 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
 
     if (talk_pin_needed_){
       this->turn_off();
-      //this->talk_pin_->pin_mode(esphome::gpio::FLAG_OUTPUT);
       this->talk_pin_->setup();
-      //this->turn_on();
-      this->talk_pin_->digital_write(0); 
+      this->talk_pin_->digital_write(0);
     }
 
-  //
     for (uint8_t cont=0;cont<16;cont++){
         rs485_network_node[cont].available=0;
         rs485_network_node[cont].last_message_received=0;
@@ -110,6 +107,11 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
   void send_request_to_slave(uint8_t node_address, uint8_t frame_type);
   
   bool calculate_next_pooling(void);
+  // Shared by all three scan orders in calculate_next_pooling(): decides
+  // whether `node` is due for a request and, if so, sets pooling_index.frame_type
+  // (priority: device info > device settings > cell info). Returns whether
+  // anything was due.
+  bool decide_next_frame_type(uint8_t node, uint32_t now);
   int found_next_node_to_discover(void);
 
   std::vector<uint8_t> rx_buffer_;
@@ -133,7 +135,6 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
       this->talk_pin_->digital_write(state);
     }
   }
-  //void write_state(bool state) override { this->set_state(state); }
   GPIOPin *talk_pin_{nullptr};
   bool talk_pin_needed_{false};
 
@@ -165,14 +166,12 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
 class JkRS485SnifferDevice {
  public:
   void set_parent(JkRS485Sniffer *parent) { parent_ = parent; }
-//  void set_address(uint8_t address) { address_ = address; }
   virtual void on_jk_rs485_sniffer_data(const uint8_t &origin_address, const uint8_t &frame_type, const std::vector<uint8_t> &data, const std::string &nodes_available) = 0;
 
  protected:
   friend JkRS485Sniffer;
 
   JkRS485Sniffer *parent_{nullptr};
-  //uint8_t address_;
 };
 
 }  // namespace jk_rs485_sniffer

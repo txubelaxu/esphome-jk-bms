@@ -251,15 +251,16 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint32(std::uint8_t 
 
 
   frame[0]  = slave_address ;                   // Slave Address
-  frame[1]  = 0x10;                             // 
-  frame[2]  = third_element_of_frame;           //
-  // Register address, big-endian (high byte first): matches the convention
-  // used by every other multi-byte field in this frame family (value below,
-  // checksum, crc16_c()'s own return). Previously only the low byte was
-  // sent and frame[4] was hardcoded to 0, silently dropping the high byte
-  // for any register_address > 0xFF (e.g. 0x010C, precharging time).
-  frame[3]  = (register_address & 0xFF00) >> 8;                 // Register address high byte
-  frame[4]  = (register_address & 0x00FF) >> 0;                 // Register address low byte
+  frame[1]  = 0x10;                             //
+  frame[2]  = third_element_of_frame;           // High byte of the register's absolute Modbus
+                                                 // address (block_base + offset) - see register
+                                                 // map PDF. NOT an arbitrary "verb": e.g. offset
+                                                 // 0x010C in the 0x1000 block is absolute 0x110C,
+                                                 // so its third_element_of_frame must be 0x11.
+  frame[3]  = (register_address & 0x00FF) >> 0; // Low byte of the register's absolute address
+                                                 // (i.e. of block_base + offset - the high byte
+                                                 // already travels in third_element_of_frame above).
+  frame[4]  = 0x00;                             // Fixed filler, not part of the address.
   frame[5]  = 0x02;                             //
   frame[6]  = 4;                                // Length of data in number of Bytes
   frame[7]  = (value & 0xFF000000) >> 24;       // Data Byte 1
@@ -296,13 +297,11 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_uint16(std::uint8_t 
   //02.10.11.14.00.01.   02.  02.10.   B0.19
 
   frame[0]  = slave_address ;                   // Slave Address
-  frame[1]  = 0x10;                             // 
-  frame[2]  = third_element_of_frame;                      //
-  // Register address, big-endian - see send_command_switch_or_number_to_slave_uint32()
-  // for why (previously the high byte was silently dropped for
-  // register_address > 0xFF, e.g. 0x0104, cell request charge/float voltage time).
-  frame[3]  = (register_address & 0xFF00) >> 8; // Register address high byte
-  frame[4]  = (register_address & 0x00FF) >> 0; // Register address low byte
+  frame[1]  = 0x10;                             //
+  frame[2]  = third_element_of_frame;           // High byte of the register's absolute Modbus
+                                                 // address - see send_command_switch_or_number_to_slave_uint32().
+  frame[3]  = (register_address & 0x00FF) >> 0; // Low byte of the register's absolute address.
+  frame[4]  = 0x00;                             // Fixed filler, not part of the address.
   frame[5]  = 0x01;                             //
   frame[6]  = 2;                                // Length of data in number of Bytes
   frame[7]  = (value & 0xFF00) >> 8;            // Data Byte 1
@@ -336,11 +335,11 @@ void JkRS485Sniffer::send_command_switch_or_number_to_slave_int32(std::uint8_t s
   uint8_t size=0;
 
   frame[0]  = slave_address ;                   // Slave Address
-  frame[1]  = 0x10;                             // 
-  frame[2]  = third_element_of_frame;           //
-  // Register address, big-endian - see send_command_switch_or_number_to_slave_uint32().
-  frame[3]  = (register_address & 0xFF00) >> 8; // Register address high byte
-  frame[4]  = (register_address & 0x00FF) >> 0; // Register address low byte
+  frame[1]  = 0x10;                             //
+  frame[2]  = third_element_of_frame;           // High byte of the register's absolute Modbus
+                                                 // address - see send_command_switch_or_number_to_slave_uint32().
+  frame[3]  = (register_address & 0x00FF) >> 0; // Low byte of the register's absolute address.
+  frame[4]  = 0x00;                             // Fixed filler, not part of the address.
   frame[5]  = 0x02;                             //
   frame[6]  = 4;                                // Length of data in number of Bytes
   frame[7]  = (value & 0xFF000000) >> 24;       // Data Byte 1

@@ -192,7 +192,11 @@ NUMBERS = {
     #
     CONF_CELL_COUNT_SETTINGS:                               [0x006C, 0x10,   0x04,  0,  0],
     CONF_BATTERY_CAPACITY_TOTAL_SETTINGS:                   [0x007C, 0x10,   0x04,  3,  0],
-    CONF_PRECHARGING_TIME_FROM_DISCHARGE:                   [0x010C, 0x10,   0x04,  3,  0],   ############### TO VERIFY !!!
+    # Absolute Modbus address = 0x1000 (block base) + 0x010C = 0x110C, so the high
+    # byte (third_element_of_frame) must be 0x11, not 0x10 - confirmed against the
+    # manufacturer's register map (docs/register_map_1029228503.pdf), block 0x1000,
+    # offset 0x010C "TIMProdischarge".
+    CONF_PRECHARGING_TIME_FROM_DISCHARGE:                   [0x010C, 0x11,   0x04,  3,  0],
 
     CONF_CELL_REQUEST_CHARGE_VOLTAGE_TIME:                  [0x0104, 0x15,   0x02,  1,  0],
     CONF_CELL_REQUEST_FLOAT_VOLTAGE_TIME:                   [0x0104, 0x15,   0x02,  1,  0],

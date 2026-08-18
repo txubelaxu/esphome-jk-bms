@@ -124,10 +124,18 @@ class JkRS485Sniffer : public uart::UARTDevice, public output::TalkPin, public C
   uint32_t rx_frames_ok_{0};
   std::vector<JkRS485SnifferDevice *> devices_;  
 
-  void write_state(bool state) override { this->talk_pin_->digital_write(state); }
+  // talk_pin_ is only meaningful when talk_pin_needed_ is true (real codegen
+  // path always calls set_talk_pin_needed() before setup()/loop(), see
+  // __init__.py). Guarded here too so this stays safe even if something ever
+  // calls write_state() before that, or constructs this class outside codegen.
+  void write_state(bool state) override {
+    if (this->talk_pin_needed_ && this->talk_pin_ != nullptr) {
+      this->talk_pin_->digital_write(state);
+    }
+  }
   //void write_state(bool state) override { this->set_state(state); }
-  GPIOPin *talk_pin_;
-  bool talk_pin_needed_;
+  GPIOPin *talk_pin_{nullptr};
+  bool talk_pin_needed_{false};
 
   struct struct_rs485_network_node {
      bool available;
@@ -163,7 +171,7 @@ class JkRS485SnifferDevice {
  protected:
   friend JkRS485Sniffer;
 
-  JkRS485Sniffer *parent_;
+  JkRS485Sniffer *parent_{nullptr};
   //uint8_t address_;
 };
 

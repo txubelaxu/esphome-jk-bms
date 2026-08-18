@@ -717,6 +717,15 @@ std::string JkRS485Sniffer::nodes_available_to_string() {
 
 
 void JkRS485Sniffer::set_node_availability(uint8_t address,bool value){
+  // rs485_network_node[] only has 16 slots - see handle_bms2sniffer_event().
+  // All current call sites already pass a bounds-checked address; this guard
+  // is defense-in-depth so this function stays safe on its own, since it's
+  // the single place that writes rs485_network_node[address].available.
+  if (address > 15) {
+    ESP_LOGE(TAG, "address 0x%02X out of range (max 15), ignoring", address);
+    return;
+  }
+
   if (this->rs485_network_node[address].available==value){
     //no changes
   } else {

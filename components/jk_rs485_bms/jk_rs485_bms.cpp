@@ -414,6 +414,15 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
     offset = 16;
   }
 
+  // Highest field read below is data[226 + offset] (2 bytes) - reject short/malformed
+  // frames before indexing into them instead of relying solely on the sniffer's own
+  // framing to guarantee length.
+  const size_t min_len = 228 + offset;
+  if (data.size() < min_len) {
+    ESP_LOGW(TAG, "Cell info frame too short (%d bytes, need >= %d) - ignoring", data.size(), min_len);
+    return;
+  }
+
   ESP_LOGI(TAG, "Decoding cell info frame.... [ADDRESS: %02X] %d bytes received", this->address_, data.size());
   //ESP_LOGVV(TAG, "  %s", format_hex_pretty(&data.front(), 150).c_str());
   //ESP_LOGVV(TAG, "  %s", format_hex_pretty(&data.front() + 150, data.size() - 150).c_str());
@@ -916,6 +925,14 @@ void JkRS485Bms::decode_jk02_cell_info_(const std::vector<uint8_t> &data) {
 
 void JkRS485Bms::decode_jk02_settings_(const std::vector<uint8_t> &data) {
 
+  // Highest field read below is data[286] (1 byte) - reject short/malformed frames
+  // before indexing into them instead of relying solely on the sniffer's own framing
+  // to guarantee length.
+  const size_t min_len = 287;
+  if (data.size() < min_len) {
+    ESP_LOGW(TAG, "Settings frame too short (%d bytes, need >= %d) - ignoring", data.size(), min_len);
+    return;
+  }
 
   ESP_LOGI(TAG, "Decoding settings  frame.... [ADDRESS: %02X] %d bytes received", this->address_, data.size());
   //ESP_LOGVV(TAG, "  %s", format_hex_pretty(&data.front(), 160).c_str());
@@ -1288,6 +1305,15 @@ void JkRS485Bms::update() { this->track_status_online_(); }
 
 void JkRS485Bms::decode_device_info_(const std::vector<uint8_t> &data) {
 
+  // Highest field read below is data[267] (1 byte) - reject short/malformed frames
+  // before indexing into them. This also protects the format_hex_pretty() calls just
+  // below, where `data.size() - 160` would underflow (data.size() is unsigned) on a
+  // frame shorter than 160 bytes and pass a huge length into the formatter.
+  const size_t min_len = 268;
+  if (data.size() < min_len) {
+    ESP_LOGW(TAG, "Device info frame too short (%d bytes, need >= %d) - ignoring", data.size(), min_len);
+    return;
+  }
 
   ESP_LOGI(TAG, "Device info frame (%d bytes) received", data.size());
   ESP_LOGVV(TAG, "  %s", format_hex_pretty(&data.front(), 160).c_str());

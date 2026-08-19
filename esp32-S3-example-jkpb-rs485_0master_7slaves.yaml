@@ -88,7 +88,10 @@ ota:
 api:
 
 logger:
-  level: DEBUG #VERBOSE #DEBUG #INFO #VERY_VERBOSE #VERBOSE #DEBUG #INFO #DEBUG
+  # NOTE: keep this at INFO (or higher) in a multi-BMS RS485 setup. DEBUG-level
+  # UART logging adds enough delay to desync the master/slave polling and
+  # slave devices silently stop being read - see issue #55.
+  level: INFO #DEBUG #VERBOSE #INFO #VERY_VERBOSE #VERBOSE #DEBUG #INFO #DEBUG
   tx_buffer_size: 2048
 
 # If you use Home Assistant please remove this `mqtt` section and uncomment the `api` component!
